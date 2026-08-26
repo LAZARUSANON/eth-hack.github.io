@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ethical Hacking &amp; Penetration Testing — 50 Fill-in-the-Blank Quiz</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --accent: #38bdf8;
+    --accent2: #22c55e;
+    --wrong: #ef4444;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --border: #334155;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.55;
+    min-height: 100vh;
+  }
+  .header {
+    background: linear-gradient(135deg, #0c4a6e, #1e3a5f);
+    padding: 1.5rem 1rem;
+    text-align: center;
+    border-bottom: 3px solid var(--accent);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header h1 {
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: #fff;
+  }
+  .header p { color: var(--muted); font-size: 0.9rem; margin-top: 0.35rem; }
+  .progress-bar-wrap {
+    max-width: 900px;
+    margin: 0.75rem auto 0;
+    background: #1e293b;
+    border-radius: 999px;
+    height: 10px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+  .stats {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-top: 0.6rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  .stats span strong { color: var(--accent); }
+  .container {
+    max-width: 900px;
+    margin: 1.5rem auto;
+    padding: 0 1rem 3rem;
+  }
+  .module-tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.2rem 0.55rem;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+  }
+  .m1 { background: #7c3aed33; color: #a78bfa; }
+  .m2 { background: #0369a133; color: #38bdf8; }
+  .m3 { background: #15803d33; color: #4ade80; }
+  .m4 { background: #b4530933; color: #fbbf24; }
+  .m5 { background: #be123c33; color: #fb7185; }
+  .m6 { background: #0e749033; color: #2dd4bf; }
+  .question-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1.4rem;
+    margin-bottom: 1rem;
+    transition: border-color 0.2s;
+  }
+  .question-card.correct { border-color: var(--accent2); }
+  .question-card.incorrect { border-color: var(--wrong); }
+  .q-num {
+    font-weight: 700;
+    color: var(--accent);
+    margin-right: 0.4rem;
+  }
+  .q-text { font-size: 1rem; margin-bottom: 0.85rem; }
+  .q-text .blank {
+    display: inline-block;
+    min-width: 140px;
+    border-bottom: 2px dashed var(--accent);
+    color: var(--accent);
+    font-weight: 600;
+    padding: 0 0.25rem;
+  }
+  .answer-row {
+    display: flex;
+    gap: 0.6rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  input[type="text"] {
+    flex: 1;
+    min-width: 180px;
+    background: #0f172a;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.55rem 0.85rem;
+    color: var(--text);
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input[type="text"]:focus { border-color: var(--accent); }
+  input[type="text"].marked-correct {
+    border-color: var(--accent2);
+    background: #14532d33;
+  }
+  input[type="text"].marked-incorrect {
+    border-color: var(--wrong);
+    background: #7f1d1d33;
+  }
+  .btn {
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    padding: 0.55rem 1.1rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: transform 0.15s, opacity 0.15s;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-check {
+    background: var(--accent);
+    color: #0f172a;
+  }
+  .btn-check:hover { opacity: 0.9; }
+  .feedback {
+    margin-top: 0.55rem;
+    font-size: 0.88rem;
+    min-height: 1.3em;
+  }
+  .feedback.ok { color: var(--accent2); }
+  .feedback.bad { color: var(--wrong); }
+  .footer-actions {
+    position: sticky;
+    bottom: 0;
+    background: #0f172add;
+    backdrop-filter: blur(8px);
+    border-top: 1px solid var(--border);
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    z-index: 50;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #0ea5e9);
+    color: #0f172a;
+    font-size: 1rem;
+    padding: 0.7rem 1.6rem;
+  }
+  .btn-secondary {
+    background: var(--border);
+    color: var(--text);
+  }
+  .score-panel {
+    display: none;
+    max-width: 900px;
+    margin: 1.5rem auto;
+    padding: 1.5rem;
+    background: var(--card);
+    border: 2px solid var(--accent);
+    border-radius: 14px;
+    text-align: center;
+  }
+  .score-panel.visible { display: block; }
+  .score-panel h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+  .score-big {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1.1;
+  }
+  .score-detail { color: var(--muted); margin-top: 0.4rem; }
+  .module-breakdown {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 0.6rem;
+    margin-top: 1.2rem;
+  }
+  .mod-box {
+    background: #0f172a;
+    border-radius: 8px;
+    padding: 0.6rem;
+    font-size: 0.8rem;
+  }
+  .mod-box strong { display: block; font-size: 1.1rem; color: var(--accent); }
+  .hint {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 0.35rem;
+  }
+  @media (max-width: 600px) {
+    .header h1 { font-size: 1.15rem; }
+    .answer-row { flex-direction: column; align-items: stretch; }
+  }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Ethical Hacking &amp; Penetration Testing — 50 Fill-in Quiz</h1>
+  <p>Modules 1–6 · Instant marking · Type your answer then click Check or press Enter</p>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
+  <div class="stats">
+    <span>Answered: <strong id="answeredCount">0</strong> / 50</span>
+    <span>Correct: <strong id="correctCount">0</strong></span>
+    <span>Score: <strong id="liveScore">0%</strong></span>
+  </div>
+</div>
+
+<div class="score-panel" id="scorePanel">
+  <h2>Quiz Complete</h2>
+  <div class="score-big" id="finalScore">0%</div>
+  <div class="score-detail" id="finalDetail"></div>
+  <div class="module-breakdown" id="moduleBreakdown"></div>
+</div>
+
+<div class="container" id="quizContainer"></div>
+
+<div class="footer-actions">
+  <button class="btn btn-primary" onclick="checkAll()">Mark All Answers Instantly</button>
+  <button class="btn btn-secondary" onclick="resetQuiz()">Reset Quiz</button>
+  <button class="btn btn-secondary" onclick="showUnanswered()">Jump to Unanswered</button>
+</div>
+
+<script>
+const questions = [
+  // ===== MODULE 1 (9 questions) =====
+  {
+    module: 1,
+    tag: "Module 1 · Intro to Ethical Hacking",
+    text: "An _____ is a person who acts as an attacker to evaluate the security posture of a network or system, identifies weaknesses, and reports findings to help make the system more secure.",
+    answers: ["ethical hacker", "ethical hackers"],
+    hint: "Opposite of a malicious attacker"
+  },
+  {
+    module: 1,
+    tag: "Module 1 · Intro to Ethical Hacking",
+    text: "The key factor that distinguishes ethical from nonethical hacking is the absence of _____ intent.",
+    answers: ["malicious", "malicious intent"],
+    hint: "The intent behind the attack"
+  },
+  {
+    module: 1,
+    tag: "Module 1 · Intro to Ethical Hacking",
+    text: "The permission to attack during a penetration test is often referred to as “the _____” of the test.",
+    answers: ["scope"],
+    hint: "What you are allowed and not allowed to test"
+  },
+  {
+    module: 1,
+    tag: "Module 1 · Intro to Ethical Hacking",
+    text: "_____ crime groups are well-funded, motivated threat actors that typically monetize attacks such as ransomware or data theft.",
+    answers: ["organized", "organised", "organized crime", "organised crime"],
+    hint: "Goes where the money is"
+  },
+  {
+    module: 1,
+    tag: "Module 1 · Intro to Ethical Hacking",
+    text: "_____ are threat actors motivated by ideology rather than money; they often steal and leak sensitive data to embarrass a target.",
+    answers: ["hacktivists", "hacktivist"],
+    hint: "Hacker + activist"
+  },
+  {
+    module: 1,
+    tag: "Module 1 · Intro to Ethical Hacking",
+    text: "An unknown-environment test (previously known as _____-box testing) provides the tester with only limited information such as domain names and IP addresses.",
+    answers: ["black", "black-box", "black box"],
+    hint: "Color associated with zero prior knowledge"
+  },
+  {
+    module: 1,
+    tag: "Module 1 · Intro to Ethical Hacking",
+    text: "The _____ ATT&CK framework is a collection of matrices of adversary tactics, techniques, and procedures (TTPs) used by both offensive and defensive teams.",
+    answers: ["mitre", "MITRE"],
+    hint: "Well-known cyber threat knowledge base"
+  },
+  {
+    module: 1,
+    tag: "Module 1 · Intro to Ethical Hacking",
+    text: "_____ is a comprehensive guide focused on web application testing that provides attack vectors for XSS, XXE, CSRF, and SQL injection.",
+    answers: ["owasp wstg", "owasp web security testing guide", "wstg", "owasp"],
+    hint: "OWASP’s detailed web testing document"
+  },
+  {
+    module: 1,
+    tag: "Module 1 · Intro to Ethical Hacking",
+    text: "A typical penetration testing lab should use a _____ network so that attack traffic does not leave the physical host system.",
+    answers: ["closed", "host-only", "isolated", "closed network"],
+    hint: "Restricted access; no internet egress"
+  },
+
+  // ===== MODULE 2 (8 questions) =====
+  {
+    module: 2,
+    tag: "Module 2 · Planning & Scoping",
+    text: "_____ is one of the leading causes of failed pen testing engagements and occurs when a project grows beyond its original goals without proper approval.",
+    answers: ["scope creep", "scope-creep"],
+    hint: "Uncontrolled growth of project boundaries"
+  },
+  {
+    module: 2,
+    tag: "Module 2 · Planning & Scoping",
+    text: "_____ DSS aims to secure the processing of credit card and digital payments and applies to any organization that processes, stores, or transmits cardholder data.",
+    answers: ["pci", "pci dss", "PCI DSS"],
+    hint: "Payment Card Industry standard"
+  },
+  {
+    module: 2,
+    tag: "Module 2 · Planning & Scoping",
+    text: "Under GDPR, organizations must notify authorities of a personal data breach within _____ hours.",
+    answers: ["72", "seventy-two", "72-hour", "72 hours"],
+    hint: "A specific number of hours"
+  },
+  {
+    module: 2,
+    tag: "Module 2 · Planning & Scoping",
+    text: "A _____ of Engagement (ROE) document outlines the specific guidelines, protocols, and limitations that govern how a penetration test will be conducted.",
+    answers: ["rules", "rule"],
+    hint: "ROE abbreviation"
+  },
+  {
+    module: 2,
+    tag: "Module 2 · Planning & Scoping",
+    text: "Organizations needing PCI DSS compliance should implement a data isolation (network _____) strategy to isolate the cardholder data environment (CDE).",
+    answers: ["segmentation", "isolation", "segment"],
+    hint: "Separating networks to prevent lateral movement"
+  },
+  {
+    module: 2,
+    tag: "Module 2 · Planning & Scoping",
+    text: "Formerly called white-box testing, a _____-environment test provides the tester with significant information such as network diagrams, credentials, and possibly source code.",
+    answers: ["known", "known-environment", "known environment"],
+    hint: "Opposite of unknown-environment"
+  },
+  {
+    module: 2,
+    tag: "Module 2 · Planning & Scoping",
+    text: "Penetration testing is a _____-in-time assessment — a snapshot of security at a specific moment, not a guarantee of ongoing security.",
+    answers: ["point", "point-in-time", "point in time"],
+    hint: "Not continuous monitoring"
+  },
+  {
+    module: 2,
+    tag: "Module 2 · Planning & Scoping",
+    text: "When additional work outside the original Statement of Work is requested, always obtain a new signed _____ before beginning that work.",
+    answers: ["sow", "statement of work", "SOW"],
+    hint: "Formal document authorizing extra scope"
+  },
+
+  // ===== MODULE 3 (9 questions) =====
+  {
+    module: 3,
+    tag: "Module 3 · Reconnaissance",
+    text: "_____ reconnaissance involves tools that send probes directly to the target network or system, making detection by firewalls or IDS more likely.",
+    answers: ["active"],
+    hint: "Opposite of passive"
+  },
+  {
+    module: 3,
+    tag: "Module 3 · Reconnaissance",
+    text: "_____ reconnaissance gathers information without interacting directly with the target, using third-party databases or traffic observation.",
+    answers: ["passive"],
+    hint: "Leaves no footprint on the target"
+  },
+  {
+    module: 3,
+    tag: "Module 3 · Reconnaissance",
+    text: "Nmap’s _____ scan (half-open) sends a TCP SYN packet and never completes the three-way handshake.",
+    answers: ["syn", "SYN", "-sS"],
+    hint: "Also called half-open scanning"
+  },
+  {
+    module: 3,
+    tag: "Module 3 · Reconnaissance",
+    text: "In Nmap, a port that returns a TCP SYN-ACK is considered _____.",
+    answers: ["open"],
+    hint: "Service is actively listening"
+  },
+  {
+    module: 3,
+    tag: "Module 3 · Reconnaissance",
+    text: "The Nmap timing template _____ (Paranoid) is designed for IDS evasion and sends only one probe at a time.",
+    answers: ["-t0", "t0", "T0", "-T0"],
+    hint: "Slowest timing option"
+  },
+  {
+    module: 3,
+    tag: "Module 3 · Reconnaissance",
+    text: "_____ is the collection and analysis of publicly available information about a target that requires no covert methods.",
+    answers: ["osint", "OSINT", "open-source intelligence", "open source intelligence"],
+    hint: "Open-source intelligence acronym"
+  },
+  {
+    module: 3,
+    tag: "Module 3 · Reconnaissance",
+    text: "_____ continuously scans the entire Internet and stores results in a searchable database useful for finding exposed IoT devices and industrial systems.",
+    answers: ["shodan", "Shodan"],
+    hint: "Popular Internet-of-Things search engine"
+  },
+  {
+    module: 3,
+    tag: "Module 3 · Reconnaissance",
+    text: "_____ is taking a security patch from a newer software version and applying it to an older version without changing the reported version number.",
+    answers: ["backporting", "backport"],
+    hint: "Can cause false positives in vulnerability scanners"
+  },
+  {
+    module: 3,
+    tag: "Module 3 · Reconnaissance",
+    text: "CVSS scores of 9–10 are classified as _____ severity.",
+    answers: ["critical"],
+    hint: "Highest severity band"
+  },
+
+  // ===== MODULE 4 (8 questions) =====
+  {
+    module: 4,
+    tag: "Module 4 · Social Engineering",
+    text: "_____ is the act of gaining knowledge or information from people without directly asking for that particular information.",
+    answers: ["elicitation"],
+    hint: "Information obtained through natural conversation"
+  },
+  {
+    module: 4,
+    tag: "Module 4 · Social Engineering",
+    text: "With _____ (also called impersonation), an attacker presents as someone else to gain access to information or systems.",
+    answers: ["pretexting", "pretext"],
+    hint: "Creating a false identity or story"
+  },
+  {
+    module: 4,
+    tag: "Module 4 · Social Engineering",
+    text: "_____ is a highly targeted phishing attack aimed at specific individuals or organisations, often using researched personal details.",
+    answers: ["spear phishing", "spear-phishing", "spearphishing"],
+    hint: "More targeted than generic email phishing"
+  },
+  {
+    module: 4,
+    tag: "Module 4 · Social Engineering",
+    text: "_____ is phishing specifically targeting high-profile executives such as CEOs, CFOs, and board members.",
+    answers: ["whaling", "whale phishing"],
+    hint: "Named after large marine mammals"
+  },
+  {
+    module: 4,
+    tag: "Module 4 · Social Engineering",
+    text: "_____ (voice phishing) is a social engineering attack conducted over a phone call, often using caller ID spoofing.",
+    answers: ["vishing"],
+    hint: "Voice + phishing"
+  },
+  {
+    module: 4,
+    tag: "Module 4 · Social Engineering",
+    text: "In a research study, approximately _____% of dropped USB drives were picked up by someone.",
+    answers: ["98", "98%"],
+    hint: "Nearly all of them"
+  },
+  {
+    module: 4,
+    tag: "Module 4 · Social Engineering",
+    text: "The Social-Engineer Toolkit (SET) was developed by _____ Kennedy.",
+    answers: ["david", "dave", "David Kennedy", "Dave Kennedy"],
+    hint: "TrustedSec founder"
+  },
+  {
+    module: 4,
+    tag: "Module 4 · Social Engineering",
+    text: "An access control _____ (also called a mantrap) is a small enclosed space with two doors used to prevent tailgating.",
+    answers: ["vestibule", "vestibule (mantrap)", "mantrap"],
+    hint: "Physical security control at entry points"
+  },
+
+  // ===== MODULE 5 (8 questions) =====
+  {
+    module: 5,
+    tag: "Module 5 · Network Vulnerabilities",
+    text: "_____ (MS17-010) is a catastrophic SMB exploit that was used in the WannaCry and NotPetya ransomware attacks.",
+    answers: ["eternalblue", "EternalBlue", "eternal blue"],
+    hint: "Leaked by the Shadow Brokers"
+  },
+  {
+    module: 5,
+    tag: "Module 5 · Network Vulnerabilities",
+    text: "In an LLMNR/NBT-NS poisoning attack, the victim’s username and _____ hash are sent to the attacker.",
+    answers: ["ntlmv2", "NTLMv2", "ntlm", "NTLM"],
+    hint: "Windows authentication hash type"
+  },
+  {
+    module: 5,
+    tag: "Module 5 · Network Vulnerabilities",
+    text: "_____ is the most popular tool for LLMNR/NBT-NS poisoning that intercepts authentication hashes automatically.",
+    answers: ["responder", "Responder"],
+    hint: "Listens and answers name resolution requests"
+  },
+  {
+    module: 5,
+    tag: "Module 5 · Network Vulnerabilities",
+    text: "In a _____-the-hash attack, the attacker captures a password hash and uses it directly to authenticate to another system without knowing the plaintext password.",
+    answers: ["pass", "pass-the-hash", "pass the hash", "pth"],
+    hint: "Bypasses the need for the actual password"
+  },
+  {
+    module: 5,
+    tag: "Module 5 · Network Vulnerabilities",
+    text: "A Kerberos _____ Ticket attack allows an attacker who obtains the KRBTGT hash to forge any ticket and access any resource in the domain.",
+    answers: ["golden", "Golden"],
+    hint: "Domain-wide forged ticket"
+  },
+  {
+    module: 5,
+    tag: "Module 5 · Network Vulnerabilities",
+    text: "_____ is a post-exploitation technique that extracts service account credential hashes from Active Directory for offline cracking without needing domain admin rights.",
+    answers: ["kerberoasting", "Kerberoasting", "kerberoast"],
+    hint: "Targets service tickets"
+  },
+  {
+    module: 5,
+    tag: "Module 5 · Network Vulnerabilities",
+    text: "In a VLAN hopping _____ tagging attack, the attacker adds two 802.1Q tags so the first switch strips only the outer tag and forwards the frame into the victim VLAN.",
+    answers: ["double", "double-tagging", "double tagging"],
+    hint: "Two layers of VLAN tags"
+  },
+  {
+    module: 5,
+    tag: "Module 5 · Network Vulnerabilities",
+    text: "An _____ Twin attack creates a rogue access point configured identically (same SSID and security settings) to a legitimate wireless network.",
+    answers: ["evil", "Evil"],
+    hint: "Identical-looking malicious AP"
+  },
+
+  // ===== MODULE 6 (8 questions) =====
+  {
+    module: 6,
+    tag: "Module 6 · Application Vulnerabilities",
+    text: "HTTP is a _____ protocol — each request/response transaction is independent with no memory of prior interactions.",
+    answers: ["stateless"],
+    hint: "Opposite of stateful"
+  },
+  {
+    module: 6,
+    tag: "Module 6 · Application Vulnerabilities",
+    text: "Session IDs must be at least _____ bits (16 bytes) to resist brute-force attacks.",
+    answers: ["128", "128-bit"],
+    hint: "Minimum recommended length"
+  },
+  {
+    module: 6,
+    tag: "Module 6 · Application Vulnerabilities",
+    text: "The _____ cookie flag prevents client-side JavaScript from accessing the session cookie, protecting against XSS-based session theft.",
+    answers: ["httponly", "HttpOnly", "HTTPOnly"],
+    hint: "Cookie attribute related to script access"
+  },
+  {
+    module: 6,
+    tag: "Module 6 · Application Vulnerabilities",
+    text: "_____ injection allows an attacker to view, insert, delete, or modify database records by injecting partial or complete queries via input fields or URL parameters.",
+    answers: ["sql", "SQL", "sqli", "SQL injection"],
+    hint: "CWE-89"
+  },
+  {
+    module: 6,
+    tag: "Module 6 · Application Vulnerabilities",
+    text: "In _____ (persistent) XSS, the malicious script is permanently stored in the application’s database and executed for every user who views the infected content.",
+    answers: ["stored", "Stored", "persistent"],
+    hint: "Opposite of reflected XSS"
+  },
+  {
+    module: 6,
+    tag: "Module 6 · Application Vulnerabilities",
+    text: "_____ (Insecure Direct Object Reference) occurs when an application grants direct access to objects based on user-supplied input without server-side authorisation checks.",
+    answers: ["idor", "IDOR"],
+    hint: "Changing an ID parameter to access another user’s data"
+  },
+  {
+    module: 6,
+    tag: "Module 6 · Application Vulnerabilities",
+    text: "_____ attacks transmit unauthorised commands from a user’s browser to a web application that trusts them, exploiting the browser’s automatic inclusion of authentication cookies.",
+    answers: ["csrf", "CSRF", "xsrf", "XSRF", "cross-site request forgery"],
+    hint: "Also called session riding or one-click attack"
+  },
+  {
+    module: 6,
+    tag: "Module 6 · Application Vulnerabilities",
+    text: "The best defence against SQL injection is _____ queries (prepared statements) so that user input is treated only as data and never as executable SQL code.",
+    answers: ["parameterised", "parameterized", "parameterized queries", "parameterised queries", "prepared", "prepared statements"],
+    hint: "User input bound as data, not concatenated"
+  }
+];
+
+// Normalize answer for comparison
+function normalize(s) {
+  return s.trim().toLowerCase().replace(/[-_]/g, ' ').replace(/\s+/g, ' ');
+}
+
+function isCorrect(userAns, accepted) {
+  const u = normalize(userAns);
+  if (!u) return false;
+  return accepted.some(a => {
+    const n = normalize(a);
+    return u === n || u.includes(n) || n.includes(u);
+  });
+}
+
+const state = questions.map(() => ({ answered: false, correct: false }));
+
+function renderQuiz() {
+  const container = document.getElementById('quizContainer');
+  container.innerHTML = '';
+  questions.forEach((q, i) => {
+    const card = document.createElement('div');
+    card.className = 'question-card';
+    card.id = `q${i}`;
+    card.innerHTML = `
+      <span class="module-tag m${q.module}">${q.tag}</span>
+      <div class="q-text"><span class="q-num">${i + 1}.</span>${q.text.replace('_____', '<span class="blank">_____</span>')}</div>
+      <div class="answer-row">
+        <input type="text" id="ans${i}" placeholder="Type your answer…" autocomplete="off"
+               onkeydown="if(event.key==='Enter'){checkOne(${i});}">
+        <button class="btn btn-check" onclick="checkOne(${i})">Check</button>
+      </div>
+      <div class="hint">Hint: ${q.hint}</div>
+      <div class="feedback" id="fb${i}"></div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function checkOne(i) {
+  const input = document.getElementById(`ans${i}`);
+  const fb = document.getElementById(`fb${i}`);
+  const card = document.getElementById(`q${i}`);
+  const user = input.value;
+  const ok = isCorrect(user, questions[i].answers);
+
+  state[i].answered = true;
+  state[i].correct = ok;
+
+  input.classList.remove('marked-correct', 'marked-incorrect');
+  card.classList.remove('correct', 'incorrect');
+
+  if (!user.trim()) {
+    fb.textContent = 'Please enter an answer.';
+    fb.className = 'feedback bad';
+    state[i].answered = false;
+    updateStats();
+    return;
+  }
+
+  if (ok) {
+    input.classList.add('marked-correct');
+    card.classList.add('correct');
+    fb.textContent = '✓ Correct!';
+    fb.className = 'feedback ok';
+  } else {
+    input.classList.add('marked-incorrect');
+    card.classList.add('incorrect');
+    const show = questions[i].answers[0];
+    fb.textContent = `✗ Incorrect. Accepted answer: ${show}`;
+    fb.className = 'feedback bad';
+  }
+  updateStats();
+}
+
+function checkAll() {
+  questions.forEach((_, i) => checkOne(i));
+  showFinalScore();
+  document.getElementById('scorePanel').scrollIntoView({ behavior: 'smooth' });
+}
+
+function updateStats() {
+  const answered = state.filter(s => s.answered).length;
+  const correct = state.filter(s => s.correct).length;
+  document.getElementById('answeredCount').textContent = answered;
+  document.getElementById('correctCount').textContent = correct;
+  const pct = answered ? Math.round((correct / answered) * 100) : 0;
+  document.getElementById('liveScore').textContent = pct + '%';
+  document.getElementById('progressBar').style.width = (answered / 50 * 100) + '%';
+
+  if (answered === 50) showFinalScore();
+}
+
+function showFinalScore() {
+  const correct = state.filter(s => s.correct).length;
+  const pct = Math.round((correct / 50) * 100);
+  document.getElementById('finalScore').textContent = pct + '%';
+  document.getElementById('finalDetail').textContent =
+    `${correct} out of 50 correct`;
+
+  // Module breakdown
+  const mods = {};
+  questions.forEach((q, i) => {
+    if (!mods[q.module]) mods[q.module] = { total: 0, correct: 0 };
+    mods[q.module].total++;
+    if (state[i].correct) mods[q.module].correct++;
+  });
+  const br = document.getElementById('moduleBreakdown');
+  br.innerHTML = '';
+  for (let m = 1; m <= 6; m++) {
+    const d = mods[m];
+    const box = document.createElement('div');
+    box.className = 'mod-box';
+    box.innerHTML = `<strong>${d.correct}/${d.total}</strong>Module ${m}`;
+    br.appendChild(box);
+  }
+  document.getElementById('scorePanel').classList.add('visible');
+}
+
+function resetQuiz() {
+  state.forEach(s => { s.answered = false; s.correct = false; });
+  questions.forEach((_, i) => {
+    const input = document.getElementById(`ans${i}`);
+    const fb = document.getElementById(`fb${i}`);
+    const card = document.getElementById(`q${i}`);
+    input.value = '';
+    input.classList.remove('marked-correct', 'marked-incorrect');
+    card.classList.remove('correct', 'incorrect');
+    fb.textContent = '';
+    fb.className = 'feedback';
+  });
+  document.getElementById('scorePanel').classList.remove('visible');
+  updateStats();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showUnanswered() {
+  for (let i = 0; i < state.length; i++) {
+    if (!state[i].answered) {
+      document.getElementById(`q${i}`).scrollIntoView({ behavior: 'smooth', block: 'center' });
+      document.getElementById(`ans${i}`).focus();
+      return;
+    }
+  }
+  alert('All questions have been answered!');
+}
+
+renderQuiz();
+updateStats();
+</script>
+</body>
+</html>
