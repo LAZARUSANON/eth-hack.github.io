@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1.4.3 Quiz – Introduction to Ethical Hacking and Penetration Testing</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --accent: #38bdf8;
+    --accent2: #22c55e;
+    --wrong: #ef4444;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --border: #334155;
+    --hover: #33415588;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.55;
+    min-height: 100vh;
+  }
+  .header {
+    background: linear-gradient(135deg, #0c4a6e, #1e3a5f);
+    padding: 1.4rem 1rem;
+    text-align: center;
+    border-bottom: 3px solid var(--accent);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header h1 { font-size: 1.25rem; font-weight: 700; color: #fff; }
+  .header p { color: var(--muted); font-size: 0.85rem; margin-top: 0.3rem; }
+  .progress-bar-wrap {
+    max-width: 900px;
+    margin: 0.7rem auto 0;
+    background: #1e293b;
+    border-radius: 999px;
+    height: 10px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    width: 0%;
+    transition: width 0.35s ease;
+  }
+  .stats {
+    display: flex;
+    justify-content: center;
+    gap: 1.4rem;
+    margin-top: 0.55rem;
+    font-size: 0.84rem;
+    color: var(--muted);
+    flex-wrap: wrap;
+  }
+  .stats span strong { color: var(--accent); }
+  .container {
+    max-width: 900px;
+    margin: 1.4rem auto;
+    padding: 0 1rem 5rem;
+  }
+  .question-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.2rem 1.35rem;
+    margin-bottom: 1rem;
+    transition: border-color 0.2s;
+  }
+  .question-card.correct { border-color: var(--accent2); }
+  .question-card.incorrect { border-color: var(--wrong); }
+  .q-num { font-weight: 700; color: var(--accent); margin-right: 0.35rem; }
+  .q-text { font-size: 1rem; margin-bottom: 0.9rem; }
+  .options { display: flex; flex-direction: column; gap: 0.45rem; }
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    padding: 0.65rem 0.9rem;
+    background: #0f172a;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    font-size: 0.93rem;
+  }
+  .option:hover:not(.disabled) { background: var(--hover); border-color: var(--accent); }
+  .option.selected { border-color: var(--accent); background: #0c4a6e44; }
+  .option.correct-opt { border-color: var(--accent2); background: #14532d44; }
+  .option.wrong-opt { border-color: var(--wrong); background: #7f1d1d44; }
+  .option.disabled { cursor: default; opacity: 0.9; }
+  .option input { margin-top: 0.2rem; accent-color: var(--accent); flex-shrink: 0; }
+  .opt-label { flex: 1; }
+  .feedback {
+    margin-top: 0.6rem;
+    font-size: 0.88rem;
+    min-height: 1.25em;
+    font-weight: 500;
+  }
+  .feedback.ok { color: var(--accent2); }
+  .feedback.bad { color: var(--wrong); }
+  .multi-hint {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+    font-style: italic;
+  }
+  .footer-actions {
+    position: sticky;
+    bottom: 0;
+    background: #0f172add;
+    backdrop-filter: blur(8px);
+    border-top: 1px solid var(--border);
+    padding: 0.9rem 1rem;
+    display: flex;
+    justify-content: center;
+    gap: 0.85rem;
+    flex-wrap: wrap;
+    z-index: 50;
+  }
+  .btn {
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    padding: 0.6rem 1.25rem;
+    font-size: 0.92rem;
+    font-weight: 600;
+    transition: transform 0.12s, opacity 0.15s;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #0ea5e9);
+    color: #0f172a;
+    font-size: 1rem;
+    padding: 0.7rem 1.5rem;
+  }
+  .btn-secondary { background: var(--border); color: var(--text); }
+  .score-panel {
+    display: none;
+    max-width: 900px;
+    margin: 1.4rem auto;
+    padding: 1.5rem;
+    background: var(--card);
+    border: 2px solid var(--accent);
+    border-radius: 14px;
+    text-align: center;
+  }
+  .score-panel.visible { display: block; }
+  .score-panel h2 { font-size: 1.4rem; margin-bottom: 0.4rem; }
+  .score-big { font-size: 2.8rem; font-weight: 800; color: var(--accent); line-height: 1.1; }
+  .score-detail { color: var(--muted); margin-top: 0.35rem; }
+  .match-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+  }
+  .match-table th, .match-table td {
+    border: 1px solid var(--border);
+    padding: 0.5rem 0.7rem;
+    text-align: left;
+  }
+  .match-table th { background: #0f172a; color: var(--accent); }
+  .match-select {
+    width: 100%;
+    padding: 0.4rem;
+    background: #0f172a;
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.88rem;
+  }
+  @media (max-width: 600px) {
+    .header h1 { font-size: 1.05rem; }
+    .option { padding: 0.55rem 0.7rem; }
+  }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>1.4.3 Quiz – Introduction to Ethical Hacking and Penetration Testing</h1>
+  <p>Select an answer → marked instantly · 25 questions</p>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
+  <div class="stats">
+    <span>Answered: <strong id="answeredCount">0</strong> / 25</span>
+    <span>Correct: <strong id="correctCount">0</strong></span>
+    <span>Score: <strong id="liveScore">0%</strong></span>
+  </div>
+</div>
+
+<div class="score-panel" id="scorePanel">
+  <h2>Quiz Complete</h2>
+  <div class="score-big" id="finalScore">0%</div>
+  <div class="score-detail" id="finalDetail"></div>
+</div>
+
+<div class="container" id="quizContainer"></div>
+
+<div class="footer-actions">
+  <button class="btn btn-primary" onclick="checkAll()">Mark All Instantly</button>
+  <button class="btn btn-secondary" onclick="resetQuiz()">Reset Quiz</button>
+  <button class="btn btn-secondary" onclick="showUnanswered()">Jump to Unanswered</button>
+</div>
+
+<script>
+const questions = [
+  {
+    type: "single",
+    text: "Which statement best describes the term ethical hacker?",
+    options: [
+      "a person who uses different tools than nonethical hackers to find vulnerabilities and exploit targets",
+      "a person that is financially motivated to find vulnerabilities and exploit targets",
+      "a person that is looking to make a point or to promote what they believe",
+      "a person who mimics an attacker to evaluate the security posture of a network"
+    ],
+    correct: [3]
+  },
+  {
+    type: "single",
+    text: "Which threat actor term describes a well-funded and motivated group that will use the latest attack techniques for financial gain?",
+    options: [
+      "hacktivist",
+      "state-sponsored attacker",
+      "organized crime",
+      "insider threat"
+    ],
+    correct: [2]
+  },
+  {
+    type: "single",
+    text: "Which type of threat actor uses cybercrime to steal sensitive data and reveal it publicly to embarrass a target?",
+    options: [
+      "organized crime",
+      "hacktivist",
+      "insider threat",
+      "state-sponsored attacker"
+    ],
+    correct: [1]
+  },
+  {
+    type: "single",
+    text: "What is a state-sponsored attack?",
+    options: [
+      "An attack perpetrated by a well-funded and motivated group that will typically use the latest attack techniques for financial gain.",
+      "An attack perpetrated by governments worldwide to disrupt or steal information from other nations.",
+      "An attack perpetrated by disgruntled employees inside an organization.",
+      "An attack is perpetrated to steal sensitive data and then reveal it to the public to embarrass or financially affect a target."
+    ],
+    correct: [1]
+  },
+  {
+    type: "single",
+    text: "What is an insider threat attack?",
+    options: [
+      "An attack perpetrated by a well-funded and motivated group that will typically use the latest attack techniques for financial gain.",
+      "An attack perpetrated by governments worldwide to disrupt or steal information from other nations.",
+      "An attack perpetrated by disgruntled employees inside an organization.",
+      "An attack is perpetrated to steal sensitive data and then reveal it to the public to embarrass or financially affect a target."
+    ],
+    correct: [2]
+  },
+  {
+    type: "single",
+    text: "What kind of security weakness is evaluated by application-based penetration tests?",
+    options: [
+      "firewall security",
+      "logic flaws",
+      "wireless deployment",
+      "data integrity between a client and a cloud provider"
+    ],
+    correct: [1]
+  },
+  {
+    type: "multi",
+    text: "What two resources are evaluated by a network infrastructure penetration test? (Choose two.)",
+    options: [
+      "AAA servers",
+      "CSPs",
+      "web servers",
+      "IPSs",
+      "back-end databases"
+    ],
+    correct: [0, 3]
+  },
+  {
+    type: "single",
+    text: "When conducting an application-based penetration test on a web application, the assessment should also include testing access to which resources?",
+    options: [
+      "AAA servers",
+      "cloud services",
+      "switches, routers, and firewalls",
+      "back-end databases"
+    ],
+    correct: [3]
+  },
+  {
+    type: "single",
+    text: "What is the purpose of bug bounty programs used by companies?",
+    options: [
+      "reward security professionals for finding vulnerabilities in the systems of the company",
+      "reward security professionals for discovering malicious activities by attackers in the systems of the company",
+      "reward security professionals for fixing vulnerabilities in the systems of the company",
+      "reward security professionals for breaking into a corporate facility to expose weaknesses in the physical perimeter"
+    ],
+    correct: [0]
+  },
+  {
+    type: "single",
+    text: "What characterizes a partially known environment penetration test?",
+    options: [
+      "The tester must test the electrical grid supporting the infrastructure of the target.",
+      "The tester is provided with a list of domain names and IP addresses in the scope of a particular target.",
+      "The test is a hybrid approach between unknown and known environment tests.",
+      "The tester should not have prior knowledge of the organization and infrastructure of the target."
+    ],
+    correct: [2]
+  },
+  {
+    type: "single",
+    text: "What characterizes a known environment penetration test?",
+    options: [
+      "The test is somewhat of a hybrid approach between unknown and known environment tests.",
+      "The tester could be provided with network diagrams, IP addresses, configurations, and user credentials.",
+      "The tester should not have prior knowledge of the organization and infrastructure of the target.",
+      "The tester may be provided only the domain names and IP addresses in the scope of a particular target."
+    ],
+    correct: [1]
+  },
+  {
+    type: "single",
+    text: "Which type of penetration test would only provide the tester with limited information such as the domain names and IP addresses in the scope?",
+    options: [
+      "known-environment test",
+      "partially known environment test",
+      "unknown-environment test",
+      "OWASP Web Security Testing Guide"
+    ],
+    correct: [2]
+  },
+  {
+    type: "match",
+    text: "Match the penetration testing methodology to the description.",
+    items: [
+      { left: "MITRE ATT&CK", right: "collection of different matrices of tactics and techniques that adversaries use while preparing for an attack" },
+      { left: "OWASP WSTG", right: "covers the high-level phases of web application security testing" },
+      { left: "NIST SP 800-115", right: "provides organizations with guidelines on planning and conducting information security testing" },
+      { left: "OSSTMM", right: "lays out repeatable and consistent security testing" },
+      { left: "PTES", right: "provides information about types of attacks and methods" }
+    ]
+  },
+  {
+    type: "multi",
+    text: "Which three options are phases in the Penetration Testing Execution Standard (PTES)? (Choose three.)",
+    options: [
+      "Threat modeling",
+      "Penetration",
+      "Reporting",
+      "Enumerating further",
+      "Network mapping",
+      "Exploitation"
+    ],
+    correct: [0, 2, 5]
+  },
+  {
+    type: "multi",
+    text: "Which two options are phases in the Information Systems Security Assessment Framework (ISSAF)? (Choose two.)",
+    options: [
+      "Pre-engagement interactions",
+      "Maintaining access",
+      "Reporting",
+      "Post-exploitation",
+      "Vulnerability identification"
+    ],
+    correct: [1, 4]
+  },
+  {
+    type: "multi",
+    text: "Which two options are phases in the Open Source Security Testing Methodology Manual (OSSTMM)? (Choose two.)",
+    options: [
+      "Vulnerability Analysis",
+      "Maintaining Access",
+      "Work Flow",
+      "Network Mapping",
+      "Trust Analysis"
+    ],
+    correct: [2, 4]
+  },
+  {
+    type: "single",
+    text: "Which penetration testing methodology is a comprehensive guide focused on web application testing?",
+    options: [
+      "MITRE ATT&CK",
+      "OWASP WSTG",
+      "NIST SP 800-115",
+      "OSSTMM"
+    ],
+    correct: [1]
+  },
+  {
+    type: "single",
+    text: "Which option is a Linux distribution that includes penetration testing tools and resources?",
+    options: [
+      "OWASP",
+      "PTES",
+      "SET",
+      "BlackArch"
+    ],
+    correct: [3]
+  },
+  {
+    type: "single",
+    text: "Which option is a Linux distribution URL that provides a convenient learning environment about pen testing tools and methodologies?",
+    options: [
+      "vmware.com",
+      "attack.mitre.org",
+      "parrotsec.org",
+      "virtualbox.org"
+    ],
+    correct: [2]
+  },
+  {
+    type: "single",
+    text: "What does the “Health Monitoring” requirement mean when setting up a penetration test lab environment?",
+    options: [
+      "The tester needs to be sure that a lack of resources is not the cause of false results.",
+      "The tester needs to be able to determine the causes when something crashes.",
+      "The tester needs to ensure controlled access to and from the lab environment and restricted access to the internet.",
+      "The tester validates a finding running the same test with a different tool to see if the results are the same."
+    ],
+    correct: [1]
+  },
+  {
+    type: "single",
+    text: "Which tool would be useful when performing a network infrastructure penetration test?",
+    options: [
+      "vulnerability scanning tool",
+      "bypassing firewalls and IPSs tool",
+      "interception proxies tool",
+      "mobile application testing tool"
+    ],
+    correct: [1]
+  },
+  {
+    type: "single",
+    text: "Which tool should be used to perform an application-based penetration test?",
+    options: [
+      "sniffing traffic tool",
+      "bypassing firewalls and IPSs tool",
+      "interception proxies tool",
+      "cracking wireless encryption tool"
+    ],
+    correct: [2]
+  },
+  {
+    type: "single",
+    text: "Which tools should be used to perform a wireless infrastructure penetration test?",
+    options: [
+      "web vulnerability detection tools",
+      "traffic manipulation tools",
+      "proxy interception tools",
+      "de-authorizing network devices tools"
+    ],
+    correct: [3]
+  },
+  {
+    type: "single",
+    text: "Which tools should be used for testing the server and client platforms in an environment?",
+    options: [
+      "cracking wireless encryption tools",
+      "vulnerability scanning tools",
+      "interception proxies tools",
+      "de-authorizing network devices tools"
+    ],
+    correct: [1]
+  },
+  {
+    type: "single",
+    text: "Sometimes a tester cannot virtualize a system to do the proper penetration testing. What action should be taken if a system cannot be tested in a virtualized environment?",
+    options: [
+      "a full backup of the system",
+      "rebuild the system after any test is performed",
+      "adopt penetration test tools that will certainly not damage the system",
+      "a complete report with recommended repairs"
+    ],
+    correct: [0]
+  }
+];
+
+const state = questions.map((q) => ({
+  answered: false,
+  correct: false,
+  selected: q.type === "multi" ? [] : (q.type === "match" ? {} : null)
+}));
+
+function arraysEqual(a, b) {
+  if (a.length !== b.length) return false;
+  const sa = [...a].sort();
+  const sb = [...b].sort();
+  return sa.every((v, i) => v === sb[i]);
+}
+
+function renderQuiz() {
+  const container = document.getElementById('quizContainer');
+  container.innerHTML = '';
+  questions.forEach((q, i) => {
+    const card = document.createElement('div');
+    card.className = 'question-card';
+    card.id = `q${i}`;
+
+    if (q.type === "single") {
+      let optsHtml = q.options.map((opt, j) => `
+        <label class="option" id="opt${i}_${j}">
+          <input type="radio" name="q${i}" value="${j}" onchange="selectSingle(${i}, ${j})">
+          <span class="opt-label"><strong>${String.fromCharCode(65 + j)}.</strong> ${opt}</span>
+        </label>
+      `).join('');
+      card.innerHTML = `
+        <div class="q-text"><span class="q-num">${i + 1}.</span>${q.text}</div>
+        <div class="options">${optsHtml}</div>
+        <div class="feedback" id="fb${i}"></div>
+      `;
+    } else if (q.type === "multi") {
+      let optsHtml = q.options.map((opt, j) => `
+        <label class="option" id="opt${i}_${j}">
+          <input type="checkbox" name="q${i}" value="${j}" onchange="selectMulti(${i}, ${j})">
+          <span class="opt-label"><strong>${String.fromCharCode(65 + j)}.</strong> ${opt}</span>
+        </label>
+      `).join('');
+      card.innerHTML = `
+        <div class="q-text"><span class="q-num">${i + 1}.</span>${q.text}</div>
+        <div class="multi-hint">Select all that apply, then answers are marked automatically when the correct number is chosen.</div>
+        <div class="options">${optsHtml}</div>
+        <div class="feedback" id="fb${i}"></div>
+      `;
+    } else if (q.type === "match") {
+      // Shuffle right-side options for the dropdowns
+      const rights = q.items.map(it => it.right);
+      const shuffled = [...rights].sort(() => Math.random() - 0.5);
+      let rows = q.items.map((it, j) => `
+        <tr>
+          <td><strong>${it.left}</strong></td>
+          <td>
+            <select class="match-select" id="match${i}_${j}" onchange="selectMatch(${i})">
+              <option value="">— Select —</option>
+              ${shuffled.map(r => `<option value="${r}">${r}</option>`).join('')}
+            </select>
+          </td>
+        </tr>
+      `).join('');
+      card.innerHTML = `
+        <div class="q-text"><span class="q-num">${i + 1}.</span>${q.text}</div>
+        <table class="match-table">
+          <thead><tr><th>Methodology</th><th>Description</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+        <div class="feedback" id="fb${i}"></div>
+      `;
+    }
+    container.appendChild(card);
+  });
+}
+
+function selectSingle(qIndex, optIndex) {
+  const q = questions[qIndex];
+  state[qIndex].selected = optIndex;
+  state[qIndex].answered = true;
+  state[qIndex].correct = (q.correct[0] === optIndex);
+
+  const card = document.getElementById(`q${qIndex}`);
+  const fb = document.getElementById(`fb${qIndex}`);
+  card.classList.remove('correct', 'incorrect');
+
+  for (let j = 0; j < q.options.length; j++) {
+    const el = document.getElementById(`opt${qIndex}_${j}`);
+    el.classList.remove('selected', 'correct-opt', 'wrong-opt', 'disabled');
+  }
+
+  const selectedEl = document.getElementById(`opt${qIndex}_${optIndex}`);
+  selectedEl.classList.add('selected');
+
+  if (optIndex === q.correct[0]) {
+    selectedEl.classList.add('correct-opt');
+    card.classList.add('correct');
+    fb.textContent = '✓ Correct!';
+    fb.className = 'feedback ok';
+  } else {
+    selectedEl.classList.add('wrong-opt');
+    card.classList.add('incorrect');
+    const correctEl = document.getElementById(`opt${qIndex}_${q.correct[0]}`);
+    correctEl.classList.add('correct-opt');
+    fb.textContent = `✗ Incorrect. Correct answer: ${String.fromCharCode(65 + q.correct[0])}. ${q.options[q.correct[0]]}`;
+    fb.className = 'feedback bad';
+  }
+
+  // Disable options after answering
+  for (let j = 0; j < q.options.length; j++) {
+    document.getElementById(`opt${qIndex}_${j}`).classList.add('disabled');
+    const inp = document.querySelector(`#opt${qIndex}_${j} input`);
+    if (inp) inp.disabled = true;
+  }
+  updateStats();
+}
+
+function selectMulti(qIndex, optIndex) {
+  const q = questions[qIndex];
+  const checkbox = document.querySelector(`#opt${qIndex}_${optIndex} input`);
+  if (checkbox.checked) {
+    if (!state[qIndex].selected.includes(optIndex)) {
+      state[qIndex].selected.push(optIndex);
+    }
+  } else {
+    state[qIndex].selected = state[qIndex].selected.filter(x => x !== optIndex);
+  }
+
+  // Highlight current selection
+  for (let j = 0; j < q.options.length; j++) {
+    const el = document.getElementById(`opt${qIndex}_${j}`);
+    el.classList.remove('selected');
+    if (state[qIndex].selected.includes(j)) {
+      el.classList.add('selected');
+    }
+  }
+
+  // Auto-mark when the number of selected matches the number of correct answers
+  if (state[qIndex].selected.length === q.correct.length) {
+    state[qIndex].answered = true;
+    state[qIndex].correct = arraysEqual(state[qIndex].selected, q.correct);
+
+    const card = document.getElementById(`q${qIndex}`);
+    const fb = document.getElementById(`fb${qIndex}`);
+    card.classList.remove('correct', 'incorrect');
+
+    for (let j = 0; j < q.options.length; j++) {
+      const el = document.getElementById(`opt${qIndex}_${j}`);
+      el.classList.remove('correct-opt', 'wrong-opt', 'disabled');
+    }
+
+    // Mark correct ones green, incorrect selected ones red
+    q.correct.forEach(c => {
+      document.getElementById(`opt${qIndex}_${c}`).classList.add('correct-opt');
+    });
+    state[qIndex].selected.forEach(s => {
+      if (!q.correct.includes(s)) {
+        document.getElementById(`opt${qIndex}_${s}`).classList.add('wrong-opt');
+      }
+    });
+
+    if (state[qIndex].correct) {
+      card.classList.add('correct');
+      fb.textContent = '✓ Correct!';
+      fb.className = 'feedback ok';
+    } else {
+      card.classList.add('incorrect');
+      const correctLetters = q.correct.map(c => String.fromCharCode(65 + c)).join(', ');
+      fb.textContent = `✗ Incorrect. Correct answers: ${correctLetters}`;
+      fb.className = 'feedback bad';
+    }
+
+    // Disable further changes
+    for (let j = 0; j < q.options.length; j++) {
+      document.getElementById(`opt${qIndex}_${j}`).classList.add('disabled');
+      const inp = document.querySelector(`#opt${qIndex}_${j} input`);
+      if (inp) inp.disabled = true;
+    }
+    updateStats();
+  }
+}
+
+function selectMatch(qIndex) {
+  const q = questions[qIndex];
+  const answers = {};
+  let allFilled = true;
+  for (let j = 0; j < q.items.length; j++) {
+    const sel = document.getElementById(`match${qIndex}_${j}`);
+    if (!sel.value) { allFilled = false; }
+    answers[q.items[j].left] = sel.value;
+  }
+  state[qIndex].selected = answers;
+
+  if (allFilled) {
+    state[qIndex].answered = true;
+    let allCorrect = true;
+    for (let j = 0; j < q.items.length; j++) {
+      if (answers[q.items[j].left] !== q.items[j].right) {
+        allCorrect = false;
+        break;
+      }
+    }
+    state[qIndex].correct = allCorrect;
+
+    const card = document.getElementById(`q${qIndex}`);
+    const fb = document.getElementById(`fb${qIndex}`);
+    card.classList.remove('correct', 'incorrect');
+
+    if (allCorrect) {
+      card.classList.add('correct');
+      fb.textContent = '✓ Correct! All matches are right.';
+      fb.className = 'feedback ok';
+    } else {
+      card.classList.add('incorrect');
+      fb.textContent = '✗ Some matches are incorrect. Review the correct pairings.';
+      fb.className = 'feedback bad';
+      // Show correct answers
+      for (let j = 0; j < q.items.length; j++) {
+        const sel = document.getElementById(`match${qIndex}_${j}`);
+        if (sel.value !== q.items[j].right) {
+          sel.style.borderColor = 'var(--wrong)';
+        } else {
+          sel.style.borderColor = 'var(--accent2)';
+        }
+        // Optionally force correct value
+        // sel.value = q.items[j].right;
+      }
+    }
+    // Disable selects
+    for (let j = 0; j < q.items.length; j++) {
+      document.getElementById(`match${qIndex}_${j}`).disabled = true;
+    }
+    updateStats();
+  }
+}
+
+function checkAll() {
+  questions.forEach((q, i) => {
+    if (state[i].answered) return;
+    if (q.type === "single" && state[i].selected !== null) {
+      selectSingle(i, state[i].selected);
+    } else if (q.type === "multi" && state[i].selected.length > 0) {
+      // Force mark even if not full count
+      state[i].answered = true;
+      state[i].correct = arraysEqual(state[i].selected, q.correct);
+      const card = document.getElementById(`q${i}`);
+      const fb = document.getElementById(`fb${i}`);
+      card.classList.remove('correct', 'incorrect');
+      q.correct.forEach(c => document.getElementById(`opt${i}_${c}`).classList.add('correct-opt'));
+      state[i].selected.forEach(s => {
+        if (!q.correct.includes(s)) document.getElementById(`opt${i}_${s}`).classList.add('wrong-opt');
+      });
+      if (state[i].correct) {
+        card.classList.add('correct');
+        fb.textContent = '✓ Correct!';
+        fb.className = 'feedback ok';
+      } else {
+        card.classList.add('incorrect');
+        const correctLetters = q.correct.map(c => String.fromCharCode(65 + c)).join(', ');
+        fb.textContent = `✗ Incorrect. Correct answers: ${correctLetters}`;
+        fb.className = 'feedback bad';
+      }
+      for (let j = 0; j < q.options.length; j++) {
+        document.getElementById(`opt${i}_${j}`).classList.add('disabled');
+        const inp = document.querySelector(`#opt${i}_${j} input`);
+        if (inp) inp.disabled = true;
+      }
+    } else if (q.type === "match") {
+      selectMatch(i);
+    }
+  });
+  updateStats();
+  showFinalScore();
+  document.getElementById('scorePanel').scrollIntoView({ behavior: 'smooth' });
+}
+
+function updateStats() {
+  const answered = state.filter(s => s.answered).length;
+  const correct = state.filter(s => s.correct).length;
+  document.getElementById('answeredCount').textContent = answered;
+  document.getElementById('correctCount').textContent = correct;
+  const pct = answered ? Math.round((correct / answered) * 100) : 0;
+  document.getElementById('liveScore').textContent = pct + '%';
+  document.getElementById('progressBar').style.width = (answered / 25 * 100) + '%';
+  if (answered === 25) showFinalScore();
+}
+
+function showFinalScore() {
+  const correct = state.filter(s => s.correct).length;
+  const pct = Math.round((correct / 25) * 100);
+  document.getElementById('finalScore').textContent = pct + '%';
+  document.getElementById('finalDetail').textContent = `${correct} out of 25 correct`;
+  document.getElementById('scorePanel').classList.add('visible');
+}
+
+function resetQuiz() {
+  state.forEach((s, i) => {
+    s.answered = false;
+    s.correct = false;
+    s.selected = questions[i].type === "multi" ? [] : (questions[i].type === "match" ? {} : null);
+  });
+  document.getElementById('scorePanel').classList.remove('visible');
+  renderQuiz();
+  updateStats();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showUnanswered() {
+  for (let i = 0; i < state.length; i++) {
+    if (!state[i].answered) {
+      document.getElementById(`q${i}`).scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+  }
+  alert('All questions have been answered!');
+}
+
+renderQuiz();
+updateStats();
+</script>
+</body>
+</html>
