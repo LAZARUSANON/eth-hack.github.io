@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Quiz - Module 1: Basics | W3Schools Style</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --card: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #58a6ff;
+    --success: #3fb950;
+    --error: #f85149;
+    --warning: #d29922;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+  .header {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 1.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .logo { font-size: 1.25rem; font-weight: 700; color: var(--accent); }
+  .module-title { color: var(--muted); font-size: 0.95rem; }
+  .progress-wrap {
+    max-width: 900px;
+    margin: 1rem auto 0;
+    padding: 0 1.5rem;
+  }
+  .progress-bar {
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #79c0ff);
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+  .stats {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--muted);
+  }
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 1.5rem;
+  }
+  .question-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+    transition: border-color 0.2s;
+  }
+  .question-card.answered { border-color: var(--accent); }
+  .q-number {
+    font-size: 0.75rem;
+    color: var(--accent);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+  }
+  .q-text {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 1.25rem;
+  }
+  .options { display: flex; flex-direction: column; gap: 0.6rem; }
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .option:hover:not(.disabled) {
+    border-color: var(--accent);
+    background: #1c2128;
+  }
+  .option.selected { border-color: var(--accent); }
+  .option.correct {
+    border-color: var(--success);
+    background: rgba(63, 185, 80, 0.12);
+  }
+  .option.wrong {
+    border-color: var(--error);
+    background: rgba(248, 81, 73, 0.12);
+  }
+  .option.disabled { cursor: default; opacity: 0.85; }
+  .option input { display: none; }
+  .radio {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--muted);
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 2px;
+    position: relative;
+  }
+  .option.selected .radio { border-color: var(--accent); }
+  .option.correct .radio { border-color: var(--success); background: var(--success); }
+  .option.wrong .radio { border-color: var(--error); background: var(--error); }
+  .option.correct .radio::after,
+  .option.wrong .radio::after {
+    content: "";
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 8px; height: 8px;
+    background: #fff;
+    border-radius: 50%;
+  }
+  .explanation {
+    display: none;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #0d1117;
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    font-size: 0.95rem;
+    color: var(--muted);
+  }
+  .explanation.show { display: block; }
+  .explanation strong { color: var(--success); }
+  .nav-footer {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 1.5rem 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #0d1117;
+  }
+  .btn-primary:hover { background: #79c0ff; }
+  .btn-secondary {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .score-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.95rem;
+  }
+  .score-box span { color: var(--accent); font-weight: 700; }
+  @media (max-width: 600px) {
+    .q-text { font-size: 1rem; }
+    .option { padding: 0.7rem 0.85rem; }
+  }
+</style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <div>
+        <div class="logo">🐍 Python Quiz</div>
+        <div class="module-title">Module 1 of 4 · Basics (Home, Intro, Get Started, Syntax, Comments)</div>
+      </div>
+      <div class="score-box">Score: <span id="score">0</span> / <span id="total">50</span></div>
+    </div>
+  </header>
+
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+    <div class="stats">
+      <span>Answered: <span id="answered">0</span>/50</span>
+      <span>Correct: <span id="correct-count">0</span></span>
+    </div>
+  </div>
+
+  <div class="container" id="quiz-container"></div>
+
+  <div class="nav-footer">
+    <a href="#" class="btn btn-secondary" style="visibility:hidden">← Previous</a>
+    <a href="python_module2.html" class="btn btn-primary">Next Module: Variables & Data →</a>
+  </div>
+
+<script>
+const questions = [
+  {
+    q: "Who created the Python programming language?",
+    options: ["James Gosling", "Guido van Rossum", "Bjarne Stroustrup", "Dennis Ritchie"],
+    correct: 1,
+    exp: "Python was created by Guido van Rossum and first released in 1991."
+  },
+  {
+    q: "In which year was Python first released?",
+    options: ["1989", "1991", "1995", "2000"],
+    correct: 1,
+    exp: "Python was released in 1991 by Guido van Rossum."
+  },
+  {
+    q: "Python is primarily used for which of the following?",
+    options: ["Only system scripting", "Web development, software development, mathematics and system scripting", "Only mobile app development", "Only game development"],
+    correct: 1,
+    exp: "According to W3Schools, Python is used for web development (server-side), software development, mathematics, and system scripting."
+  },
+  {
+    q: "Which of the following is a key reason why Python is popular?",
+    options: ["It requires many lines of code", "It has a simple syntax similar to English", "It only works on Windows", "It is a compiled language only"],
+    correct: 1,
+    exp: "Python has a simple syntax similar to the English language, which makes it easy to learn and read."
+  },
+  {
+    q: "Python runs on which type of system?",
+    options: ["Compiler system only", "Interpreter system", "Assembler system", "Binary-only system"],
+    correct: 1,
+    exp: "Python runs on an interpreter system, meaning code can be executed as soon as it is written."
+  },
+  {
+    q: "Which major version of Python is used in the W3Schools tutorial?",
+    options: ["Python 2", "Python 3", "Python 1", "Python 4"],
+    correct: 1,
+    exp: "The most recent major version is Python 3, which is used throughout the W3Schools tutorial."
+  },
+  {
+    q: "Python works on which platforms?",
+    options: ["Windows only", "Mac only", "Windows, Mac, Linux, Raspberry Pi, etc.", "Linux only"],
+    correct: 2,
+    exp: "Python works on different platforms including Windows, Mac, Linux, Raspberry Pi, and more."
+  },
+  {
+    q: "What is the correct file extension for Python files?",
+    options: [".pt", ".py", ".python", ".pyt"],
+    correct: 1,
+    exp: "Python files use the .py extension."
+  },
+  {
+    q: "How can you check if Python is installed on your computer?",
+    options: ["python --version", "python -check", "py version", "python status"],
+    correct: 0,
+    exp: "You can run 'python --version' (or 'python3 --version') in the command line / terminal."
+  },
+  {
+    q: "Where can you download Python for free if it is not installed?",
+    options: ["github.com", "python.org", "w3schools.com", "microsoft.com"],
+    correct: 1,
+    exp: "Python can be downloaded for free from the official website: https://www.python.org/"
+  },
+  {
+    q: "In Python, how do you write a comment?",
+    options: ["// This is a comment", "/* This is a comment */", "# This is a comment", "<!-- This is a comment -->"],
+    correct: 2,
+    exp: "Comments in Python start with a hash character (#) and extend to the end of the line."
+  },
+  {
+    q: "Which of the following is a valid single-line comment in Python?",
+    options: ["# Print Hello", "// Print Hello", "/* Print Hello */", "-- Print Hello"],
+    correct: 0,
+    exp: "Only the # symbol starts a single-line comment in Python."
+  },
+  {
+    q: "Can a comment appear after code on the same line?",
+    options: ["No, never", "Yes, after the code", "Only inside strings", "Only at the beginning of the file"],
+    correct: 1,
+    exp: "A comment may appear at the start of a line or following whitespace or code (inline comment)."
+  },
+  {
+    q: "Is a hash character (#) inside a string treated as a comment?",
+    options: ["Yes, it starts a comment", "No, it is just a regular character", "It causes a syntax error", "It is ignored completely"],
+    correct: 1,
+    exp: "A hash character within a string literal is just a hash character, not a comment."
+  },
+  {
+    q: "What does Python use to indicate a block of code?",
+    options: ["Curly braces {}", "Parentheses ()", "Indentation (spaces or tabs)", "Square brackets []"],
+    correct: 2,
+    exp: "Python uses indentation to indicate a block of code. Indentation is very important in Python."
+  },
+  {
+    q: "What happens if you skip the indentation in a Python code block?",
+    options: ["The code still runs", "Python gives a Syntax Error", "It becomes a comment", "It is ignored"],
+    correct: 1,
+    exp: "Python will give you a Syntax Error if you skip the required indentation."
+  },
+  {
+    q: "What is the most common number of spaces used for indentation in Python?",
+    options: ["1", "2", "4", "8"],
+    correct: 2,
+    exp: "The most common use is four spaces, although the number is up to the programmer (at least one)."
+  },
+  {
+    q: "Must you use the same number of spaces in the same block of code?",
+    options: ["No, you can mix them", "Yes, otherwise Python will give an error", "Only for functions", "Only for loops"],
+    correct: 1,
+    exp: "You have to use the same number of spaces in the same block of code, otherwise Python will give an error."
+  },
+  {
+    q: "Which of the following is correct Python syntax for an if statement?",
+    options: ["if (5 > 2) { print(\"Yes\") }", "if 5 > 2: print(\"Five is greater than two!\")", "if 5 > 2 then print(\"Yes\")", "if 5 > 2 do print(\"Yes\")"],
+    correct: 1,
+    exp: "Python uses a colon (:) after the condition and indentation for the block. No parentheses or curly braces are required."
+  },
+  {
+    q: "How can you execute Python syntax?",
+    options: ["Only by compiling to .exe", "By writing directly in the Command Line or creating a .py file", "Only inside a browser", "Only with an IDE"],
+    correct: 1,
+    exp: "Python syntax can be executed by writing directly in the Command Line or by creating a .py file and running it."
+  },
+  {
+    q: "What will this code print? >>> print(\"Hello, World!\")",
+    options: ["Hello, World!", "\"Hello, World!\"", "print Hello, World!", "Error"],
+    correct: 0,
+    exp: "The print() function outputs the string Hello, World! to the console."
+  },
+  {
+    q: "Python can be treated in which ways?",
+    options: ["Only procedural", "Procedural, object-oriented or functional", "Only object-oriented", "Only functional"],
+    correct: 1,
+    exp: "Python can be treated in a procedural way, an object-oriented way or a functional way."
+  },
+  {
+    q: "What does 'prototyping can be very quick' refer to in Python?",
+    options: ["Because it is compiled", "Because it runs on an interpreter system", "Because it needs no syntax", "Because it is only for large projects"],
+    correct: 1,
+    exp: "Since Python is interpreted, code can be executed as soon as it is written, making prototyping very quick."
+  },
+  {
+    q: "Which of these is NOT a use of Python mentioned on W3Schools?",
+    options: ["Connect to database systems", "Handle big data", "Create mobile apps exclusively", "Read and modify files"],
+    correct: 2,
+    exp: "Python can connect to databases, handle big data, and read/modify files. It is not limited to mobile apps exclusively."
+  },
+  {
+    q: "What is the purpose of comments in Python?",
+    options: ["To make the code run faster", "To clarify code for humans; they are ignored by the interpreter", "To declare variables", "To end statements"],
+    correct: 1,
+    exp: "Comments are used to clarify code. They are not interpreted by Python and may be omitted when running examples."
+  },
+  {
+    q: "Is indentation in Python only for readability?",
+    options: ["Yes, like in other languages", "No, it is required to define code blocks", "Only in functions", "Only in classes"],
+    correct: 1,
+    exp: "In other languages indentation is mainly for readability; in Python it is required to indicate a block of code."
+  },
+  {
+    q: "Which statement about Python syntax compared to other languages is true?",
+    options: ["Python requires more lines of code", "Python has syntax that allows fewer lines than some other languages", "Python always needs curly braces", "Python requires semicolons at the end of every statement"],
+    correct: 1,
+    exp: "Python has syntax that allows developers to write programs with fewer lines than some other programming languages."
+  },
+  {
+    q: "Can you write Python code in a text editor?",
+    options: ["No, only in an IDE", "Yes, and then run it with the interpreter", "Only in Notepad++", "Only online"],
+    correct: 1,
+    exp: "You can write Python in a text editor and then put those files into the Python interpreter to be executed."
+  },
+  {
+    q: "What is the correct way to run a Python file named hello.py from the command line?",
+    options: ["run hello.py", "python hello.py", "execute hello.py", "pyth hello.py"],
+    correct: 1,
+    exp: "Navigate to the directory and run: python hello.py (or python3 hello.py)."
+  },
+  {
+    q: "Python is an interpreted programming language. What does this mean?",
+    options: ["It must be compiled to machine code first", "You write .py files and the interpreter executes them", "It only runs in a browser", "It cannot be run from the command line"],
+    correct: 1,
+    exp: "As a developer you write Python (.py) files in a text editor and then put those files into the Python interpreter to be executed."
+  },
+  {
+    q: "Which of the following is a valid multi-line approach for comments in Python (using strings)?",
+    options: ["Using triple quotes as a multi-line string that is not assigned", "Using // on every line", "Using /* */ blocks", "Using <!-- -->"],
+    correct: 0,
+    exp: "Although # is for single-line comments, a triple-quoted string (\"\"\" or ''') that is not assigned can act as a multi-line comment."
+  },
+  {
+    q: "What will happen if the number of spaces in a block is inconsistent?",
+    options: ["Python automatically corrects it", "A Syntax Error occurs", "The code runs with a warning", "Indentation is ignored"],
+    correct: 1,
+    exp: "You must use the same number of spaces in the same block; otherwise Python raises a Syntax Error."
+  },
+  {
+    q: "In the W3Schools online editor, what can you do?",
+    options: ["Only view code", "Edit Python code and view the result", "Only download files", "Compile to executable"],
+    correct: 1,
+    exp: "W3Schools provides an Online Python Editor that runs directly in the browser and shows both the code and the result."
+  },
+  {
+    q: "Is Python case-sensitive?",
+    options: ["No", "Yes", "Only for variables", "Only for functions"],
+    correct: 1,
+    exp: "Python is case-sensitive. Variable names 'a' and 'A' are different."
+  },
+  {
+    q: "Does Python require a semicolon at the end of each statement?",
+    options: ["Yes, always", "No, the end of the line marks the end of a statement", "Only in loops", "Only in functions"],
+    correct: 1,
+    exp: "Unlike C++ and Java, Python does not require a semicolon at the end of each statement; the end of a line marks the end of a statement."
+  },
+  {
+    q: "What is a common IDE mentioned for Python on W3Schools?",
+    options: ["Visual Studio only", "Thonny, PyCharm, NetBeans or Eclipse", "Only Notepad", "Only browser"],
+    correct: 1,
+    exp: "It is possible to write Python in an IDE such as Thonny, PyCharm, NetBeans or Eclipse, useful for larger collections of files."
+  },
+  {
+    q: "Python can be used for rapid prototyping. Why?",
+    options: ["Because it is slow", "Because code can be executed as soon as it is written", "Because it needs compilation every time", "Because it has no syntax rules"],
+    correct: 1,
+    exp: "The interpreter system allows code to be executed immediately, enabling very quick prototyping."
+  },
+  {
+    q: "Which symbol starts a comment in Python?",
+    options: ["//", "#", "/*", "--"],
+    correct: 1,
+    exp: "Comments start with the hash character #."
+  },
+  {
+    q: "What is printed by: print(\"Hello, World!\")",
+    options: ["Hello, World!", "print(\"Hello, World!\")", "Nothing", "Error because of missing semicolon"],
+    correct: 0,
+    exp: "The print function outputs the text inside the quotes to the screen."
+  },
+  {
+    q: "Can Python be used on a server to create web applications?",
+    options: ["No", "Yes", "Only with Java", "Only with PHP"],
+    correct: 1,
+    exp: "Python can be used on a server to create web applications."
+  },
+  {
+    q: "Which of these is true about Python indentation?",
+    options: ["It is optional", "It must be consistent within a block", "Tabs and spaces can be mixed freely in one block", "Indentation is only recommended"],
+    correct: 1,
+    exp: "Indentation must be consistent (same number of spaces) within the same block of code."
+  },
+  {
+    q: "What does the following code do? if 5 > 2: print(\"Five is greater than two!\")",
+    options: ["Raises an error", "Prints the message because the condition is true", "Does nothing", "Prints only if 5 < 2"],
+    correct: 1,
+    exp: "The condition 5 > 2 is True, so the indented print statement is executed."
+  },
+  {
+    q: "Is it possible to write Python without installing anything using W3Schools?",
+    options: ["No", "Yes, using the Online Python Editor", "Only with a paid account", "Only offline"],
+    correct: 1,
+    exp: "At W3Schools you can try Python without installing anything; the Online Python Editor runs in the browser."
+  },
+  {
+    q: "What is the recommended style for indentation in Python?",
+    options: ["2 spaces", "4 spaces", "Tabs only", "No indentation"],
+    correct: 1,
+    exp: "PEP 8 and common practice recommend 4 spaces for indentation."
+  },
+  {
+    q: "Comments in Python extend to:",
+    options: ["The next #", "The end of the physical line", "The end of the file", "The next blank line"],
+    correct: 1,
+    exp: "A comment starts with # and extends to the end of the physical line."
+  },
+  {
+    q: "Which of the following is a correct statement about Python?",
+    options: ["It is only a compiled language", "It is an interpreted language", "It cannot be used for mathematics", "It only works on one platform"],
+    correct: 1,
+    exp: "Python is an interpreted programming language."
+  },
+  {
+    q: "What will cause a Syntax Error related to indentation?",
+    options: ["Using 4 spaces", "Skipping indentation after a colon", "Using a comment", "Using print()"],
+    correct: 1,
+    exp: "If you skip the indentation after a statement that requires a block (like if), Python raises a Syntax Error."
+  },
+  {
+    q: "Python source code files are also called:",
+    options: ["Scripts only", "Modules", "Packages only", "Libraries only"],
+    correct: 1,
+    exp: "Python source code files use the .py extension and are called modules."
+  },
+  {
+    q: "Which of these is NOT required in basic Python syntax?",
+    options: ["Indentation for blocks", "Semicolons at the end of statements", "Colons after if/for/while/def", "Consistent indentation within a block"],
+    correct: 1,
+    exp: "Python does not require semicolons at the end of statements."
+  },
+  {
+    q: "What is the output of this correct code?\nif 5 > 2:\n    print(\"Five is greater than two!\")",
+    options: ["Five is greater than two!", "Syntax Error", "Nothing", "5 > 2"],
+    correct: 0,
+    exp: "The condition is true and the indented print statement executes, outputting the message."
+  }
+];
+
+let score = 0;
+let answered = 0;
+const container = document.getElementById('quiz-container');
+
+function renderQuestions() {
+  questions.forEach((item, idx) => {
+    const card = document.createElement('div');
+    card.className = 'question-card';
+    card.id = `q${idx}`;
+    card.innerHTML = `
+      <div class="q-number">Question ${idx + 1} of 50</div>
+      <div class="q-text">${item.q}</div>
+      <div class="options">
+        ${item.options.map((opt, oIdx) => `
+          <label class="option" data-q="${idx}" data-opt="${oIdx}">
+            <input type="radio" name="q${idx}" value="${oIdx}">
+            <span class="radio"></span>
+            <span>${opt}</span>
+          </label>
+        `).join('')}
+      </div>
+      <div class="explanation" id="exp${idx}"></div>
+    `;
+    container.appendChild(card);
+  });
+
+  document.querySelectorAll('.option').forEach(opt => {
+    opt.addEventListener('click', function() {
+      const qIdx = parseInt(this.dataset.q);
+      const oIdx = parseInt(this.dataset.opt);
+      const card = document.getElementById(`q${qIdx}`);
+      if (card.classList.contains('answered')) return;
+
+      card.classList.add('answered');
+      answered++;
+      document.getElementById('answered').textContent = answered;
+      document.getElementById('progress').style.width = (answered / 50 * 100) + '%';
+
+      const correctIdx = questions[qIdx].correct;
+      const options = card.querySelectorAll('.option');
+      options.forEach(o => o.classList.add('disabled'));
+
+      if (oIdx === correctIdx) {
+        this.classList.add('correct', 'selected');
+        score++;
+        document.getElementById('score').textContent = score;
+        document.getElementById('correct-count').textContent = score;
+      } else {
+        this.classList.add('wrong', 'selected');
+        options[correctIdx].classList.add('correct');
+      }
+
+      const exp = document.getElementById(`exp${qIdx}`);
+      exp.innerHTML = `<strong>Correct answer:</strong> ${questions[qIdx].options[correctIdx]}<br><br>${questions[qIdx].exp}`;
+      exp.classList.add('show');
+    });
+  });
+}
+
+renderQuestions();
+</script>
+</body>
+</html>
