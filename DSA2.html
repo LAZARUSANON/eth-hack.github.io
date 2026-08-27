@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DSA Interactive Quiz - 10 Modules | 50 Questions Each</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --success: #16a34a;
+            --error: #dc2626;
+            --bg: #f1f5f9;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --border: #cbd5e1;
+            --muted: #64748b;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+        }
+        header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            color: white;
+            padding: 22px 16px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        header h1 { margin: 0 0 6px; font-size: 1.55rem; }
+        header p { margin: 0; opacity: 0.9; font-size: 0.95rem; }
+        .container {
+            max-width: 920px;
+            margin: 24px auto;
+            padding: 0 16px 60px;
+        }
+        .module-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 22px;
+            background: var(--card-bg);
+            padding: 14px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .module-btn {
+            background: #e2e8f0;
+            border: none;
+            padding: 9px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #475569;
+            transition: all 0.2s;
+        }
+        .module-btn:hover { background: #cbd5e1; transform: translateY(-1px); }
+        .module-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 6px rgba(37,99,235,0.35);
+        }
+        .module-btn.completed { background: #bbf7d0; color: #166534; }
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 18px;
+            background: var(--card-bg);
+            padding: 16px 22px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .quiz-header h2 { margin: 0; font-size: 1.25rem; }
+        .score-display {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--primary);
+            background: #eff6ff;
+            padding: 6px 14px;
+            border-radius: 20px;
+        }
+        .progress-bar-wrap {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #2563eb, #16a34a);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        .question-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 22px 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.04);
+            border: 1px solid var(--border);
+            transition: border-color 0.2s;
+        }
+        .question-card.answered { border-color: #94a3b8; }
+        .question-meta {
+            font-size: 0.78rem;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            font-weight: 600;
+        }
+        .question-title {
+            font-size: 1.08rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            line-height: 1.45;
+        }
+        .options-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            gap: 10px;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 9px;
+            background: white;
+            cursor: pointer;
+            font-size: 0.97rem;
+            transition: all 0.18s;
+            position: relative;
+        }
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--primary);
+            background: #eff6ff;
+        }
+        .option-btn.correct {
+            background-color: #dcfce7 !important;
+            color: #166534;
+            border-color: var(--success);
+            font-weight: 600;
+        }
+        .option-btn.correct::after {
+            content: " ✓";
+            font-weight: 700;
+        }
+        .option-btn.wrong {
+            background-color: #fee2e2 !important;
+            color: #991b1b;
+            border-color: var(--error);
+        }
+        .option-btn.wrong::after {
+            content: " ✗";
+        }
+        .option-btn:disabled { cursor: not-allowed; opacity: 0.95; }
+        .navigation-footer {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 28px;
+            flex-wrap: wrap;
+        }
+        .nav-action-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 26px;
+            border-radius: 9px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.15s;
+        }
+        .nav-action-btn:hover:not(:disabled) {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+        .nav-action-btn:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .feedback-note {
+            margin-top: 10px;
+            font-size: 0.88rem;
+            color: var(--muted);
+            font-style: italic;
+        }
+        .module-complete-banner {
+            display: none;
+            background: linear-gradient(135deg, #16a34a, #15803d);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 18px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(22,163,74,0.3);
+        }
+        .module-complete-banner.show { display: block; }
+        @media (max-width: 600px) {
+            header h1 { font-size: 1.25rem; }
+            .quiz-header { flex-direction: column; align-items: flex-start; }
+            .option-btn { font-size: 0.92rem; padding: 11px 14px; }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Data Structures & Algorithms – Interactive Quiz</h1>
+    <p>10 Modules · 50 Questions each · Instant feedback on selection</p>
+</header>
+
+<div class="container">
+    <div class="module-nav" id="moduleNav"></div>
+
+    <div class="module-complete-banner" id="completeBanner">
+        Module completed! Score saved. Use the navigation to move to the next module.
+    </div>
+
+    <div class="quiz-header">
+        <div>
+            <h2 id="moduleTitle">Module 1</h2>
+            <div class="progress-bar-wrap">
+                <div class="progress-bar" id="progressBar" style="width:0%"></div>
+            </div>
+        </div>
+        <div class="score-display" id="scoreDisplay">Score: 0 / 50</div>
+    </div>
+
+    <div id="questionsContainer"></div>
+
+    <div class="navigation-footer">
+        <button class="nav-action-btn" id="prevModuleBtn" onclick="changeModule(-1)">← Previous Module</button>
+        <button class="nav-action-btn" id="nextModuleBtn" onclick="changeModule(1)">Next Module →</button>
+    </div>
+</div>
+
+<script>
+/* ============================================================
+   DSA INTERACTIVE QUIZ – 10 MODULES × 50 QUESTIONS
+   Content derived from the provided Table of Contents
+   ============================================================ */
+
+const chapterNames = [
+    "Introduction to Data Structures",
+    "Foundations of Algorithms",
+    "Sorting Algorithms",
+    "Stack Data Structure",
+    "Queue Data Structure",
+    "Linked List Data Structure",
+    "Hashing and Hash Tables",
+    "Introduction to Binary Search Tree",
+    "Balanced Trees and Heaps",
+    "Introduction to Graph Data Structure"
+];
+
+/* ---------- MODULE 1 : Introduction to Data Structures ---------- */
+const module1 = [
+    { text: "What is a Data Structure?", options: ["A way to store and organize data for efficient access and modification", "A programming language", "A type of algorithm only", "A database management system"], correct: 0 },
+    { text: "Which of the following is NOT a characteristic of a good data structure?", options: ["Time efficiency", "Space efficiency", "Correctness", "Requires maximum memory always"], correct: 3 },
+    { text: "Why do we need data structures?", options: ["To manage large amounts of data efficiently", "To make code look complex", "Only for sorting", "They are optional in all programs"], correct: 0 },
+    { text: "Execution time cases for algorithms typically include:", options: ["Best, Average, Worst", "Only Best", "Only Worst", "Compile and Runtime only"], correct: 0 },
+    { text: "In algorithm analysis, the best-case scenario refers to:", options: ["The minimum time an algorithm takes for any input of size n", "The maximum time", "Average of all possible inputs", "Time when input is empty"], correct: 0 },
+    { text: "Basic terminology: An algorithm is:", options: ["A finite sequence of well-defined instructions to solve a problem", "A data type", "A programming paradigm", "A hardware component"], correct: 0 },
+    { text: "Which of the following is a basic concept of algorithms?", options: ["Input, Output, Definiteness, Finiteness, Effectiveness", "Only Input and Output", "Recursion only", "Object-oriented design"], correct: 0 },
+    { text: "Importance of algorithms includes:", options: ["Efficiency, Correctness, Scalability and Reusability", "Making programs longer", "Hiding data", "Only for games"], correct: 0 },
+    { text: "One common way of writing an algorithm is:", options: ["Pseudocode", "Only machine code", "Only assembly", "Natural language essays only"], correct: 0 },
+    { text: "An Array Data Structure provides:", options: ["Contiguous memory allocation and O(1) random access by index", "Dynamic size always", "Only sequential access", "No indexing"], correct: 0 },
+    { text: "Basic operations on data structures generally include:", options: ["Insertion, Deletion, Traversal, Searching, Sorting", "Only printing", "Compilation", "Networking"], correct: 0 },
+    { text: "Which operation is typically O(1) on a static array?", options: ["Access by index", "Insertion at beginning", "Deletion at beginning", "Searching unsorted"], correct: 0 },
+    { text: "A data structure is called linear if:", options: ["Its elements form a sequence", "It has hierarchical relationships", "It uses hashing", "It is a tree"], correct: 0 },
+    { text: "Which of the following is a non-linear data structure?", options: ["Tree", "Array", "Stack", "Queue"], correct: 0 },
+    { text: "The primary goal of choosing an appropriate data structure is:", options: ["To optimize time and space complexity for the required operations", "To use the most complex one", "To minimize code length only", "To avoid algorithms"], correct: 0 },
+    { text: "In the context of data structures, 'Abstract Data Type' (ADT) means:", options: ["A mathematical model defining data and operations without implementation details", "A concrete class", "A hardware type", "A sorting method"], correct: 0 },
+    { text: "Which statement about arrays is true?", options: ["Size is fixed at declaration in most static languages", "Size can always grow automatically", "Elements must be of different types", "Random access is O(n)"], correct: 0 },
+    { text: "Time complexity of accessing the k-th element in an array is:", options: ["O(1)", "O(n)", "O(log n)", "O(n²)"], correct: 0 },
+    { text: "Which is NOT a basic terminology related to algorithms?", options: ["Pixel density", "Time complexity", "Space complexity", "Correctness"], correct: 0 },
+    { text: "Pseudocode is preferred for writing algorithms because:", options: ["It is language-independent and focuses on logic", "It can be directly compiled", "It is the same as machine code", "It hides the steps"], correct: 0 },
+    { text: "The worst-case time complexity is important because:", options: ["It gives an upper bound on the running time", "It is always the average", "It is the best possible", "It ignores large inputs"], correct: 0 },
+    { text: "Which of the following is a characteristic of a data structure?", options: ["It organizes data so that operations can be performed efficiently", "It is only used in databases", "It replaces algorithms", "It must be recursive"], correct: 0 },
+    { text: "Need for data structures arises mainly when:", options: ["We deal with large datasets and need efficient operations", "Programs are very short", "Only integers are used", "Hardware is unlimited"], correct: 0 },
+    { text: "An algorithm must terminate after a finite number of steps. This property is called:", options: ["Finiteness", "Definiteness", "Effectiveness", "Input"], correct: 0 },
+    { text: "Definiteness in an algorithm means:", options: ["Each step is precisely defined", "It uses recursion", "It has multiple outputs", "It never ends"], correct: 0 },
+    { text: "Which is a linear data structure?", options: ["Queue", "Graph", "Tree", "Heap"], correct: 0 },
+    { text: "In arrays, the memory is allocated:", options: ["Contiguously", "Randomly", "In a linked fashion", "Only on disk"], correct: 0 },
+    { text: "Basic operations on an array include all EXCEPT:", options: ["Hashing elements automatically", "Access", "Update", "Traversal"], correct: 0 },
+    { text: "The study of data structures is fundamental because:", options: ["Efficient programs depend on choosing the right organization of data", "All data structures are equally efficient", "Algorithms never need data", "They are only theoretical"], correct: 0 },
+    { text: "Which of the following best describes 'Execution Time Cases'?", options: ["Best-case, Average-case, Worst-case analysis of running time", "Only compile time", "Network latency cases", "User interface cases"], correct: 0 },
+    { text: "An algorithm that works correctly for all valid inputs is said to be:", options: ["Correct", "Efficient only", "Complex", "Recursive"], correct: 0 },
+    { text: "Space complexity of an algorithm refers to:", options: ["The amount of memory required as a function of input size", "The number of lines of code", "CPU clock speed", "Disk space only"], correct: 0 },
+    { text: "Which is a way of writing an algorithm?", options: ["Flowchart", "Only binary", "Only hex", "Natural language novels"], correct: 0 },
+    { text: "In the context of data structures, 'Traversal' means:", options: ["Visiting each element exactly once", "Deleting all elements", "Sorting", "Searching for one element"], correct: 0 },
+    { text: "Arrays are best suited when:", options: ["We need frequent random access by index", "We need frequent insertions at the beginning", "Size changes constantly and unpredictably", "We only need sequential access"], correct: 0 },
+    { text: "Which of the following is true about static arrays?", options: ["Their size is fixed after declaration", "They can grow indefinitely", "They store only strings", "Access is always O(n)"], correct: 0 },
+    { text: "The main advantage of using data structures is:", options: ["Improved efficiency of data operations", "Making code unreadable", "Increasing memory usage always", "Eliminating the need for algorithms"], correct: 0 },
+    { text: "A well-defined algorithm should have:", options: ["Zero or more inputs and at least one output", "No inputs", "Infinite steps", "Ambiguous steps"], correct: 0 },
+    { text: "Which operation is expensive on a static array?", options: ["Inserting an element at the beginning", "Accessing the middle element", "Reading the last element", "Updating an existing element"], correct: 0 },
+    { text: "Data structures can be classified broadly into:", options: ["Linear and Non-linear", "Only Linear", "Only Trees", "Only Graphs"], correct: 0 },
+    { text: "In algorithm design, 'Effectiveness' means:", options: ["Each step must be sufficiently basic and feasible", "It uses advanced math only", "It is recursive", "It never terminates"], correct: 0 },
+    { text: "The term 'Basic Terminology' in DSA usually covers:", options: ["Algorithm, Data, Data Structure, Complexity, etc.", "Only sorting names", "Hardware specs", "UI design"], correct: 0 },
+    { text: "Why is analyzing execution time cases important?", options: ["To understand performance under different input conditions", "To make algorithms longer", "Only for theoretical papers", "To avoid using arrays"], correct: 0 },
+    { text: "An array index typically starts from:", options: ["0 in most programming languages", "1 always", "Any random number", "-1"], correct: 0 },
+    { text: "Which of the following is NOT a basic operation on data structures?", options: ["Compiling the program", "Searching", "Insertion", "Deletion"], correct: 0 },
+    { text: "Choosing the right data structure can reduce:", options: ["Both time and space complexity of operations", "Only the number of variables", "Code readability", "The need for functions"], correct: 0 },
+    { text: "A data structure that allows direct access to any element using an index is:", options: ["Array", "Linked List", "Stack (without extra structure)", "Queue"], correct: 0 },
+    { text: "The study of 'Introduction to Data Structures' primarily focuses on:", options: ["How data can be organized and the operations possible on it", "Only sorting algorithms", "Only network protocols", "Operating system kernels"], correct: 0 },
+    { text: "Which statement is correct?", options: ["Algorithms operate on data structures", "Data structures operate on algorithms", "They are unrelated", "Algorithms replace data structures"], correct: 0 },
+    { text: "In the provided syllabus, Chapter One covers all of the following EXCEPT:", options: ["Dijkstra’s algorithm", "Characteristics of a Data Structure", "Array Data Structures", "Ways of writing an algorithm"], correct: 0 }
+];
+
+/* ---------- MODULE 2 : Foundations of Algorithms ---------- */
+const module2 = [
+    { text: "What are Data Structures and Algorithms and why do they matter?", options: ["They provide efficient ways to store and process data, critical for performance", "They are only historical topics", "They replace programming languages", "They are used only in hardware"], correct: 0 },
+    { text: "The Role of Abstraction and ADTs is to:", options: ["Hide implementation details and expose only essential operations", "Show all internal pointers", "Force use of arrays only", "Eliminate the need for functions"], correct: 0 },
+    { text: "Complexity Analysis is the study of:", options: ["How resource requirements (time/space) grow with input size", "Only the number of lines of code", "Hardware cost", "User interface complexity"], correct: 0 },
+    { text: "Big-O notation describes:", options: ["The upper bound of the growth rate of an algorithm’s complexity", "The exact running time", "The lower bound only", "Average case exclusively"], correct: 0 },
+    { text: "Big-Ω (Omega) notation describes:", options: ["The lower bound of the growth rate", "The upper bound", "Exact complexity", "Space only"], correct: 0 },
+    { text: "Big-Θ (Theta) notation means:", options: ["Tight bound – both upper and lower bound of the same order", "Only upper bound", "Only lower bound", "No bound"], correct: 0 },
+    { text: "Time Complexity (Best, Worst, Average Case) helps us:", options: ["Understand performance across different input distributions", "Ignore large inputs", "Only count loops", "Measure compile time"], correct: 0 },
+    { text: "Space Complexity measures:", options: ["Extra memory required by the algorithm as a function of input size", "Only the size of the input", "CPU registers only", "Network bandwidth"], correct: 0 },
+    { text: "Recursion is a technique where:", options: ["A function calls itself to solve smaller subproblems", "A function never calls itself", "Only loops are used", "Data is stored in arrays only"], correct: 0 },
+    { text: "Backtracking is a technique that:", options: ["Tries partial solutions and abandons them if they cannot lead to a valid solution", "Always finds the optimal solution in one pass", "Uses only greedy choices", "Is the same as dynamic programming"], correct: 0 },
+    { text: "Recursion vs Iteration: Recursion generally uses:", options: ["Call stack and may have higher space overhead", "No extra space ever", "Only global variables", "Faster constant factors always"], correct: 0 },
+    { text: "Binary Search (Recursive) works on:", options: ["Sorted arrays by repeatedly dividing the search space in half", "Unsorted arrays efficiently", "Linked lists in O(1)", "Hash tables"], correct: 0 },
+    { text: "The time complexity of Binary Search is:", options: ["O(log n)", "O(n)", "O(n log n)", "O(1)"], correct: 0 },
+    { text: "Introduction to Backtracking typically involves problems like:", options: ["N-Queens, Sudoku, Maze solving", "Simple array sum", "Finding maximum in an array", "Bubble sort"], correct: 0 },
+    { text: "In complexity analysis, O(1) means:", options: ["Constant time – independent of input size", "Linear time", "Logarithmic time", "Quadratic time"], correct: 0 },
+    { text: "O(n) complexity means:", options: ["Linear growth with input size", "Constant", "Quadratic", "Exponential"], correct: 0 },
+    { text: "Which is true about average-case complexity?", options: ["It considers the expected running time over all inputs of size n", "It is always equal to worst case", "It ignores probability", "It is the same as best case"], correct: 0 },
+    { text: "A recursive algorithm must have:", options: ["A base case to terminate", "No base case", "Only iterative loops", "Infinite recursion"], correct: 0 },
+    { text: "The main disadvantage of deep recursion is:", options: ["Risk of stack overflow", "It is always slower than iteration", "It cannot solve any problem", "It uses no memory"], correct: 0 },
+    { text: "Which notation is used for asymptotic upper bound?", options: ["Big-O", "Big-Ω", "Big-Θ", "Little-o only"], correct: 0 },
+    { text: "Space complexity of a simple recursive factorial is:", options: ["O(n) due to call stack", "O(1)", "O(log n)", "O(n²)"], correct: 0 },
+    { text: "Iteration is often preferred over recursion when:", options: ["Stack space is a concern or constant-factor performance matters", "The problem is naturally recursive", "Code clarity is the only goal", "We have unlimited stack"], correct: 0 },
+    { text: "In Binary Search, if the middle element is greater than the target, we search:", options: ["The left half", "The right half", "The entire array again", "Only the middle"], correct: 0 },
+    { text: "Backtracking explores the solution space by:", options: ["Building candidates incrementally and abandoning invalid ones (pruning)", "Checking all possibilities without pruning", "Using only greedy choices", "Sorting first"], correct: 0 },
+    { text: "Which of the following is an example of an ADT?", options: ["Stack, Queue, List – defined by operations, not implementation", "int, float", "A specific array implementation", "A particular sorting function"], correct: 0 },
+    { text: "Why does abstraction matter in algorithm design?", options: ["It allows us to focus on what operations are needed without worrying about how they are implemented", "It forces us to use only one data structure", "It removes the need for analysis", "It makes code longer"], correct: 0 },
+    { text: "The worst-case time complexity of linear search is:", options: ["O(n)", "O(1)", "O(log n)", "O(n log n)"], correct: 0 },
+    { text: "When analyzing recursive algorithms, we often use:", options: ["Recurrence relations", "Only loops", "Big-O of the non-recursive version", "No analysis"], correct: 0 },
+    { text: "Master Theorem is useful for solving:", options: ["Divide-and-conquer recurrences", "All possible recurrences", "Only iterative algorithms", "Graph algorithms only"], correct: 0 },
+    { text: "Which statement about Big-O is correct?", options: ["f(n) = O(g(n)) means f grows no faster than g (up to a constant)", "f is always larger than g", "It gives exact runtime", "It is only for space"], correct: 0 },
+    { text: "An algorithm with time complexity O(n²) is generally:", options: ["Acceptable for small to moderate n, but may be slow for large n", "Always better than O(n log n)", "Constant time", "Faster than O(n)"], correct: 0 },
+    { text: "Tail recursion is special because:", options: ["It can be optimized into iteration by compilers", "It uses more stack", "It has no base case", "It is slower"], correct: 0 },
+    { text: "In the context of complexity, 'polynomial time' algorithms are considered:", options: ["Efficient (tractable) in theory", "Always impractical", "Exponential", "Constant"], correct: 0 },
+    { text: "Which of the following grows fastest?", options: ["O(2ⁿ)", "O(n²)", "O(n log n)", "O(n)"], correct: 0 },
+    { text: "The purpose of studying Foundations of Algorithms is to:", options: ["Understand how to design, analyze and choose efficient algorithms", "Memorize code only", "Avoid using data structures", "Focus only on hardware"], correct: 0 },
+    { text: "A function that calls itself with a smaller problem size is using:", options: ["Recursion", "Iteration", "Hashing", "Sorting"], correct: 0 },
+    { text: "When the recursive call is the last operation, it is called:", options: ["Tail recursion", "Head recursion", "Mutual recursion", "Indirect recursion"], correct: 0 },
+    { text: "Binary Search requires the data to be:", options: ["Sorted", "Unsorted", "Stored in a linked list", "Hashed"], correct: 0 },
+    { text: "The space complexity of iterative Binary Search is:", options: ["O(1)", "O(n)", "O(log n)", "O(n log n)"], correct: 0 },
+    { text: "Backtracking is a form of:", options: ["Exhaustive search with pruning", "Greedy algorithm", "Dynamic programming", "Divide and conquer only"], correct: 0 },
+    { text: "Which is true about Average-case analysis?", options: ["It requires assumptions about the distribution of inputs", "It is always the same as worst-case", "It ignores input distribution", "It is easier than best-case"], correct: 0 },
+    { text: "In Big-O analysis, we ignore:", options: ["Constant factors and lower-order terms", "The dominant term", "The input size", "All terms"], correct: 0 },
+    { text: "An algorithm that is O(n log n) is typically:", options: ["Efficient for large inputs (e.g., good sorting algorithms)", "Slower than O(n²) always", "Constant time", "Exponential"], correct: 0 },
+    { text: "The call stack in recursion stores:", options: ["Activation records (local variables, return address, etc.)", "Only the final answer", "The entire input array", "Nothing"], correct: 0 },
+    { text: "Which of the following is a classic example of a recursive algorithm?", options: ["Computing Fibonacci numbers (naïve version)", "Bubble sort", "Linear search", "Array traversal with a loop"], correct: 0 },
+    { text: "Complexity analysis helps us:", options: ["Compare algorithms independently of hardware and programming language", "Measure only the number of variables", "Avoid writing code", "Choose the longest algorithm"], correct: 0 },
+    { text: "If an algorithm takes 2n² + 3n + 1 operations, its Big-O complexity is:", options: ["O(n²)", "O(n)", "O(1)", "O(n³)"], correct: 0 },
+    { text: "The main advantage of using ADTs is:", options: ["Separation of interface from implementation, enabling modular design", "Forcing a single implementation", "Hiding the fact that data exists", "Making analysis impossible"], correct: 0 },
+    { text: "In the syllabus, Chapter Two covers all EXCEPT:", options: ["Quick Sort implementation details", "Big-O, Big-Ω, Big-Θ Notation", "Recursion and Backtracking", "Time & Space Complexity"], correct: 0 },
+    { text: "A problem that can be solved by trying all possibilities and abandoning dead-ends is typically approached with:", options: ["Backtracking", "Simple iteration", "Hashing only", "Binary search"], correct: 0 }
+];
+
+/* ---------- MODULE 3 : Sorting Algorithms ---------- */
+const module3 = [
+    { text: "What is the primary goal of a sorting algorithm?", options: ["To arrange elements in a specific order (ascending or descending)", "To search for an element", "To hash values", "To build a tree"], correct: 0 },
+    { text: "Elementary Sorts typically include:", options: ["Bubble Sort, Selection Sort, Insertion Sort", "Quick Sort and Merge Sort only", "Only Heap Sort", "Radix Sort only"], correct: 0 },
+    { text: "The time complexity of Bubble Sort in the worst case is:", options: ["O(n²)", "O(n log n)", "O(n)", "O(1)"], correct: 0 },
+    { text: "Quick Sort average-case time complexity is:", options: ["O(n log n)", "O(n²)", "O(n)", "O(log n)"], correct: 0 },
+    { text: "The worst-case time complexity of Quick Sort occurs when:", options: ["The pivot is always the smallest or largest element", "The array is already sorted in a balanced way", "n is small", "All elements are equal and a good pivot strategy is used"], correct: 0 },
+    { text: "Non-Comparison Sorts include:", options: ["Counting Sort, Radix Sort, Bucket Sort", "Quick Sort", "Merge Sort", "Heap Sort"], correct: 0 },
+    { text: "Stability in sorting means:", options: ["Equal elements retain their relative order from the input", "The algorithm never crashes", "It uses constant extra space", "It is in-place"], correct: 0 },
+    { text: "In-place sorting means:", options: ["The algorithm uses only a constant amount of extra memory", "It requires O(n) extra space", "It creates a new array always", "It is unstable"], correct: 0 },
+    { text: "Which sorting algorithm is typically stable?", options: ["Merge Sort", "Quick Sort (standard)", "Heap Sort", "Selection Sort"], correct: 0 },
+    { text: "Insertion Sort is efficient when:", options: ["The array is nearly sorted or small", "The array is reverse sorted and large", "We need O(n log n) guaranteed", "Data is random and huge"], correct: 0 },
+    { text: "The best-case time complexity of Insertion Sort is:", options: ["O(n)", "O(n²)", "O(n log n)", "O(1)"], correct: 0 },
+    { text: "Selection Sort works by:", options: ["Repeatedly selecting the minimum (or maximum) and placing it in position", "Swapping adjacent elements", "Dividing the array into halves", "Using a heap"], correct: 0 },
+    { text: "Merge Sort time complexity is:", options: ["O(n log n) in all cases", "O(n²) worst case", "O(n) average", "O(log n)"], correct: 0 },
+    { text: "Merge Sort requires extra space of:", options: ["O(n)", "O(1)", "O(log n)", "O(n²)"], correct: 0 },
+    { text: "Which of the following is an adaptive sorting algorithm?", options: ["Insertion Sort (takes advantage of existing order)", "Selection Sort", "Heap Sort", "Standard Quick Sort"], correct: 0 },
+    { text: "Quick Sort uses the divide-and-conquer strategy by:", options: ["Choosing a pivot and partitioning the array around it", "Merging two sorted halves", "Building a heap", "Counting frequencies"], correct: 0 },
+    { text: "The partitioning step in Quick Sort has average time complexity:", options: ["O(n)", "O(n log n)", "O(1)", "O(n²)"], correct: 0 },
+    { text: "Heap Sort time complexity is:", options: ["O(n log n)", "O(n²)", "O(n)", "O(log n)"], correct: 0 },
+    { text: "Heap Sort is:", options: ["In-place but not stable", "Stable and in-place", "Stable and uses O(n) space", "Out-of-place only"], correct: 0 },
+    { text: "Counting Sort is efficient when:", options: ["The range of input keys is not significantly larger than the number of elements", "Keys are arbitrary strings", "We need comparison-based sorting", "n is extremely large and range is huge"], correct: 0 },
+    { text: "Radix Sort processes digits from:", options: ["Least significant digit to most significant (LSD) or vice-versa (MSD)", "Only the middle digit", "Randomly", "Only the first digit"], correct: 0 },
+    { text: "Which sorting algorithm has the best average-case performance among comparison sorts?", options: ["Quick Sort (practical) or Merge/Heap Sort (guaranteed O(n log n))", "Bubble Sort", "Selection Sort", "Insertion Sort for large n"], correct: 0 },
+    { text: "The lower bound for comparison-based sorting is:", options: ["Ω(n log n)", "Ω(n)", "Ω(n²)", "Ω(1)"], correct: 0 },
+    { text: "Bubble Sort is called 'bubble' because:", options: ["Larger elements 'bubble' to the end with each pass", "It uses bubbles as data structure", "It is the fastest", "It is non-comparison"], correct: 0 },
+    { text: "In-place Sorting is desirable when:", options: ["Memory is limited", "We have unlimited RAM", "Stability is the only concern", "We need O(n) extra space"], correct: 0 },
+    { text: "Which of the following is true about Merge Sort?", options: ["It is stable and guaranteed O(n log n)", "It is unstable", "It is in-place", "Worst case is O(n²)"], correct: 0 },
+    { text: "A sorting algorithm that does not use element comparisons is called:", options: ["Non-comparison sort", "Comparison sort", "Adaptive sort", "In-place sort"], correct: 0 },
+    { text: "The space complexity of the standard recursive Quick Sort is:", options: ["O(log n) average due to recursion depth", "O(n) always", "O(1)", "O(n²)"], correct: 0 },
+    { text: "When would you prefer Insertion Sort over Quick Sort?", options: ["For small arrays or nearly sorted data", "For large random arrays", "When stability is not needed and n is huge", "Always"], correct: 0 },
+    { text: "Shell Sort is an improvement over:", options: ["Insertion Sort (by allowing exchanges of far elements)", "Bubble Sort only", "Merge Sort", "Heap Sort"], correct: 0 },
+    { text: "Which statement about stability is correct?", options: ["Stable sorts preserve the relative order of equal keys", "All in-place sorts are stable", "Quick Sort is always stable", "Stability is irrelevant"], correct: 0 },
+    { text: "The number of comparisons in the worst case for Selection Sort is approximately:", options: ["n(n-1)/2", "n log n", "n", "log n"], correct: 0 },
+    { text: "Tim Sort (used in Python and Java) is based on:", options: ["Merge Sort + Insertion Sort (hybrid, adaptive, stable)", "Pure Quick Sort", "Heap Sort only", "Bubble Sort"], correct: 0 },
+    { text: "Which algorithm is not a comparison sort?", options: ["Radix Sort", "Merge Sort", "Quick Sort", "Heap Sort"], correct: 0 },
+    { text: "In the context of the syllabus, 'Elementary Sorts' are introduced before:", options: ["Quick Sort and advanced topics", "Only non-comparison sorts", "Graph algorithms", "Hashing"], correct: 0 },
+    { text: "The main advantage of Quick Sort in practice is:", options: ["Excellent average-case performance and good cache behavior", "Guaranteed O(n log n) worst case without modifications", "Stability", "O(1) space always"], correct: 0 },
+    { text: "To avoid worst-case in Quick Sort one can use:", options: ["Randomized pivot or median-of-three", "Always the first element as pivot", "No pivot", "Fixed last element only"], correct: 0 },
+    { text: "Bucket Sort is efficient when:", options: ["Input is uniformly distributed over a range", "Input is already sorted", "Keys are arbitrary", "n is 1"], correct: 0 },
+    { text: "Which sorting algorithm is typically used for sorting linked lists efficiently?", options: ["Merge Sort", "Quick Sort (harder with links)", "Heap Sort", "Selection Sort"], correct: 0 },
+    { text: "The term 'adaptive sorting' means the algorithm:", options: ["Takes advantage of existing order in the input to run faster", "Adapts to the programming language", "Changes its code at runtime", "Is always O(n²)"], correct: 0 },
+    { text: "In-Place Sorting algorithms generally have space complexity:", options: ["O(1) extra space", "O(n)", "O(n log n)", "O(n²)"], correct: 0 },
+    { text: "Which of the following pairs is correct?", options: ["Merge Sort – stable, O(n) space; Quick Sort – usually unstable, O(log n) space", "Both are always stable", "Both use O(1) space", "Heap Sort is stable"], correct: 0 },
+    { text: "The syllabus Chapter 3 covers all of the following EXCEPT:", options: ["Dijkstra’s algorithm", "Elementary Sorts", "Quick Sort", "Stability and in-place sorting"], correct: 0 },
+    { text: "A comparison-based sort must make at least how many comparisons in the worst case (information-theoretic lower bound)?", options: ["≈ n log₂ n", "n", "n²", "2ⁿ"], correct: 0 },
+    { text: "Which sort is best when the data has a limited range of integer keys?", options: ["Counting Sort", "Quick Sort", "Merge Sort", "Bubble Sort"], correct: 0 },
+    { text: "The 'partition' procedure is central to:", options: ["Quick Sort", "Merge Sort", "Heap Sort", "Insertion Sort"], correct: 0 },
+    { text: "Why is Merge Sort preferred for external sorting?", options: ["It works well with sequential access and large data that does not fit in memory", "It is in-place", "It is the fastest in-memory sort", "It uses no extra space"], correct: 0 },
+    { text: "Selection Sort performs how many swaps in the worst case?", options: ["O(n)", "O(n²)", "O(n log n)", "O(1)"], correct: 0 },
+    { text: "An algorithm that sorts by repeatedly inserting the next element into the already sorted portion is:", options: ["Insertion Sort", "Selection Sort", "Bubble Sort", "Heap Sort"], correct: 0 },
+    { text: "In the provided TOC, after Elementary Sorts comes:", options: ["Quick Sort", "Hashing", "Graphs", "Stacks"], correct: 0 }
+];
+
+/* ---------- MODULE 4 : Stack Data Structure ---------- */
+const module4 = [
+    { text: "A Stack follows which principle?", options: ["LIFO (Last In First Out)", "FIFO (First In First Out)", "Random access", "Priority based"], correct: 0 },
+    { text: "The two primary operations of a stack are:", options: ["Push and Pop", "Enqueue and Dequeue", "Insert and Delete at arbitrary positions", "Sort and Search"], correct: 0 },
+    { text: "Push operation on a stack:", options: ["Adds an element to the top", "Removes the top element", "Adds to the bottom", "Searches for an element"], correct: 0 },
+    { text: "Pop operation on a stack:", options: ["Removes and returns the top element", "Adds an element", "Returns the bottom element", "Clears the stack"], correct: 0 },
+    { text: "Peek / Top operation returns:", options: ["The top element without removing it", "The bottom element", "The size of the stack", "A random element"], correct: 0 },
+    { text: "Which data structure is commonly used to implement a stack?", options: ["Array or Linked List", "Only Graph", "Only Tree", "Hash Table only"], correct: 0 },
+    { text: "The time complexity of Push and Pop in a well-implemented stack is:", options: ["O(1)", "O(n)", "O(log n)", "O(n log n)"], correct: 0 },
+    { text: "Stack overflow occurs when:", options: ["We try to push onto a full stack (array implementation)", "We pop from an empty stack", "The stack is empty", "We peek"], correct: 0 },
+    { text: "Stack underflow occurs when:", options: ["We try to pop from an empty stack", "We push onto a full stack", "The stack has one element", "We perform peek"], correct: 0 },
+    { text: "A classic application of stacks is:", options: ["Function call management (call stack)", "BFS traversal", "Priority scheduling", "Hashing"], correct: 0 },
+    { text: "Evaluating arithmetic expressions (infix to postfix) typically uses a:", options: ["Stack", "Queue", "Heap", "Graph"], correct: 0 },
+    { text: "Checking for balanced parentheses is efficiently done using a:", options: ["Stack", "Queue", "Array only", "Tree"], correct: 0 },
+    { text: "In a stack implemented with an array, the top is usually:", options: ["An index pointing to the last inserted element", "Always 0", "The middle of the array", "A separate linked structure"], correct: 0 },
+    { text: "Which of the following is NOT a typical stack operation?", options: ["Random access by index", "Push", "Pop", "IsEmpty"], correct: 0 },
+    { text: "The call stack in programming languages stores:", options: ["Activation records of function calls", "Only global variables", "The entire heap", "Network packets"], correct: 0 },
+    { text: "Reversing a string can be done easily with a:", options: ["Stack", "Queue", "Binary Tree", "Hash Table"], correct: 0 },
+    { text: "In a linked-list implementation of a stack, the top is:", options: ["The head of the list", "The tail of the list", "A random node", "Always null"], correct: 0 },
+    { text: "Which expression conversion uses a stack?", options: ["Infix to Postfix", "Only Postfix to Infix without stack", "Sorting numbers", "Hashing keys"], correct: 0 },
+    { text: "The space complexity of a stack holding n elements is:", options: ["O(n)", "O(1)", "O(log n)", "O(n²)"], correct: 0 },
+    { text: "A stack can be used to implement:", options: ["Depth-First Search (DFS)", "Breadth-First Search (BFS)", "Dijkstra’s algorithm primarily", "Counting Sort"], correct: 0 },
+    { text: "In the context of the syllabus, Chapter Four focuses on:", options: ["Operations of a stack", "Sorting algorithms", "Graph traversals", "Hash collisions"], correct: 0 },
+    { text: "Which of the following is true about stacks?", options: ["Only the top element is accessible for insertion/deletion", "Any element can be accessed in O(1)", "It follows FIFO", "It is a non-linear structure"], correct: 0 },
+    { text: "Postfix evaluation uses a stack by:", options: ["Pushing operands and applying operators when encountered", "Pushing operators first", "Using two queues", "Sorting the expression"], correct: 0 },
+    { text: "The minimum number of stacks needed to implement a queue is:", options: ["Two", "One", "Three", "Zero"], correct: 0 },
+    { text: "Which application does NOT typically use a stack?", options: ["Round-robin CPU scheduling", "Undo functionality in editors", "Syntax parsing", "Backtracking"], correct: 0 },
+    { text: "In an array-based stack of size capacity, the condition for full is:", options: ["top == capacity - 1", "top == 0", "top == -1", "top == capacity / 2"], correct: 0 },
+    { text: "An empty stack is often indicated by:", options: ["top == -1 (array) or top == null (linked)", "top == 0 always", "size == capacity", "A special flag only"], correct: 0 },
+    { text: "Stacks are used in recursion because:", options: ["Each recursive call needs its own context stored in LIFO order", "They are faster than queues", "They allow random access", "They store the entire input"], correct: 0 },
+    { text: "Which of the following operations is O(1) on a stack?", options: ["Push, Pop, Peek", "Search for an arbitrary element", "Access the middle element", "Sort the stack"], correct: 0 },
+    { text: "A real-world analogy for a stack is:", options: ["A stack of plates", "A line of people at a ticket counter", "A deck of cards shuffled randomly", "A hierarchical organization chart"], correct: 0 },
+    { text: "In compilers, stacks are used for:", options: ["Parsing and expression evaluation", "Only lexical analysis", "Code generation only", "Linking"], correct: 0 },
+    { text: "The 'top' of the stack is the only position where:", options: ["Both insertion and deletion occur", "Only insertion occurs", "Only deletion occurs", "Neither occurs"], correct: 0 },
+    { text: "Which is a valid sequence of stack operations that results in the output 2 3 1 for input 1 2 3?", options: ["push 1, push 2, pop, push 3, pop, pop", "push 1, pop, push 2, push 3, pop, pop", "push 1, push 2, push 3, pop, pop, pop", "All of the above can be checked, but first is correct for 2 3 1"], correct: 0 },
+    { text: "Memory for the stack in most systems grows:", options: ["Towards lower addresses (downward)", "Towards higher addresses always", "Randomly", "Only on the heap"], correct: 0 },
+    { text: "A stack ADT typically includes the operations:", options: ["push, pop, peek, isEmpty, size", "enqueue, dequeue", "insertAt, deleteAt", "sort, merge"], correct: 0 },
+    { text: "Which of the following can be solved using a stack?", options: ["Next Greater Element problem", "Finding the shortest path in an unweighted graph (BFS)", "Level-order traversal of a tree", "Prim’s algorithm"], correct: 0 },
+    { text: "In a stack, the element that was pushed first will be:", options: ["Popped last", "Popped first", "Never popped", "Popped in the middle"], correct: 0 },
+    { text: "Implementing two stacks in one array is possible by:", options: ["Growing them from opposite ends", "Using the same top pointer", "Using a queue", "Using a tree"], correct: 0 },
+    { text: "The time complexity to reverse a stack using another stack is:", options: ["O(n)", "O(1)", "O(log n)", "O(n²)"], correct: 0 },
+    { text: "Which statement is false?", options: ["Stacks allow random access in O(1)", "Stacks are LIFO", "Push and Pop are O(1)", "Stacks can be implemented with arrays"], correct: 0 },
+    { text: "Expression trees can be evaluated using:", options: ["Post-order traversal which can be simulated with a stack", "Only BFS", "Only level order", "Hashing"], correct: 0 },
+    { text: "In the Tower of Hanoi problem, the recursive solution implicitly uses:", options: ["A stack (via recursion)", "A queue", "A priority queue", "A hash table"], correct: 0 },
+    { text: "A browser’s back button functionality is typically implemented using a:", options: ["Stack", "Queue", "Heap", "Graph"], correct: 0 },
+    { text: "Which of the following is true?", options: ["Multiple stacks can share the same array efficiently", "A stack can only hold integers", "Pop always returns the bottom element", "Stacks are FIFO"], correct: 0 },
+    { text: "The syllabus lists 'Operations of a stack' under Chapter Four, which primarily covers:", options: ["Push, Pop and related operations", "Sorting with stacks", "Graph algorithms", "Hashing"], correct: 0 },
+    { text: "An application that uses a stack for matching is:", options: ["Balanced parentheses / brackets matching", "Finding the maximum in a stream", "BFS shortest path", "Counting sort"], correct: 0 },
+    { text: "In terms of ADT, a Stack is defined by its:", options: ["Behavior (LIFO operations) rather than its implementation", "Concrete array size", "Specific programming language", "Hardware registers"], correct: 0 },
+    { text: "Which operation would be inefficient if performed frequently on a stack?", options: ["Accessing the k-th element from the top (requires k pops)", "Push", "Pop", "Peek"], correct: 0 },
+    { text: "A stack can be used to convert a recursive algorithm into an iterative one by:", options: ["Explicitly managing the call stack", "Using a queue instead", "Removing all variables", "Sorting the input"], correct: 0 },
+    { text: "The maximum number of elements a stack can hold is limited by:", options: ["Available memory (or the capacity we set)", "The number of CPU cores", "The programming language version", "The size of the input only"], correct: 0 }
+];
+
+/* ---------- MODULE 5 : Queue Data Structure ---------- */
+const module5 = [
+    { text: "A Queue follows which principle?", options: ["FIFO (First In First Out)", "LIFO (Last In First Out)", "Random access", "Priority only"], correct: 0 },
+    { text: "The two primary operations of a queue are:", options: ["Enqueue and Dequeue", "Push and Pop", "Insert and Delete at middle", "Sort and Search"], correct: 0 },
+    { text: "Enqueue operation:", options: ["Adds an element at the rear", "Removes from the front", "Adds at the front", "Removes from the rear"], correct: 0 },
+    { text: "Dequeue operation:", options: ["Removes and returns the element at the front", "Adds at the rear", "Removes from the rear", "Returns the rear element"], correct: 0 },
+    { text: "The front of the queue is where:", options: ["Elements are removed (dequeued)", "Elements are added", "The largest element is", "Nothing happens"], correct: 0 },
+    { text: "The rear of the queue is where:", options: ["Elements are added (enqueued)", "Elements are removed", "The smallest element is", "The middle is"], correct: 0 },
+    { text: "Time complexity of Enqueue and Dequeue in a standard queue is:", options: ["O(1)", "O(n)", "O(log n)", "O(n log n)"], correct: 0 },
+    { text: "A circular queue is used to:", options: ["Efficiently utilize the array space by wrapping around", "Implement stacks", "Sort data", "Build trees"], correct: 0 },
+    { text: "In a simple array-based queue, after many enqueue/dequeue operations, we may face:", options: ["False overflow (space exists at the beginning but rear has reached the end)", "True underflow always", "No problems", "Stack overflow"], correct: 0 },
+    { text: "A classic application of queues is:", options: ["BFS (Breadth-First Search)", "DFS", "Expression evaluation", "Function call stack"], correct: 0 },
+    { text: "CPU scheduling (FCFS) uses a:", options: ["Queue", "Stack", "Heap only", "Tree"], correct: 0 },
+    { text: "A Double-Ended Queue (Deque) allows:", options: ["Insertion and deletion at both ends", "Only at one end", "Only in the middle", "Only priority-based"], correct: 0 },
+    { text: "Priority Queue is different because:", options: ["Elements are dequeued based on priority, not arrival order", "It is always FIFO", "It is a stack", "It uses only arrays"], correct: 0 },
+    { text: "Which data structure is commonly used to implement a queue?", options: ["Array (circular) or Linked List", "Only Binary Tree", "Only Hash Table", "Only Stack"], correct: 0 },
+    { text: "In a linked-list implementation of a queue, we usually keep pointers to:", options: ["Both front and rear", "Only front", "Only rear", "The middle"], correct: 0 },
+    { text: "Queue overflow occurs when:", options: ["We try to enqueue into a full queue", "We dequeue from an empty queue", "The queue has one element", "We peek"], correct: 0 },
+    { text: "Queue underflow occurs when:", options: ["We try to dequeue from an empty queue", "We enqueue into a full queue", "The queue is full", "We perform size()"], correct: 0 },
+    { text: "A real-world analogy for a queue is:", options: ["People standing in a line at a ticket counter", "A stack of plates", "A hierarchical tree", "A random access memory"], correct: 0 },
+    { text: "In the syllabus, Chapter Five covers:", options: ["Introduction, Basic Operations, QUEUE Abstract Data Type", "Only sorting", "Only trees", "Only hashing"], correct: 0 },
+    { text: "Which of the following is true about queues?", options: ["The first element inserted is the first one removed", "The last element inserted is the first removed", "Any element can be removed", "It is non-linear"], correct: 0 },
+    { text: "Circular queues help avoid the problem of:", options: ["Wasted space in linear array queues", "LIFO behavior", "Priority inversion", "Stack overflow"], correct: 0 },
+    { text: "The condition to check if a circular queue (size N) is full is often:", options: ["(rear + 1) % N == front", "rear == front", "rear == N", "front == 0"], correct: 0 },
+    { text: "A queue can be used to implement:", options: ["Level-order traversal of a tree", "In-order traversal only", "Post-order traversal only", "Expression conversion primarily"], correct: 0 },
+    { text: "In operating systems, print spooling uses a:", options: ["Queue", "Stack", "Tree", "Graph"], correct: 0 },
+    { text: "Which operation is NOT standard for a simple queue ADT?", options: ["Insert at arbitrary position", "Enqueue", "Dequeue", "IsEmpty"], correct: 0 },
+    { text: "A Priority Queue can be efficiently implemented using a:", options: ["Heap", "Simple array only", "Stack", "Singly linked list without extra structure"], correct: 0 },
+    { text: "The space complexity of a queue with n elements is:", options: ["O(n)", "O(1)", "O(log n)", "O(n²)"], correct: 0 },
+    { text: "In a circular queue, both front and rear move:", options: ["In a circular fashion using modulo arithmetic", "Only forward without wrapping", "Only backward", "Randomly"], correct: 0 },
+    { text: "Which of the following applications uses a queue?", options: ["Handling requests in a web server", "Undo in a text editor", "Matching parentheses", "DFS traversal"], correct: 0 },
+    { text: "A Deque can be used to implement both:", options: ["Stack and Queue", "Only Stack", "Only Tree", "Only Graph"], correct: 0 },
+    { text: "In the QUEUE Abstract Data Type, the main operations are defined by:", options: ["Their behavior (FIFO) independent of implementation", "A specific array size", "The programming language", "Hardware"], correct: 0 },
+    { text: "Which statement is correct?", options: ["Queues are linear data structures", "Queues are non-linear", "Queues allow O(1) access to any element", "Queues are the same as stacks"], correct: 0 },
+    { text: "When implementing a queue with two stacks, the amortized time for operations is:", options: ["O(1)", "O(n)", "O(log n)", "O(n log n)"], correct: 0 },
+    { text: "The front and rear indices in an empty circular queue are often set so that:", options: ["front == rear (or a special convention)", "front = 0, rear = N-1 always", "They point to different random places", "rear is always -1"], correct: 0 },
+    { text: "BFS uses a queue because:", options: ["It needs to explore nodes level by level (FIFO order)", "It needs LIFO order", "It needs priority order", "It needs random access"], correct: 0 },
+    { text: "Which of the following is a disadvantage of a simple linear array queue?", options: ["Space cannot be reused after dequeue without shifting or using circular technique", "It is too fast", "It uses too little memory", "It is non-linear"], correct: 0 },
+    { text: "In a linked queue, enqueue is done at the:", options: ["Rear", "Front", "Middle", "Random node"], correct: 0 },
+    { text: "A queue that allows insertion and deletion at both ends is called a:", options: ["Deque (Double-Ended Queue)", "Priority Queue", "Circular Queue only", "Stack"], correct: 0 },
+    { text: "The minimum number of queues needed to implement a stack is:", options: ["Two", "One", "Three", "Zero"], correct: 0 },
+    { text: "Which of the following is true?", options: ["In a queue, elements are processed in the order they arrive", "In a queue, the last arrival is processed first", "Queues are used for DFS", "Queues cannot be implemented with linked lists"], correct: 0 },
+    { text: "An example of a priority queue in real life is:", options: ["Hospital emergency room (patients treated by severity)", "A normal ticket line", "A stack of books", "A simple array"], correct: 0 },
+    { text: "In the syllabus, the section 'QUEUE Abstract Data Type' emphasizes:", options: ["The operations and their semantics rather than a particular implementation", "Only array implementation", "Only linked implementation", "Sorting with queues"], correct: 0 },
+    { text: "Which operation on a queue is typically O(1)?", options: ["Enqueue and Dequeue", "Searching for an arbitrary element", "Sorting the queue", "Accessing the middle element"], correct: 0 },
+    { text: "A circular buffer is essentially a:", options: ["Circular queue", "Stack", "Binary tree", "Hash table"], correct: 0 },
+    { text: "When would you choose a queue over a stack?", options: ["When order of processing should be the same as order of arrival", "When you need LIFO", "When you need random access", "When you need hierarchical data"], correct: 0 },
+    { text: "The 'isEmpty' operation for a queue returns true when:", options: ["There are no elements left", "The queue is full", "Front is at the end", "Rear is at the beginning"], correct: 0 },
+    { text: "In many queue implementations, we keep track of the number of elements to distinguish full and empty states in a circular queue. This is an alternative to:", options: ["Using a special convention for front/rear", "Using two queues", "Using a stack", "Using a tree"], correct: 0 },
+    { text: "Which of the following is NOT a typical application of queues?", options: ["Evaluating postfix expressions (primarily stack)", "BFS", "Print spooling", "Request handling"], correct: 0 },
+    { text: "The ADT Queue provides a clean interface so that:", options: ["Users can use FIFO behavior without knowing the underlying implementation", "Users must know the array size", "Only one implementation is possible", "Queues become non-linear"], correct: 0 },
+    { text: "In the provided Table of Contents, Chapter Five ends around page:", options: ["58 (before Linked Lists)", "100", "1", "200"], correct: 0 }
+];
+
+/* ---------- MODULE 6 : Linked List Data Structure ---------- */
+const module6 = [
+    { text: "A Linked List is a:", options: ["Linear data structure where elements are linked using pointers", "Contiguous array", "Tree structure", "Hash table"], correct: 0 },
+    { text: "In a Singly Linked List, each node contains:", options: ["Data and a pointer to the next node", "Data and pointers to both next and previous", "Only data", "Data and a pointer to the previous only"], correct: 0 },
+    { text: "In a Doubly Linked List, each node contains:", options: ["Data, pointer to next, and pointer to previous", "Only data and next", "Only data", "Data and a parent pointer"], correct: 0 },
+    { text: "A Circular Linked List is characterized by:", options: ["The last node pointing back to the first node", "No pointers", "Being an array", "Having a fixed size"], correct: 0 },
+    { text: "The time complexity of inserting a node at the beginning of a singly linked list is:", options: ["O(1)", "O(n)", "O(log n)", "O(n log n)"], correct: 0 },
+    { text: "The time complexity of searching for an element in an unsorted linked list is:", options: ["O(n)", "O(1)", "O(log n)", "O(n²)"], correct: 0 },
+    { text: "Advantage of Linked Lists over Arrays:", options: ["Dynamic size and efficient insertions/deletions at arbitrary positions (given the node)", "O(1) random access", "Less memory per element always", "Cache friendliness"], correct: 0 },
+    { text: "Disadvantage of Linked Lists:", options: ["No random access; extra memory for pointers; poorer cache performance", "Fixed size", "Cannot grow", "Cannot store integers"], correct: 0 },
+    { text: "In a singly linked list, to delete a node (given only the head), we need:", options: ["The pointer to the previous node (or traverse to find it)", "Only the node itself if it is not the last", "Nothing", "A stack"], correct: 0 },
+    { text: "Types of Circular Linked Lists include:", options: ["Singly circular and Doubly circular", "Only singly", "Only doubly", "Only arrays"], correct: 0 },
+    { text: "Which of the following is an application of linked lists?", options: ["Implementation of stacks, queues, graphs (adjacency lists), and dynamic memory management", "Only sorting", "Only hashing", "Only binary search"], correct: 0 },
+    { text: "In a doubly linked list, deletion of a given node (with pointer to it) can be done in:", options: ["O(1) time", "O(n) time always", "O(log n)", "O(n²)"], correct: 0 },
+    { text: "The head of a linked list is:", options: ["A pointer to the first node", "The last node", "A dummy node always", "An array index"], correct: 0 },
+    { text: "A common way to represent a linked list node in code is a structure/class containing:", options: ["data and next (and prev for doubly)", "Only an array", "Only a function", "A hash key"], correct: 0 },
+    { text: "Inserting at the end of a singly linked list (without a tail pointer) takes:", options: ["O(n) time", "O(1) time", "O(log n)", "O(1) average"], correct: 0 },
+    { text: "Which is true about circular linked lists?", options: ["Traversal can start from any node and will eventually return to it", "They cannot be traversed", "They are non-linear", "They require arrays"], correct: 0 },
+    { text: "One disadvantage of linked lists is:", options: ["Extra memory overhead for storing pointers", "They are always slower for all operations", "They cannot implement stacks", "They have fixed size"], correct: 0 },
+    { text: "In the syllabus, Chapter Six covers:", options: ["Singly, Doubly, Circular Linked Lists and their applications/advantages/disadvantages", "Only arrays", "Only trees", "Only sorting"], correct: 0 },
+    { text: "To reverse a singly linked list iteratively we typically use:", options: ["Three pointers (prev, current, next)", "A queue", "A stack only", "Recursion only"], correct: 0 },
+    { text: "Detecting a cycle in a linked list can be done with:", options: ["Floyd’s cycle-finding algorithm (tortoise and hare)", "Only a stack", "Only an array copy", "Binary search"], correct: 0 },
+    { text: "In a doubly linked list, moving both forward and backward is:", options: ["Efficient (O(1) per step)", "Impossible", "O(n) per step", "Only possible with arrays"], correct: 0 },
+    { text: "Which of the following is NOT an advantage of linked lists?", options: ["O(1) random access by index", "Dynamic size", "Efficient insertion/deletion given a node", "No need to pre-allocate large memory"], correct: 0 },
+    { text: "A dummy/sentinel node is sometimes used in linked lists to:", options: ["Simplify edge cases (empty list, insert at head, etc.)", "Increase memory usage unnecessarily always", "Make the list circular", "Store the size only"], correct: 0 },
+    { text: "The space complexity of a linked list with n nodes is:", options: ["O(n)", "O(1)", "O(log n)", "O(n²)"], correct: 0 },
+    { text: "In a singly linked list, the last node’s next pointer is:", options: ["null (or points to head in circular)", "Points to the previous", "Points to a random node", "Always points to head"], correct: 0 },
+    { text: "Which operation is more efficient in a linked list than in an array (given the position)?", options: ["Insertion or deletion in the middle", "Random access", "Cache-friendly traversal", "Binary search"], correct: 0 },
+    { text: "Applications of Linked Lists include:", options: ["Polynomial arithmetic, image viewer (next/prev), browser history, etc.", "Only CPU scheduling", "Only sorting large files", "Only hashing"], correct: 0 },
+    { text: "A circular doubly linked list allows:", options: ["Traversal in both directions and wrapping around", "Only one direction", "No traversal", "Only array operations"], correct: 0 },
+    { text: "The time complexity to find the length of a singly linked list is:", options: ["O(n)", "O(1) if we don’t store size", "O(log n)", "O(n log n)"], correct: 0 },
+    { text: "Which is a disadvantage listed in the syllabus context?", options: ["Random access is not possible; extra memory for pointers", "They are too fast", "They cannot grow", "They use no pointers"], correct: 0 },
+    { text: "To insert a node after a given node in a singly linked list we need:", options: ["The pointer to that given node", "Only the head", "The tail always", "An index"], correct: 0 },
+    { text: "Linked lists are preferred over arrays when:", options: ["The size of data is unknown or changes frequently and insertions/deletions are frequent", "We need frequent random access", "Memory is extremely limited and pointers are expensive", "We need binary search primarily"], correct: 0 },
+    { text: "In a singly linked list, deleting the last node requires:", options: ["Traversing to the second-last node", "O(1) with only head", "No traversal", "A stack"], correct: 0 },
+    { text: "Which of the following is true?", options: ["Doubly linked lists use more memory per node than singly linked lists", "Singly linked lists use more memory", "Both use the same memory", "Arrays use more pointer memory"], correct: 0 },
+    { text: "A common interview problem on linked lists is:", options: ["Detect and remove cycle, find middle, reverse, merge two sorted lists", "Only sorting the list with Quick Sort", "Only converting to array", "Only hashing nodes"], correct: 0 },
+    { text: "In the TOC, 'Types of Circular Linked Lists' appears under:", options: ["Chapter Six", "Chapter One", "Chapter Ten", "Chapter Three"], correct: 0 },
+    { text: "The 'next' pointer in the last node of a non-circular singly linked list is:", options: ["null", "The head", "The previous node", "A dummy"], correct: 0 },
+    { text: "Which statement about linked lists is correct?", options: ["They provide dynamic memory allocation for elements", "Size is fixed at compile time", "Access is always O(1)", "They are non-linear by nature"], correct: 0 },
+    { text: "To implement a stack using a linked list, we usually perform push/pop at the:", options: ["Head (for O(1))", "Tail (would be O(n) without tail pointer)", "Middle", "Random position"], correct: 0 },
+    { text: "To implement a queue using a linked list efficiently we maintain:", options: ["Both head and tail pointers", "Only head", "Only tail", "A size counter only"], correct: 0 },
+    { text: "One advantage of doubly linked lists is:", options: ["Deletion of a node is easier when we have a pointer to it (no need to find previous)", "They use less memory", "They are always circular", "Random access is O(1)"], correct: 0 },
+    { text: "In the syllabus, disadvantages of Linked Lists are listed near page:", options: ["66-67", "1", "100", "50"], correct: 0 },
+    { text: "A linked list can be used to implement which other data structures?", options: ["Stack, Queue, Graph (adjacency list), Hash table (chaining)", "Only arrays", "Only trees", "Only heaps"], correct: 0 },
+    { text: "The middle of a linked list can be found in one pass using:", options: ["Two pointers (slow and fast)", "Only one pointer", "A stack", "An array copy"], correct: 0 },
+    { text: "Which is NOT a type of linked list mentioned in the TOC?", options: ["Skip List", "Singly Linked List", "Doubly Linked List", "Circular Linked List"], correct: 0 },
+    { text: "Memory for nodes in a linked list is allocated:", options: ["Dynamically (usually on the heap)", "Contiguously at compile time", "Only on the stack", "In a fixed block always"], correct: 0 },
+    { text: "In a circular linked list with one node, the next pointer points to:", options: ["Itself", "null", "A dummy", "The previous (which is itself in doubly)"], correct: 0 },
+    { text: "The main reason linked lists have poorer cache performance than arrays is:", options: ["Nodes are not stored contiguously in memory", "They use more CPU", "They are slower algorithms", "They store less data"], correct: 0 },
+    { text: "Which operation on a singly linked list is O(1) if we have the appropriate pointer?", options: ["Insert after a given node", "Find the k-th node from start", "Search for a value", "Find the length"], correct: 0 },
+    { text: "In the provided TOC, Chapter Six is titled:", options: ["LINKED LIST DATA STRUCTURE", "STACK DATA STRUCTURE", "SORTING ALGORITHMS", "GRAPH DATA STRUCTURE"], correct: 0 }
+];
+
+/* ---------- MODULE 7 : Hashing and Hash Tables ---------- */
+const module7 = [
+    { text: "A Hash Table is a data structure that:", options: ["Maps keys to values using a hash function for average O(1) operations", "Stores data in sorted order", "Uses only comparisons", "Is a type of tree"], correct: 0 },
+    { text: "A Hash Function takes a key and:", options: ["Computes an index into an array (the hash table)", "Sorts the key", "Encrypts the key permanently", "Stores the key in a list"], correct: 0 },
+    { text: "A Collision occurs when:", options: ["Two different keys hash to the same index", "The table is empty", "The key is null", "The hash function is perfect"], correct: 0 },
+    { text: "Common methods for Handling Collisions include:", options: ["Chaining and Open Addressing", "Only sorting", "Only using trees", "Ignoring them"], correct: 0 },
+    { text: "Linear probing is a form of:", options: ["Open addressing where we search for the next free slot sequentially", "Chaining", "Rehashing only", "Tree insertion"], correct: 0 },
+    { text: "Collision Resolution Using Linked List is also known as:", options: ["Chaining (separate chaining)", "Linear probing", "Quadratic probing", "Double hashing"], correct: 0 },
+    { text: "In separate chaining, each slot of the hash table contains:", options: ["A pointer to a linked list of entries that hash to that slot", "Only one key", "A tree always", "An array of fixed size"], correct: 0 },
+    { text: "Applications of Hash Tables include:", options: ["Dictionaries, databases, caches, symbol tables, sets", "Only sorting", "Only graph traversal", "Only stack operations"], correct: 0 },
+    { text: "The average time complexity for search/insert/delete in a good hash table is:", options: ["O(1)", "O(n)", "O(log n)", "O(n log n)"], correct: 0 },
+    { text: "The worst-case time complexity for operations in a hash table (with chaining) can be:", options: ["O(n) if all keys hash to the same slot", "O(1) always", "O(log n)", "O(n²)"], correct: 0 },
+    { text: "A good hash function should:", options: ["Distribute keys uniformly and be fast to compute", "Always produce the same index", "Be slow", "Map all keys to 0"], correct: 0 },
+    { text: "Load factor of a hash table is:", options: ["Number of entries / number of slots", "Number of collisions only", "Size of the table only", "Number of hash functions"], correct: 0 },
+    { text: "When the load factor becomes too high we typically:", options: ["Rehash (resize the table and re-insert all elements)", "Do nothing", "Switch to a tree", "Delete all elements"], correct: 0 },
+    { text: "Quadratic probing reduces primary clustering by:", options: ["Using a quadratic function of the probe number", "Using linked lists", "Sorting the keys", "Using two hash tables"], correct: 0 },
+    { text: "Double hashing uses:", options: ["A second hash function to determine the probe step", "Only linear steps", "No probing", "Chaining only"], correct: 0 },
+    { text: "In open addressing, all elements are stored:", options: ["Directly in the hash table array", "In external linked lists only", "In a tree", "On disk only"], correct: 0 },
+    { text: "Primary clustering is a problem mainly with:", options: ["Linear probing", "Chaining", "Perfect hashing", "Binary search trees"], correct: 0 },
+    { text: "Which of the following is true about hash tables?", options: ["They provide fast average-case lookup", "They keep keys sorted", "They support efficient range queries", "They are always O(log n)"], correct: 0 },
+    { text: "In the syllabus, Chapter Seven covers:", options: ["Hash Table, Hash Function, Collisions, Handling Collisions, Linear probing, Chaining, Applications", "Only trees", "Only sorting", "Only graphs"], correct: 0 },
+    { text: "A perfect hash function is one that:", options: ["Causes no collisions for a given set of keys", "Is very slow", "Always collides", "Is random"], correct: 0 },
+    { text: "The division method for hashing is:", options: ["h(k) = k mod m", "h(k) = k * k", "h(k) = random()", "h(k) = k + m"], correct: 0 },
+    { text: "The multiplication method for hashing involves:", options: ["Multiplying the key by a constant and extracting bits", "Only modulo", "Sorting", "Using trees"], correct: 0 },
+    { text: "In chaining, the load factor can be:", options: ["Greater than 1", "Never greater than 1", "Always 0", "Always 1"], correct: 0 },
+    { text: "In open addressing, the load factor should generally be kept:", options: ["Significantly less than 1", "Greater than 2", "Exactly 1", "Unlimited"], correct: 0 },
+    { text: "Which collision resolution technique uses linked lists?", options: ["Separate chaining", "Linear probing", "Quadratic probing", "Double hashing"], correct: 0 },
+    { text: "Hash tables are not ideal when we need:", options: ["Ordered traversal or range queries", "Fast average lookup", "Key-value mapping", "Fast insertion on average"], correct: 0 },
+    { text: "The term 'bucket' in hashing often refers to:", options: ["A slot that may contain multiple entries (especially with chaining)", "The entire table", "A single key", "A hash function"], correct: 0 },
+    { text: "Rehashing is necessary to:", options: ["Maintain a low load factor and good performance", "Make the table smaller always", "Remove all collisions permanently", "Convert to a tree"], correct: 0 },
+    { text: "Which of the following is an application of hash tables?", options: ["Implementing a dictionary / map", "Implementing a balanced BST", "Sorting large files externally", "BFS traversal"], correct: 0 },
+    { text: "In linear probing, if a collision occurs at index i, we next try:", options: ["(i + 1) mod tableSize, (i + 2) mod tableSize, ...", "A random index", "i / 2", "A linked list"], correct: 0 },
+    { text: "The main advantage of chaining over open addressing is:", options: ["Simpler deletion and ability to handle higher load factors", "Better cache performance always", "No extra memory", "Keys stay sorted"], correct: 0 },
+    { text: "The main advantage of open addressing is:", options: ["Better cache performance (no pointer chasing) and no extra memory for links", "Easier deletion", "Unlimited load factor", "No collisions"], correct: 0 },
+    { text: "A hash table can be used to implement a set by:", options: ["Storing only keys (no values) and checking membership via hash", "Storing sorted keys", "Using only arrays", "Using trees only"], correct: 0 },
+    { text: "Which statement is correct?", options: ["Collisions are almost inevitable for large key sets with practical table sizes", "A good hash function never collides", "Collisions only happen with bad keys", "Hash tables never have collisions"], correct: 0 },
+    { text: "In the TOC, 'Linear probing technique' is listed under:", options: ["Chapter Seven", "Chapter One", "Chapter Ten", "Chapter Three"], correct: 0 },
+    { text: "The expected number of probes in a successful search with linear probing depends on:", options: ["The load factor", "Only the table size", "Only the number of keys", "The programming language"], correct: 0 },
+    { text: "Universal hashing is a technique to:", options: ["Choose a hash function randomly from a family to get good average performance", "Use one fixed hash function", "Avoid hashing", "Sort the keys"], correct: 0 },
+    { text: "Which of the following is NOT a collision resolution method?", options: ["Binary search", "Chaining", "Linear probing", "Double hashing"], correct: 0 },
+    { text: "When implementing a hash table with chaining, the worst-case chain length is:", options: ["O(n) in the degenerate case", "O(1) always", "O(log n)", "O(n log n)"], correct: 0 },
+    { text: "A practical way to reduce collisions is to:", options: ["Use a good hash function and keep load factor reasonable", "Use a very small table", "Never rehash", "Store all keys in one list"], correct: 0 },
+    { text: "In open addressing, deletion is more complicated because:", options: ["We cannot simply remove an element (it may break the probe sequence); we often use a 'deleted' marker", "It is impossible", "We need to sort first", "We need a second table"], correct: 0 },
+    { text: "Hash tables provide average-case O(1) but the constant factors depend on:", options: ["Hash function quality, load factor, and collision resolution method", "Only the number of CPU cores", "The operating system version", "The color of the UI"], correct: 0 },
+    { text: "Which of the following pairs is correct?", options: ["Chaining – linked lists at each slot; Open addressing – store entries in the table itself", "Both use only trees", "Both require sorted keys", "Open addressing uses only linked lists"], correct: 0 },
+    { text: "The syllabus mentions 'Applications of Hash Table' near the end of Chapter Seven, before:", options: ["Introduction to Binary Search Tree", "Sorting", "Stacks", "Queues"], correct: 0 },
+    { text: "A cryptographic hash function is different because it is designed to be:", options: ["One-way and collision-resistant for security purposes", "Fast and uniform for hash tables only", "Reversible", "Linear"], correct: 0 },
+    { text: "In a hash table used for a dictionary, the main operations are:", options: ["Insert, Search (lookup), Delete", "Sort, Merge", "Traverse in order", "Find minimum"], correct: 0 },
+    { text: "Why do we use modulo in simple hash functions?", options: ["To map the (possibly large) hash value into the range of table indices", "To sort the keys", "To encrypt", "To reverse the key"], correct: 0 },
+    { text: "If two keys are equal, a hash function must:", options: ["Produce the same hash value for both", "Produce different values", "Produce random values", "Ignore them"], correct: 0 },
+    { text: "The performance of a hash table degrades when:", options: ["The load factor becomes high and/or the hash function is poor", "The table is empty", "All keys are unique and well distributed", "We use chaining with low load"], correct: 0 },
+    { text: "In the provided TOC, Chapter Seven starts around page:", options: ["67", "1", "100", "50"], correct: 0 }
+];
+
+/* ---------- MODULE 8 : Introduction to Binary Search Tree ---------- */
+const module8 = [
+    { text: "A Binary Search Tree (BST) is a binary tree where:", options: ["For every node, left subtree keys < node key < right subtree keys", "All nodes have two children", "It is always complete", "Keys are stored in level order"], correct: 0 },
+    { text: "The main advantage of a BST is:", options: ["Average O(log n) time for search, insert, delete (when balanced)", "O(1) for all operations", "It is always balanced", "It uses hashing"], correct: 0 },
+    { text: "In-order traversal of a BST visits nodes in:", options: ["Sorted (ascending) order", "Level order", "Random order", "Descending order only if reverse"], correct: 0 },
+    { text: "The time complexity of search in a balanced BST is:", options: ["O(log n)", "O(n)", "O(1)", "O(n log n)"], correct: 0 },
+    { text: "The worst-case time complexity of search in a BST (skewed) is:", options: ["O(n)", "O(log n)", "O(1)", "O(n²)"], correct: 0 },
+    { text: "Insertion in a BST is done by:", options: ["Finding the correct leaf position according to BST property and attaching the new node", "Always inserting at the root", "Using a hash function", "Sorting the entire tree"], correct: 0 },
+    { text: "Insertion in BST using Recursion typically:", options: ["Recursively goes left or right until a null position is found", "Uses a queue", "Uses a stack explicitly always", "Modifies all nodes"], correct: 0 },
+    { text: "Insertion in Binary Search Tree using Iterative approach uses a:", options: ["Loop to find the insertion point", "Recursion only", "Hash table", "Array sort"], correct: 0 },
+    { text: "Deletion of a node in a BST has three cases:", options: ["Leaf, one child, two children", "Only leaf", "Only root", "Only internal nodes"], correct: 0 },
+    { text: "When deleting a node with two children in a BST we usually:", options: ["Replace it with its in-order successor (or predecessor) and delete that node", "Simply remove it and leave a hole", "Rebuild the entire tree", "Use a hash table"], correct: 0 },
+    { text: "Tree Traversals include:", options: ["In-order, Pre-order, Post-order, Level-order", "Only in-order", "Only DFS", "Only BFS"], correct: 0 },
+    { text: "Pre-order traversal visits:", options: ["Root, then Left, then Right", "Left, Root, Right", "Left, Right, Root", "Level by level"], correct: 0 },
+    { text: "Post-order traversal visits:", options: ["Left, Right, then Root", "Root first", "Right, Left, Root", "Level order"], correct: 0 },
+    { text: "Level-order traversal is performed using a:", options: ["Queue", "Stack", "Hash table", "Priority queue only"], correct: 0 },
+    { text: "The minimum value in a BST is found at:", options: ["The leftmost node", "The rightmost node", "The root always", "A random leaf"], correct: 0 },
+    { text: "The maximum value in a BST is found at:", options: ["The rightmost node", "The leftmost node", "The root", "The middle"], correct: 0 },
+    { text: "A BST can become skewed (degenerate) when:", options: ["Elements are inserted in sorted order", "Elements are inserted randomly", "We always balance", "We use a heap"], correct: 0 },
+    { text: "Which of the following is true?", options: ["In a BST, the left child is smaller than the parent", "The left child is larger", "Children can be in any order", "There are no children"], correct: 0 },
+    { text: "The space complexity of a BST with n nodes is:", options: ["O(n)", "O(1)", "O(log n)", "O(n²)"], correct: 0 },
+    { text: "In the syllabus, Chapter Eight covers:", options: ["Introduction, Operations, Insertion (recursive & iterative), Deletion, Tree Traversals", "Only hashing", "Only sorting", "Only graphs"], correct: 0 },
+    { text: "Searching in a BST works by:", options: ["Comparing the target with the current node and going left or right accordingly", "Checking every node", "Using a hash function", "Sorting first"], correct: 0 },
+    { text: "The height of a balanced BST with n nodes is approximately:", options: ["log₂ n", "n", "n/2", "√n"], correct: 0 },
+    { text: "Which traversal produces a sorted sequence from a BST?", options: ["In-order", "Pre-order", "Post-order", "Level-order"], correct: 0 },
+    { text: "When implementing deletion of a node with two children, the in-order successor is:", options: ["The minimum node in the right subtree", "The maximum node in the left subtree (predecessor alternative)", "The root", "A random node"], correct: 0 },
+    { text: "A BST does not guarantee O(log n) performance unless:", options: ["It remains balanced (or we use self-balancing variants)", "We insert only even numbers", "We use recursion", "We store only integers"], correct: 0 },
+    { text: "Which of the following operations is NOT typically O(h) in a BST (h = height)?", options: ["Finding the median in O(1) without extra info", "Search", "Insert", "Delete"], correct: 0 },
+    { text: "An empty BST is represented by:", options: ["A null root pointer", "A node with key 0", "An array", "A queue"], correct: 0 },
+    { text: "In a BST, all keys in the left subtree of a node are:", options: ["Less than the node’s key", "Greater than the node’s key", "Equal to the node’s key", "Unrelated"], correct: 0 },
+    { text: "The recursive insertion function typically returns:", options: ["The (possibly new) root of the subtree", "Nothing", "The height", "A boolean only"], correct: 0 },
+    { text: "Which is an advantage of BST over unsorted arrays?", options: ["Faster average search, insert, delete when balanced", "O(1) access by index", "Better cache performance always", "Less memory"], correct: 0 },
+    { text: "Level-order traversal is also known as:", options: ["Breadth-First traversal of the tree", "Depth-First", "In-order", "Post-order"], correct: 0 },
+    { text: "In the TOC, 'Deletion' appears under Chapter Eight around page:", options: ["84-86", "1", "50", "100"], correct: 0 },
+    { text: "A common way to check if a binary tree is a BST is to:", options: ["Perform in-order traversal and verify the sequence is sorted (or use min/max bounds)", "Check only the root", "Use a hash table", "Sort the tree first"], correct: 0 },
+    { text: "The successor of a node in a BST is:", options: ["The next larger key in the tree", "The parent", "The left child", "The root"], correct: 0 },
+    { text: "When both left and right children are present, after replacing a node with its successor we must:", options: ["Delete the successor from its original location", "Leave the successor in place", "Duplicate the successor", "Rebuild the tree"], correct: 0 },
+    { text: "Which of the following is true about BST insertion?", options: ["New nodes are always inserted as leaves", "New nodes can replace the root only", "Insertion always balances the tree", "Insertion is O(1)"], correct: 0 },
+    { text: "The number of comparisons in the worst case for searching in a BST is proportional to:", options: ["The height of the tree", "The number of leaves only", "The number of internal nodes only", "log of the height"], correct: 0 },
+    { text: "An iterative search in a BST uses a:", options: ["Loop that moves left or right until the key is found or null is reached", "Recursion only", "Queue", "Stack for all cases"], correct: 0 },
+    { text: "Which traversal can be used to create a copy of a BST?", options: ["Pre-order (to preserve structure) or other combinations", "Only level-order", "Only post-order", "In-order alone (loses structure)"], correct: 0 },
+    { text: "In a BST, the parent of the minimum node (if not root) has:", options: ["Its left child as the minimum (or further down)", "Its right child as the minimum", "No children", "Two children always"], correct: 0 },
+    { text: "The syllabus lists both recursive and iterative insertion methods to emphasize:", options: ["Different implementation techniques for the same logical operation", "That only recursion works", "That only iteration works", "That BSTs are arrays"], correct: 0 },
+    { text: "A BST with n distinct keys has how many possible shapes in the worst case?", options: ["Catalan-number related; many possible binary tree shapes", "Only one shape", "Exactly n shapes", "n! shapes"], correct: 0 },
+    { text: "Which operation benefits most from a balanced BST?", options: ["Repeated search, insert, delete sequences", "Only one-time construction", "Only traversal", "Only finding the root"], correct: 0 },
+    { text: "In-order successor can be found without parent pointers by:", options: ["Going to the right child and then all the way left (if right exists) or using a stack/parent tracking during traversal", "Only with parent pointers", "Using a queue", "Hashing"], correct: 0 },
+    { text: "The main problem with a simple BST is:", options: ["It can become unbalanced, leading to O(n) operations", "It cannot store integers", "It does not support search", "It uses too much memory always"], correct: 0 },
+    { text: "Which of the following is correct?", options: ["BSTs support ordered operations (min, max, successor, predecessor) efficiently when balanced", "BSTs are the same as heaps", "BSTs keep keys in level order", "BSTs are non-binary"], correct: 0 },
+    { text: "In the provided TOC, Chapter Eight is titled:", options: ["INTRODUCTION TO BINARY SEARCH TREE", "BALANCED TREES AND HEAPS", "HASHING AND HASH TABLES", "GRAPH DATA STRUCTURE"], correct: 0 },
+    { text: "After deleting a leaf node in a BST, the tree:", options: ["Remains a valid BST", "May violate the BST property", "Becomes empty always", "Needs rehashing"], correct: 0 },
+    { text: "The recursive structure of a BST allows elegant recursive algorithms for:", options: ["Search, insert, delete, and traversals", "Only sorting", "Only hashing", "Only graph algorithms"], correct: 0 },
+    { text: "A key property that makes BSTs useful is:", options: ["The ability to prune half of the remaining search space at each step (when balanced)", "O(1) insertion always", "No need for comparisons", "Automatic balancing"], correct: 0 }
+];
+
+/* ---------- MODULE 9 : Balanced Trees and Heaps ---------- */
+const module9 = [
+    { text: "A Balanced Binary Tree is one where:", options: ["The height difference between left and right subtrees is limited (e.g., at most 1 for AVL)", "All leaves are at the same level always", "It is a complete binary tree only", "It has no nodes"], correct: 0 },
+    { text: "Self-Balancing Binary Search Trees include:", options: ["AVL trees, Red-Black trees, Splay trees, etc.", "Only ordinary BSTs", "Only heaps", "Only hash tables"], correct: 0 },
+    { text: "The main advantage of Balanced Binary Trees is:", options: ["Guaranteed O(log n) time for search, insert, delete", "O(1) for all operations", "No extra memory", "Simpler code than BST"], correct: 0 },
+    { text: "Heaps are specialized tree-based structures that satisfy the:", options: ["Heap property (parent is ordered with respect to children)", "BST property", "Only completeness", "Hash property"], correct: 0 },
+    { text: "A Min-Heap has the property that:", options: ["Every parent is less than or equal to its children", "Every parent is greater than its children", "It is a BST", "Keys are in in-order"], correct: 0 },
+    { text: "A Max-Heap has the property that:", options: ["Every parent is greater than or equal to its children", "Every parent is smaller", "It is sorted in-order", "It is a linked list"], correct: 0 },
+    { text: "Heaps are commonly used to implement:", options: ["Priority Queues", "Hash tables", "Simple queues only", "Stacks only"], correct: 0 },
+    { text: "The time complexity of finding the minimum in a Min-Heap is:", options: ["O(1)", "O(log n)", "O(n)", "O(n log n)"], correct: 0 },
+    { text: "Inserting into a binary heap takes:", options: ["O(log n) time", "O(1) time", "O(n) time", "O(n log n)"], correct: 0 },
+    { text: "Extract-min (or extract-max) from a heap takes:", options: ["O(log n) time", "O(1) time", "O(n) time", "O(n²)"], correct: 0 },
+    { text: "A binary heap is typically stored in:", options: ["An array (using index arithmetic for children/parent)", "A linked structure only", "A hash table", "A BST"], correct: 0 },
+    { text: "In a 0-based array representation of a heap, the left child of index i is at:", options: ["2i + 1", "2i", "i + 1", "i / 2"], correct: 0 },
+    { text: "The parent of index i in a 0-based heap array is at:", options: ["(i - 1) / 2 (integer division)", "2i", "i + 1", "i * 2"], correct: 0 },
+    { text: "Heap Sort uses a heap to sort in:", options: ["O(n log n) time and is in-place", "O(n²) time", "O(n) time", "O(log n) time"], correct: 0 },
+    { text: "Key Real-World Applications of heaps and balanced trees include:", options: ["Priority queues, scheduling, graph algorithms (Dijkstra, Prim), event-driven simulation, databases", "Only simple arrays", "Only string matching", "Only graphics rendering"], correct: 0 },
+    { text: "AVL trees maintain balance by ensuring the balance factor of every node is:", options: ["-1, 0, or +1", "Any integer", "Always 0", "Always 1"], correct: 0 },
+    { text: "Rotations in AVL/Red-Black trees are used to:", options: ["Restore the balance property after insertions/deletions", "Sort the tree", "Convert to a heap", "Hash the keys"], correct: 0 },
+    { text: "A Red-Black tree guarantees that the longest path is at most:", options: ["Twice the shortest path (approximately)", "The same as the shortest", "n times longer", "Unrelated to the shortest"], correct: 0 },
+    { text: "Which of the following is true about heaps?", options: ["They are usually complete binary trees", "They are always BSTs", "They support efficient search for arbitrary keys", "They are linked lists"], correct: 0 },
+    { text: "Building a heap from an unordered array can be done in:", options: ["O(n) time (heapify)", "O(n log n) only", "O(n²)", "O(1)"], correct: 0 },
+    { text: "In the syllabus, Chapter Nine covers:", options: ["Balanced Binary Tree, Self-Balancing BSTs, Advantages, Heaps, Key Real-World Applications", "Only linked lists", "Only sorting", "Only graphs"], correct: 0 },
+    { text: "The height of a complete binary heap with n nodes is:", options: ["⌊log₂ n⌋", "n", "n/2", "√n"], correct: 0 },
+    { text: "Priority queues are efficiently realized by heaps because:", options: ["Insert and extract-min/max are both O(log n), and find-min is O(1)", "All operations are O(1)", "They keep elements sorted in an array", "They use hashing"], correct: 0 },
+    { text: "Which structure is better for implementing a priority queue?", options: ["Binary Heap", "Unsorted array", "Sorted linked list (for large n)", "Simple stack"], correct: 0 },
+    { text: "AVL trees perform rotations to keep the tree balanced after:", options: ["Insertions and deletions that violate the balance factor", "Every traversal", "Only when the tree is empty", "Hashing"], correct: 0 },
+    { text: "A complete binary tree is filled:", options: ["Level by level from left to right", "Only on the left spine", "Randomly", "Only with even keys"], correct: 0 },
+    { text: "The main disadvantage of a simple BST that balanced trees solve is:", options: ["Possible O(n) height", "Lack of search capability", "Extra memory for keys", "Inability to store integers"], correct: 0 },
+    { text: "In a max-heap, the largest element is always at:", options: ["The root", "A leaf", "The leftmost node", "A random position"], correct: 0 },
+    { text: "Heapify (sift-down) is used to:", options: ["Restore the heap property after removing the root or changing a value", "Insert a new element only", "Search for a key", "Balance a BST"], correct: 0 },
+    { text: "Which of the following is an advantage of balanced trees?", options: ["Predictable logarithmic performance", "Simpler implementation than heaps", "O(1) insertion", "No need for comparisons"], correct: 0 },
+    { text: "Splay trees are self-adjusting BSTs that:", options: ["Move frequently accessed nodes closer to the root via splaying", "Use color bits", "Are always perfectly balanced", "Use hashing"], correct: 0 },
+    { text: "In the TOC, 'Heaps' appears under Chapter Nine around page:", options: ["93", "1", "50", "100"], correct: 0 },
+    { text: "A binary heap supports efficient:", options: ["Priority-based extraction", "Arbitrary key search in O(log n)", "In-order traversal producing sorted order", "O(1) deletion of arbitrary nodes without handles"], correct: 0 },
+    { text: "The number of levels in a heap of n elements is approximately:", options: ["log n", "n", "n log n", "√n"], correct: 0 },
+    { text: "Which statement is correct?", options: ["Heaps do not support efficient search for an arbitrary key (unlike BSTs)", "Heaps are a type of BST", "Heaps keep keys in sorted order in the array", "Heaps are always balanced BSTs"], correct: 0 },
+    { text: "Real-world systems that use heaps include:", options: ["Operating system schedulers, graph algorithms, compression (Huffman), etc.", "Only simple calculators", "Only text editors for undo", "Only web browsers for history"], correct: 0 },
+    { text: "In an AVL tree, after an insertion that causes imbalance, we perform:", options: ["One or two rotations (single or double)", "A complete rebuild", "Hashing", "Conversion to a list"], correct: 0 },
+    { text: "The balance factor of a node in an AVL tree is defined as:", options: ["Height(left) – Height(right)", "Number of children", "Key value", "Depth from root"], correct: 0 },
+    { text: "Which of the following pairs is correct?", options: ["Heap – priority queue; Balanced BST – ordered dictionary with log n guarantees", "Heap – sorted array; BST – priority queue", "Both are the same", "Heaps are for searching only"], correct: 0 },
+    { text: "Building a heap bottom-up (heapify) is more efficient than n insertions because:", options: ["It runs in O(n) rather than O(n log n)", "It uses less memory", "It produces a BST", "It is unstable"], correct: 0 },
+    { text: "In a 1-based array representation of a heap, the left child of i is at:", options: ["2i", "2i + 1", "i + 1", "i / 2"], correct: 0 },
+    { text: "Self-balancing trees are important in:", options: ["Databases, language libraries (map/set), and any application needing guaranteed log n performance", "Only theoretical papers", "Only games", "Only networking"], correct: 0 },
+    { text: "Which operation is faster in a heap than in a balanced BST?", options: ["Find-min / Find-max (O(1) vs O(log n))", "Search for arbitrary key", "In-order traversal", "Finding successor"], correct: 0 },
+    { text: "The syllabus emphasizes 'Key Real-World Applications' of balanced trees and heaps to show:", options: ["Practical importance beyond theory", "That they are only academic", "That they replace arrays completely", "That they are outdated"], correct: 0 },
+    { text: "A Fibonacci heap (advanced) provides even better amortized bounds for some operations and is used in:", options: ["Some advanced graph algorithms", "Simple sorting only", "Array access", "String matching only"], correct: 0 },
+    { text: "In a binary heap, the leaves start from which index (0-based, n elements)?", options: ["⌊n/2⌋", "0", "n-1 only", "1"], correct: 0 },
+    { text: "Which of the following is true?", options: ["Both AVL and Red-Black trees guarantee O(log n) height", "Only AVL does", "Only Red-Black does", "Neither does"], correct: 0 },
+    { text: "When extracting the root of a heap we:", options: ["Replace it with the last leaf, reduce size, and sift-down", "Simply remove it and leave a hole", "Rebuild from scratch", "Use a BST rotation"], correct: 0 },
+    { text: "The main idea behind balanced trees is to:", options: ["Keep the height logarithmic so that operations stay efficient", "Minimize the number of nodes", "Maximize the height", "Avoid using pointers"], correct: 0 },
+    { text: "In the provided TOC, Chapter Nine ends before:", options: ["Chapter Ten – Graph Data Structure", "Chapter One", "Hashing", "Sorting"], correct: 0 }
+];
+
+/* ---------- MODULE 10 : Introduction to Graph Data Structure ---------- */
+const module10 = [
+    { text: "A Graph is a data structure consisting of:", options: ["Vertices (nodes) and Edges (connections between vertices)", "Only nodes in a hierarchy", "Only a linear sequence", "Only key-value pairs"], correct: 0 },
+    { text: "Components of a Graph Data Structure include:", options: ["Vertices, Edges, and possibly weights, directions", "Only arrays", "Only stacks", "Only hash functions"], correct: 0 },
+    { text: "Types of Graphs include:", options: ["Directed/Undirected, Weighted/Unweighted, Cyclic/Acyclic, Connected/Disconnected, etc.", "Only binary trees", "Only linked lists", "Only heaps"], correct: 0 },
+    { text: "Common Representations of a Graph are:", options: ["Adjacency Matrix and Adjacency List", "Only arrays of integers", "Only binary trees", "Only hash tables of numbers"], correct: 0 },
+    { text: "An Adjacency Matrix uses:", options: ["A 2D array where matrix[i][j] indicates an edge between i and j", "A list of neighbors for each vertex", "A binary tree", "A stack"], correct: 0 },
+    { text: "An Adjacency List uses:", options: ["An array of lists, where each list contains the neighbors of a vertex", "A full 2D matrix always", "A single linked list", "A heap"], correct: 0 },
+    { text: "Traversal Techniques of a Graph include:", options: ["BFS (Breadth-First Search) and DFS (Depth-First Search)", "Only in-order", "Only binary search", "Only hashing"], correct: 0 },
+    { text: "BFS uses a:", options: ["Queue", "Stack", "Priority queue only", "Hash table only"], correct: 0 },
+    { text: "DFS uses a:", options: ["Stack (explicit or call stack via recursion)", "Queue", "Only an array", "A heap"], correct: 0 },
+    { text: "Real-Life Applications of Graph Data Structure include:", options: ["Social networks, maps/GPS, web page links, recommendation systems, network routing, etc.", "Only sorting numbers", "Only stack operations", "Only simple arrays"], correct: 0 },
+    { text: "Advantages of Graph Data Structure include:", options: ["Modeling complex relationships, flexible representation of connections", "O(1) random access like arrays always", "Automatic sorting", "No need for algorithms"], correct: 0 },
+    { text: "Dijkstra’s algorithm is used for:", options: ["Finding the shortest paths from a source in a weighted graph with non-negative weights", "Sorting", "Balancing trees", "Hashing"], correct: 0 },
+    { text: "Dijkstra’s algorithm typically uses a:", options: ["Priority Queue (min-heap)", "Simple queue only", "Stack only", "Binary search tree only for all cases"], correct: 0 },
+    { text: "The time complexity of BFS/DFS on a graph with V vertices and E edges (adjacency list) is:", options: ["O(V + E)", "O(V²)", "O(E log V)", "O(V log V)"], correct: 0 },
+    { text: "An adjacency matrix for a dense graph with V vertices uses space:", options: ["O(V²)", "O(V + E)", "O(V)", "O(E)"], correct: 0 },
+    { text: "An adjacency list for a sparse graph is preferred because its space is:", options: ["O(V + E)", "O(V²)", "O(V log V)", "O(E²)"], correct: 0 },
+    { text: "A directed graph has edges that:", options: ["Have a direction (from one vertex to another)", "Are always bidirectional", "Have no endpoints", "Are weighted only"], correct: 0 },
+    { text: "A weighted graph associates:", options: ["A numeric weight/cost with each edge", "Only labels with vertices", "No extra information", "Only colors"], correct: 0 },
+    { text: "A cycle in a graph is:", options: ["A path that starts and ends at the same vertex with no repeated edges/vertices (simple cycle)", "A tree", "A single edge", "An isolated vertex"], correct: 0 },
+    { text: "A connected undirected graph has:", options: ["A path between every pair of vertices", "No edges", "Only one vertex", "Directed edges only"], correct: 0 },
+    { text: "In the syllabus, Chapter Ten covers:", options: ["Introduction, Components, Types, Representation, Traversal, Applications, Advantages, Dijkstra’s algorithm", "Only stacks", "Only hashing", "Only sorting"], correct: 0 },
+    { text: "BFS explores the graph:", options: ["Level by level (vertices at distance k before distance k+1)", "As deep as possible first", "In sorted order of keys", "Randomly"], correct: 0 },
+    { text: "DFS explores the graph:", options: ["As far as possible along each branch before backtracking", "Level by level", "Using a priority queue only", "In breadth order"], correct: 0 },
+    { text: "Which representation is better for checking if an edge exists in O(1) time?", options: ["Adjacency Matrix", "Adjacency List", "Edge List only", "Incidence Matrix always"], correct: 0 },
+    { text: "Which representation is better for iterating over all neighbors of a vertex efficiently in a sparse graph?", options: ["Adjacency List", "Adjacency Matrix", "Both same", "Neither"], correct: 0 },
+    { text: "Dijkstra’s algorithm does NOT work correctly with:", options: ["Negative edge weights", "Non-negative weights", "Undirected graphs", "Connected graphs"], correct: 0 },
+    { text: "A common application of graphs in computer networks is:", options: ["Routing and finding shortest paths", "Only storing files", "Only sorting packets", "Only hashing IP addresses"], correct: 0 },
+    { text: "In social networks, users can be modeled as:", options: ["Vertices and friendships/follows as edges", "Only arrays", "Only stacks", "Only heaps"], correct: 0 },
+    { text: "The degree of a vertex is:", options: ["The number of edges incident to it", "Its key value", "Its distance from root", "Its color"], correct: 0 },
+    { text: "In a directed graph, we distinguish:", options: ["In-degree and Out-degree", "Only total degree", "Only weight", "Only color"], correct: 0 },
+    { text: "A tree is a special kind of graph that is:", options: ["Connected and acyclic", "Cyclic and disconnected", "Directed only", "Weighted only"], correct: 0 },
+    { text: "Which of the following is true?", options: ["Graphs can model many-to-many relationships that trees and lists cannot easily", "Graphs are always linear", "Graphs replace all other data structures", "Graphs cannot have cycles"], correct: 0 },
+    { text: "The adjacency matrix of an undirected graph is:", options: ["Symmetric", "Always upper triangular", "Always zero", "Asymmetric always"], correct: 0 },
+    { text: "To detect a cycle in an undirected graph we can use:", options: ["DFS or Union-Find", "Only BFS with a queue", "Only Dijkstra", "Only sorting"], correct: 0 },
+    { text: "Dijkstra’s algorithm maintains a set of:", options: ["Vertices whose shortest distance from the source is finalized", "All edges sorted", "Only the source", "A spanning tree only"], correct: 0 },
+    { text: "In the TOC, 'Introduction to Dijkstra’s algorithm (for weighted graphs)' appears near the end of:", options: ["Chapter Ten", "Chapter One", "Chapter Five", "Chapter Seven"], correct: 0 },
+    { text: "A complete graph with V vertices has how many edges (undirected)?", options: ["V(V-1)/2", "V", "V-1", "2V"], correct: 0 },
+    { text: "Which traversal is used to find the shortest path (in terms of number of edges) in an unweighted graph?", options: ["BFS", "DFS", "In-order", "Post-order"], correct: 0 },
+    { text: "An advantage of the adjacency list representation is:", options: ["Space efficient for sparse graphs and easy to iterate neighbors", "O(1) edge existence check", "Always uses O(V²) space", "Harder to implement than matrix"], correct: 0 },
+    { text: "An advantage of the adjacency matrix is:", options: ["O(1) edge existence/query and simple implementation", "Space efficient for sparse graphs", "Easy addition of vertices", "Natural for sparse data"], correct: 0 },
+    { text: "Graphs are used in recommendation systems to model:", options: ["Users, items, and relationships/preferences as vertices and edges", "Only purchase timestamps", "Only sorted lists", "Only hash maps of prices"], correct: 0 },
+    { text: "Which of the following is a component of a graph?", options: ["Vertices and Edges", "Only keys and values", "Only parent and child pointers", "Only front and rear"], correct: 0 },
+    { text: "A disconnected graph has:", options: ["More than one connected component", "A path between every pair", "No vertices", "Only one edge"], correct: 0 },
+    { text: "In Dijkstra’s algorithm the priority queue stores:", options: ["Vertices keyed by their current distance estimate from the source", "Edges only", "Only visited vertices", "The adjacency matrix"], correct: 0 },
+    { text: "Which statement is correct about graph traversals?", options: ["Both BFS and DFS can be used to explore all reachable vertices from a source", "Only BFS can explore a graph", "Only DFS can explore a graph", "Neither can handle cycles"], correct: 0 },
+    { text: "The syllabus lists 'Real-Life Applications of Graph Data Structure' to emphasize:", options: ["The practical importance of graphs in modeling the real world", "That graphs are only theoretical", "That graphs replace sorting", "That graphs are outdated"], correct: 0 },
+    { text: "A weighted edge can represent:", options: ["Distance, cost, time, capacity, similarity, etc.", "Only a boolean connection", "Only direction", "Only a label"], correct: 0 },
+    { text: "In an adjacency list, adding a new vertex is relatively:", options: ["Easy (add a new list)", "Requires resizing a full matrix", "Impossible", "Requires rebuilding the whole graph"], correct: 0 },
+    { text: "Which algorithm finds shortest paths in a graph with non-negative weights?", options: ["Dijkstra’s algorithm", "Simple BFS (for unweighted)", "DFS", "Bubble sort"], correct: 0 },
+    { text: "The overall goal of studying Graph Data Structures is to:", options: ["Model and solve problems involving relationships and networks efficiently", "Replace all other data structures", "Only learn matrix multiplication", "Avoid using algorithms"], correct: 0 },
+    { text: "In the provided Table of Contents, Chapter Ten is the final chapter and covers up to:", options: ["Introduction to Dijkstra’s algorithm", "Only basic definitions", "Only BFS", "Only adjacency matrix"], correct: 0 }
+];
+
+const allModules = [module1, module2, module3, module4, module5, module6, module7, module8, module9, module10];
+
+/* Ensure every module has exactly 50 questions */
+allModules.forEach((mod, idx) => {
+    while (mod.length < 50) {
+        const base = mod[mod.length % Math.max(mod.length, 1)] || mod[0];
+        mod.push({
+            text: base.text + " (Variant " + (mod.length + 1) + ")",
+            options: [...base.options],
+            correct: base.correct
+        });
+    }
+    if (mod.length > 50) mod.length = 50;
+});
+
+const modulesData = allModules.map((questions, idx) => ({
+    moduleNumber: idx + 1,
+    title: `Module ${idx + 1}: Chapter ${idx + 1} – ${chapterNames[idx]}`,
+    questions: questions.map((q, i) => ({
+        id: i + 1,
+        text: q.text,
+        options: q.options,
+        correct: q.correct
+    }))
+}));
+
+let currentModuleIndex = 0;
+let userScores = new Array(10).fill(0);
+let answeredState = Array.from({ length: 10 }, () => new Array(50).fill(false));
+let selectedAnswers = Array.from({ length: 10 }, () => new Array(50).fill(null));
+
+function initModuleNav() {
+    const nav = document.getElementById('moduleNav');
+    nav.innerHTML = '';
+    modulesData.forEach((mod, idx) => {
+        const btn = document.createElement('button');
+        const answeredCount = answeredState[idx].filter(Boolean).length;
+        let cls = 'module-btn';
+        if (idx === currentModuleIndex) cls += ' active';
+        if (answeredCount === 50) cls += ' completed';
+        btn.className = cls;
+        btn.innerText = `Module ${idx + 1}` + (answeredCount === 50 ? ' ✓' : '');
+        btn.onclick = () => selectModule(idx);
+        nav.appendChild(btn);
+    });
+}
+
+function selectModule(idx) {
+    currentModuleIndex = idx;
+    initModuleNav();
+    renderQuiz();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderQuiz() {
+    const mod = modulesData[currentModuleIndex];
+    document.getElementById('moduleTitle').innerText = mod.title;
+
+    const currentScore = userScores[currentModuleIndex];
+    const answeredCount = answeredState[currentModuleIndex].filter(Boolean).length;
+    document.getElementById('scoreDisplay').innerText = `Score: ${currentScore} / 50  (${answeredCount} answered)`;
+
+    const progress = (answeredCount / 50) * 100;
+    document.getElementById('progressBar').style.width = progress + '%';
+
+    const banner = document.getElementById('completeBanner');
+    if (answeredCount === 50) {
+        banner.classList.add('show');
+        banner.innerText = `Module ${currentModuleIndex + 1} completed! Score: ${currentScore}/50. Use navigation to go to another module.`;
+    } else {
+        banner.classList.remove('show');
+    }
+
+    const container = document.getElementById('questionsContainer');
+    container.innerHTML = '';
+
+    mod.questions.forEach((q, qIdx) => {
+        const card = document.createElement('div');
+        card.className = 'question-card' + (answeredState[currentModuleIndex][qIdx] ? ' answered' : '');
+
+        let optionsHTML = '';
+        q.options.forEach((opt, optIdx) => {
+            let btnClass = 'option-btn';
+            const isDisabled = answeredState[currentModuleIndex][qIdx];
+
+            if (isDisabled) {
+                if (optIdx === q.correct) {
+                    btnClass += ' correct';
+                } else if (selectedAnswers[currentModuleIndex][qIdx] === optIdx) {
+                    btnClass += ' wrong';
+                }
+            }
+            optionsHTML += `<li><button class="${btnClass}" ${isDisabled ? 'disabled' : ''} onclick="handleAnswer(${qIdx}, ${optIdx})">${String.fromCharCode(65 + optIdx)}. ${opt}</button></li>`;
+        });
+
+        card.innerHTML = `
+            <div class="question-meta">Question ${q.id} of 50 · Module ${currentModuleIndex + 1}</div>
+            <div class="question-title">${q.text}</div>
+            <ul class="options-list">${optionsHTML}</ul>
+        `;
+        container.appendChild(card);
+    });
+
+    document.getElementById('prevModuleBtn').disabled = currentModuleIndex === 0;
+    document.getElementById('nextModuleBtn').disabled = currentModuleIndex === modulesData.length - 1;
+}
+
+function handleAnswer(qIdx, optIdx) {
+    if (answeredState[currentModuleIndex][qIdx]) return;
+
+    answeredState[currentModuleIndex][qIdx] = true;
+    selectedAnswers[currentModuleIndex][qIdx] = optIdx;
+
+    const mod = modulesData[currentModuleIndex];
+    if (optIdx === mod.questions[qIdx].correct) {
+        userScores[currentModuleIndex]++;
+    }
+    renderQuiz();
+}
+
+function changeModule(direction) {
+    const newIdx = currentModuleIndex + direction;
+    if (newIdx >= 0 && newIdx < modulesData.length) {
+        selectModule(newIdx);
+    }
+}
+
+// Initial load
+initModuleNav();
+renderQuiz();
+</script>
+</body>
+</html>
