@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Quiz - Module 3: Collections | W3Schools Style</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --card: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #58a6ff;
+    --success: #3fb950;
+    --error: #f85149;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+  .header {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 1.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .logo { font-size: 1.25rem; font-weight: 700; color: var(--accent); }
+  .module-title { color: var(--muted); font-size: 0.95rem; }
+  .progress-wrap {
+    max-width: 900px;
+    margin: 1rem auto 0;
+    padding: 0 1.5rem;
+  }
+  .progress-bar {
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #79c0ff);
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+  .stats {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--muted);
+  }
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 1.5rem;
+  }
+  .question-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+  .question-card.answered { border-color: var(--accent); }
+  .q-number {
+    font-size: 0.75rem;
+    color: var(--accent);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+  }
+  .q-text {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 1.25rem;
+  }
+  .options { display: flex; flex-direction: column; gap: 0.6rem; }
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .option:hover:not(.disabled) {
+    border-color: var(--accent);
+    background: #1c2128;
+  }
+  .option.selected { border-color: var(--accent); }
+  .option.correct {
+    border-color: var(--success);
+    background: rgba(63, 185, 80, 0.12);
+  }
+  .option.wrong {
+    border-color: var(--error);
+    background: rgba(248, 81, 73, 0.12);
+  }
+  .option.disabled { cursor: default; opacity: 0.85; }
+  .option input { display: none; }
+  .radio {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--muted);
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 2px;
+    position: relative;
+  }
+  .option.selected .radio { border-color: var(--accent); }
+  .option.correct .radio { border-color: var(--success); background: var(--success); }
+  .option.wrong .radio { border-color: var(--error); background: var(--error); }
+  .option.correct .radio::after,
+  .option.wrong .radio::after {
+    content: "";
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 8px; height: 8px;
+    background: #fff;
+    border-radius: 50%;
+  }
+  .explanation {
+    display: none;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #0d1117;
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    font-size: 0.95rem;
+    color: var(--muted);
+  }
+  .explanation.show { display: block; }
+  .explanation strong { color: var(--success); }
+  .nav-footer {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 1.5rem 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #0d1117;
+  }
+  .btn-primary:hover { background: #79c0ff; }
+  .btn-secondary {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .score-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.95rem;
+  }
+  .score-box span { color: var(--accent); font-weight: 700; }
+</style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <div>
+        <div class="logo">🐍 Python Quiz</div>
+        <div class="module-title">Module 3 of 4 · Collections (Lists, Tuples, Sets, Dictionaries)</div>
+      </div>
+      <div class="score-box">Score: <span id="score">0</span> / <span id="total">50</span></div>
+    </div>
+  </header>
+
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+    <div class="stats">
+      <span>Answered: <span id="answered">0</span>/50</span>
+      <span>Correct: <span id="correct-count">0</span></span>
+    </div>
+  </div>
+
+  <div class="container" id="quiz-container"></div>
+
+  <div class="nav-footer">
+    <a href="python_module2.html" class="btn btn-secondary">← Module 2: Variables & Data</a>
+    <a href="python_module4.html" class="btn btn-primary">Next Module: Control Flow →</a>
+  </div>
+
+<script>
+const questions = [
+  {
+    q: "How do you create a list in Python?",
+    options: ["list = (1, 2, 3)", "list = [1, 2, 3]", "list = {1, 2, 3}", "list = <1, 2, 3>"],
+    correct: 1,
+    exp: "Lists are created using square brackets []. Example: thislist = [\"apple\", \"banana\", \"cherry\"]"
+  },
+  {
+    q: "Are lists ordered and changeable (mutable)?",
+    options: ["Ordered but not changeable", "Changeable but not ordered", "Both ordered and changeable", "Neither"],
+    correct: 2,
+    exp: "Lists are ordered, changeable (mutable), and allow duplicate values."
+  },
+  {
+    q: "How do you access the first item of a list named fruits?",
+    options: ["fruits[1]", "fruits[0]", "fruits.first()", "fruits.get(0)"],
+    correct: 1,
+    exp: "List indexing starts at 0. fruits[0] returns the first item."
+  },
+  {
+    q: "Which method adds an item to the end of a list?",
+    options: ["add()", "append()", "insert()", "push()"],
+    correct: 1,
+    exp: "The append() method adds an element to the end of the list."
+  },
+  {
+    q: "Which method inserts an item at a specific index?",
+    options: ["append()", "add()", "insert()", "put()"],
+    correct: 2,
+    exp: "insert(index, item) inserts an item at the specified position."
+  },
+  {
+    q: "How do you remove a specific item by value from a list?",
+    options: ["delete()", "remove()", "pop(value)", "discard()"],
+    correct: 1,
+    exp: "The remove() method removes the first occurrence of the specified value."
+  },
+  {
+    q: "What does pop() without an index do?",
+    options: ["Removes the first item", "Removes the last item", "Clears the list", "Raises an error"],
+    correct: 1,
+    exp: "pop() removes and returns the last item if no index is specified."
+  },
+  {
+    q: "How do you create a tuple?",
+    options: ["t = [1, 2, 3]", "t = (1, 2, 3)", "t = {1, 2, 3}", "t = <1, 2, 3>"],
+    correct: 1,
+    exp: "Tuples are created with parentheses (). Example: thistuple = (\"apple\", \"banana\", \"cherry\")"
+  },
+  {
+    q: "Are tuples changeable (mutable)?",
+    options: ["Yes", "No, tuples are immutable", "Only if they contain lists", "Only single-item tuples"],
+    correct: 1,
+    exp: "Tuples are ordered and unchangeable (immutable). Once created, you cannot change, add or remove items."
+  },
+  {
+    q: "How do you create a single-item tuple?",
+    options: ["t = (1)", "t = (1,)", "t = [1]", "t = 1,"],
+    correct: 1,
+    exp: "A single-item tuple requires a trailing comma: thistuple = (\"apple\",)"
+  },
+  {
+    q: "Which method returns the number of times a value appears in a tuple?",
+    options: ["count()", "index()", "find()", "len()"],
+    correct: 0,
+    exp: "count() returns the number of times a specified value appears in the tuple."
+  },
+  {
+    q: "How do you create a set?",
+    options: ["s = [1, 2, 3]", "s = (1, 2, 3)", "s = {1, 2, 3}", "s = <1, 2, 3>"],
+    correct: 2,
+    exp: "Sets are written with curly braces {}. Example: thisset = {\"apple\", \"banana\", \"cherry\"}"
+  },
+  {
+    q: "Do sets allow duplicate values?",
+    options: ["Yes", "No, sets do not allow duplicates", "Only numbers", "Only strings"],
+    correct: 1,
+    exp: "Sets are unordered, unchangeable (items), and do not allow duplicate values. Duplicates are ignored."
+  },
+  {
+    q: "Are sets ordered?",
+    options: ["Yes, always", "No, sets are unordered", "Only in Python 3.7+", "Only frozensets"],
+    correct: 1,
+    exp: "Sets are unordered, so you cannot be sure in which order the items will appear (and indexing is not supported)."
+  },
+  {
+    q: "Which method adds an item to a set?",
+    options: ["append()", "add()", "insert()", "push()"],
+    correct: 1,
+    exp: "The add() method adds an element to the set. (append is for lists.)"
+  },
+  {
+    q: "How do you remove an item from a set if you are not sure it exists?",
+    options: ["remove()", "discard()", "pop()", "delete()"],
+    correct: 1,
+    exp: "discard() removes the item if present; if not present it does nothing. remove() raises an error if the item is missing."
+  },
+  {
+    q: "How do you create a dictionary?",
+    options: ["d = [\"name\": \"John\"]", "d = (\"name\": \"John\")", "d = {\"name\": \"John\"}", "d = <\"name\": \"John\">"],
+    correct: 2,
+    exp: "Dictionaries are created with curly braces and key:value pairs. Example: thisdict = {\"brand\": \"Ford\", \"model\": \"Mustang\"}"
+  },
+  {
+    q: "Are dictionaries ordered (in modern Python)?",
+    options: ["No, never", "Yes, as of Python 3.7+ they maintain insertion order", "Only if keys are numbers", "Only frozendict"],
+    correct: 1,
+    exp: "As of Python 3.7, dictionaries are ordered (they remember the order of item insertion)."
+  },
+  {
+    q: "How do you access a value in a dictionary by key?",
+    options: ["dict[0]", "dict[\"key\"]", "dict.getkey(\"key\")", "dict.value(\"key\")"],
+    correct: 1,
+    exp: "You can access items by referring to the key name inside square brackets: thisdict[\"model\"]"
+  },
+  {
+    q: "Which method returns the value of a specified key, or a default if the key does not exist?",
+    options: ["get()", "fetch()", "find()", "value()"],
+    correct: 0,
+    exp: "get(key, default) returns the value for the key if it exists, otherwise the default (or None)."
+  },
+  {
+    q: "How do you change the value of a specific key in a dictionary?",
+    options: ["dict.add(\"key\", value)", "dict[\"key\"] = value", "dict.update(\"key\")", "dict.set(\"key\", value)"],
+    correct: 1,
+    exp: "You can change the value by referring to its key name: thisdict[\"year\"] = 2018"
+  },
+  {
+    q: "Which method adds a new key-value pair or updates existing ones?",
+    options: ["add()", "append()", "update()", "insert()"],
+    correct: 2,
+    exp: "The update() method inserts specified items into the dictionary (or updates existing keys)."
+  },
+  {
+    q: "How do you remove a key-value pair from a dictionary?",
+    options: ["delete(key)", "remove(key)", "pop(key)", "discard(key)"],
+    correct: 2,
+    exp: "pop(key) removes the item with the specified key and returns its value. del dict[key] also works."
+  },
+  {
+    q: "What does the len() function return when used on a list, tuple, set or dictionary?",
+    options: ["The memory size", "The number of items", "The type", "The first item"],
+    correct: 1,
+    exp: "len() returns the number of items in the collection."
+  },
+  {
+    q: "Which collection type does NOT allow duplicate items?",
+    options: ["List", "Tuple", "Set", "Dictionary values"],
+    correct: 2,
+    exp: "Sets do not allow duplicate values. Lists and tuples do. Dictionary keys must also be unique."
+  },
+  {
+    q: "Can a list contain different data types?",
+    options: ["No, only same type", "Yes, lists can contain mixed data types", "Only numbers and strings", "Only if nested"],
+    correct: 1,
+    exp: "A list can contain different data types: [1, \"hello\", True, 3.14]"
+  },
+  {
+    q: "How do you join two lists?",
+    options: ["list1 + list2", "list1.join(list2)", "list1.append(list2)", "list1.extend only"],
+    correct: 0,
+    exp: "You can use the + operator or the extend() method to join lists. list1 + list2 creates a new list."
+  },
+  {
+    q: "What is list slicing? fruits[1:3]",
+    options: ["Items from index 1 to 3 inclusive", "Items from index 1 up to (but not including) 3", "Only item at index 1 and 3", "Error"],
+    correct: 1,
+    exp: "Slicing [start:end] returns items from start up to (but not including) end."
+  },
+  {
+    q: "Which method sorts a list in place?",
+    options: ["sorted()", "sort()", "order()", "arrange()"],
+    correct: 1,
+    exp: "sort() sorts the list in place (modifies the original). sorted() returns a new sorted list."
+  },
+  {
+    q: "How do you copy a list correctly?",
+    options: ["list2 = list1", "list2 = list1.copy() or list2 = list(list1)", "list2 = list1[:]", "Both B and C"],
+    correct: 3,
+    exp: "list2 = list1 only creates a reference. Use copy(), list() constructor, or slicing [:] to create a real copy."
+  },
+  {
+    q: "What is the difference between remove() and pop() on a list?",
+    options: ["No difference", "remove() deletes by value, pop() deletes by index and returns the item", "pop() deletes by value", "remove() returns the item"],
+    correct: 1,
+    exp: "remove(value) deletes the first matching value. pop(index) removes by index and returns the removed item."
+  },
+  {
+    q: "Can you change a tuple after it is created?",
+    options: ["Yes, freely", "No, but you can convert it to a list, change it, and convert back", "Only the first item", "Only if it has one item"],
+    correct: 1,
+    exp: "Tuples are immutable. The common workaround is: convert to list → change → convert back to tuple."
+  },
+  {
+    q: "Which method returns the index of a specified value in a tuple?",
+    options: ["find()", "index()", "locate()", "search()"],
+    correct: 1,
+    exp: "index() returns the first index at which the specified value is found."
+  },
+  {
+    q: "How do you empty a set?",
+    options: ["set.clear()", "set.empty()", "set = {}", "Both A and C (with care)"],
+    correct: 0,
+    exp: "clear() removes all elements from the set. Assigning {} creates a new empty dictionary, not a set (use set())."
+  },
+  {
+    q: "What does the union() method of sets do?",
+    options: ["Returns items that exist in both sets", "Returns all items from both sets (excluding duplicates)", "Removes items", "Sorts the set"],
+    correct: 1,
+    exp: "union() (or the | operator) returns a new set with all items from both sets."
+  },
+  {
+    q: "What does the intersection() method return?",
+    options: ["All items from both sets", "Items that are present in both sets", "Items in the first set only", "Items in the second set only"],
+    correct: 1,
+    exp: "intersection() (or &) returns a set containing only the items that exist in both sets."
+  },
+  {
+    q: "How do you loop through the keys of a dictionary?",
+    options: ["for x in dict.values()", "for x in dict:", "for x in dict.items()", "for x in dict.keys() only"],
+    correct: 1,
+    exp: "Looping directly over a dictionary loops through its keys. You can also use .keys(), .values() or .items()."
+  },
+  {
+    q: "What does dict.items() return?",
+    options: ["Only keys", "Only values", "Key-value pairs as tuples", "A list of keys"],
+    correct: 2,
+    exp: "items() returns a view of the dictionary’s key-value pairs (each pair is a tuple)."
+  },
+  {
+    q: "Can dictionary keys be of any data type?",
+    options: ["Yes, any type", "No, keys must be immutable (hashable) types", "Only strings", "Only integers"],
+    correct: 1,
+    exp: "Keys must be immutable (hashable) such as strings, numbers or tuples. Lists cannot be keys."
+  },
+  {
+    q: "What is a nested dictionary?",
+    options: ["A dictionary inside a list", "A dictionary that contains other dictionaries", "A dictionary with only one key", "A sorted dictionary"],
+    correct: 1,
+    exp: "A nested dictionary is a dictionary that contains one or more dictionaries as values."
+  },
+  {
+    q: "Which collection is best when you need unique items and fast membership testing?",
+    options: ["List", "Tuple", "Set", "Dictionary"],
+    correct: 2,
+    exp: "Sets are optimized for uniqueness and fast membership tests (in operator)."
+  },
+  {
+    q: "How do you check if a key exists in a dictionary?",
+    options: ["if key in dict:", "if dict.has(key):", "if dict.contains(key):", "if key exists dict:"],
+    correct: 0,
+    exp: "Use the 'in' keyword: if \"model\" in thisdict:"
+  },
+  {
+    q: "What does the clear() method do on a dictionary?",
+    options: ["Deletes the dictionary", "Removes all key-value pairs", "Removes only values", "Resets keys"],
+    correct: 1,
+    exp: "clear() empties the dictionary, removing all items."
+  },
+  {
+    q: "Can a tuple be used as a dictionary key?",
+    options: ["No", "Yes, because tuples are immutable", "Only if it contains numbers", "Only empty tuples"],
+    correct: 1,
+    exp: "Tuples are immutable and therefore hashable, so they can be used as dictionary keys."
+  },
+  {
+    q: "What is the result of: len({\"a\": 1, \"b\": 2, \"c\": 3})",
+    options: ["1", "2", "3", "6"],
+    correct: 2,
+    exp: "len() on a dictionary returns the number of key-value pairs (3 in this case)."
+  },
+  {
+    q: "Which method can be used to get all values from a dictionary?",
+    options: ["keys()", "values()", "items()", "get()"],
+    correct: 1,
+    exp: "values() returns a view of all values in the dictionary."
+  },
+  {
+    q: "How do you create an empty set?",
+    options: ["s = {}", "s = set()", "s = []", "s = ()"],
+    correct: 1,
+    exp: "s = {} creates an empty dictionary. To create an empty set use set()."
+  },
+  {
+    q: "What happens if you try to access a list index that does not exist?",
+    options: ["Returns None", "Returns the last item", "Raises IndexError", "Creates the index"],
+    correct: 2,
+    exp: "Accessing a non-existent index raises an IndexError."
+  },
+  {
+    q: "Which of the following is true about frozenset?",
+    options: ["It is mutable", "It is an immutable version of a set", "It allows duplicates", "It is ordered"],
+    correct: 1,
+    exp: "frozenset is an immutable version of a set. Once created, its elements cannot be changed."
+  },
+  {
+    q: "How can you unpack a tuple into variables?",
+    options: ["a, b, c = (1, 2, 3)", "a = b = c = (1, 2, 3)", "unpack(a, b, c)", "Not possible"],
+    correct: 0,
+    exp: "Tuple unpacking: fruits = (\"apple\", \"banana\", \"cherry\"); x, y, z = fruits"
+  }
+];
+
+let score = 0;
+let answered = 0;
+const container = document.getElementById('quiz-container');
+
+function renderQuestions() {
+  questions.forEach((item, idx) => {
+    const card = document.createElement('div');
+    card.className = 'question-card';
+    card.id = `q${idx}`;
+    card.innerHTML = `
+      <div class="q-number">Question ${idx + 1} of 50</div>
+      <div class="q-text">${item.q}</div>
+      <div class="options">
+        ${item.options.map((opt, oIdx) => `
+          <label class="option" data-q="${idx}" data-opt="${oIdx}">
+            <input type="radio" name="q${idx}" value="${oIdx}">
+            <span class="radio"></span>
+            <span>${opt}</span>
+          </label>
+        `).join('')}
+      </div>
+      <div class="explanation" id="exp${idx}"></div>
+    `;
+    container.appendChild(card);
+  });
+
+  document.querySelectorAll('.option').forEach(opt => {
+    opt.addEventListener('click', function() {
+      const qIdx = parseInt(this.dataset.q);
+      const oIdx = parseInt(this.dataset.opt);
+      const card = document.getElementById(`q${qIdx}`);
+      if (card.classList.contains('answered')) return;
+
+      card.classList.add('answered');
+      answered++;
+      document.getElementById('answered').textContent = answered;
+      document.getElementById('progress').style.width = (answered / 50 * 100) + '%';
+
+      const correctIdx = questions[qIdx].correct;
+      const options = card.querySelectorAll('.option');
+      options.forEach(o => o.classList.add('disabled'));
+
+      if (oIdx === correctIdx) {
+        this.classList.add('correct', 'selected');
+        score++;
+        document.getElementById('score').textContent = score;
+        document.getElementById('correct-count').textContent = score;
+      } else {
+        this.classList.add('wrong', 'selected');
+        options[correctIdx].classList.add('correct');
+      }
+
+      const exp = document.getElementById(`exp${qIdx}`);
+      exp.innerHTML = `<strong>Correct answer:</strong> ${questions[qIdx].options[correctIdx]}<br><br>${questions[qIdx].exp}`;
+      exp.classList.add('show');
+    });
+  });
+}
+
+renderQuestions();
+</script>
+</body>
+</html>
