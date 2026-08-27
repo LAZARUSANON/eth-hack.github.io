@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DSA3 – Fill-In Quiz | 10 Modules × 50 Questions | Dark Theme</title>
+<style>
+:root {
+  --bg: #0f172a;
+  --card: #1e293b;
+  --card-border: #334155;
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+  --success: #22c55e;
+  --success-bg: #14532d;
+  --error: #ef4444;
+  --error-bg: #7f1d1d;
+  --input-bg: #0f172a;
+  --input-border: #475569;
+  --accent: #38bdf8;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.55;
+  min-height: 100vh;
+}
+header {
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #1e40af 100%);
+  color: white;
+  padding: 22px 16px;
+  text-align: center;
+  border-bottom: 1px solid #1e3a5f;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+header h1 { font-size: 1.45rem; margin-bottom: 4px; }
+header p { font-size: 0.9rem; color: #94a3b8; }
+.container { max-width: 900px; margin: 24px auto; padding: 0 16px 70px; }
+
+.module-nav {
+  display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+  margin-bottom: 20px; background: var(--card); padding: 14px;
+  border-radius: 12px; border: 1px solid var(--card-border);
+}
+.module-btn {
+  background: #334155; border: none; padding: 9px 14px; border-radius: 8px;
+  cursor: pointer; font-weight: 600; font-size: 0.88rem; color: #cbd5e1;
+  transition: all 0.2s;
+}
+.module-btn:hover { background: #475569; transform: translateY(-1px); }
+.module-btn.active { background: var(--primary); color: white; box-shadow: 0 0 12px rgba(59,130,246,0.45); }
+.module-btn.completed { background: #166534; color: #bbf7d0; }
+
+.quiz-header {
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+  margin-bottom: 18px; background: var(--card); padding: 16px 20px;
+  border-radius: 12px; border: 1px solid var(--card-border);
+}
+.quiz-header h2 { font-size: 1.2rem; color: var(--accent); }
+.score-display {
+  font-size: 1rem; font-weight: 700; color: var(--accent);
+  background: #0c4a6e; padding: 6px 14px; border-radius: 20px;
+}
+.progress-wrap { width: 100%; height: 7px; background: #334155; border-radius: 4px; margin-top: 10px; overflow: hidden; }
+.progress-bar { height: 100%; background: linear-gradient(90deg, #3b82f6, #22c55e); border-radius: 4px; transition: width 0.35s; }
+
+.complete-banner {
+  display: none; background: linear-gradient(135deg, #14532d, #166534);
+  color: #bbf7d0; padding: 14px 18px; border-radius: 10px; text-align: center;
+  margin-bottom: 16px; font-weight: 600; border: 1px solid #22c55e;
+}
+.complete-banner.show { display: block; }
+
+.question-card {
+  background: var(--card); border-radius: 12px; padding: 20px 22px;
+  margin-bottom: 16px; border: 1px solid var(--card-border);
+  transition: border-color 0.2s;
+}
+.question-card.correct-card { border-color: var(--success); }
+.question-card.wrong-card { border-color: var(--error); }
+.q-meta { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 600; }
+.q-text { font-size: 1.05rem; font-weight: 500; margin-bottom: 14px; color: #f1f5f9; }
+
+.answer-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.answer-input {
+  flex: 1; min-width: 200px; padding: 11px 14px; border-radius: 8px;
+  border: 2px solid var(--input-border); background: var(--input-bg); color: var(--text);
+  font-size: 1rem; outline: none; transition: border-color 0.2s;
+}
+.answer-input:focus { border-color: var(--primary); }
+.answer-input:disabled { opacity: 0.85; cursor: not-allowed; }
+.answer-input.correct-input { border-color: var(--success); background: var(--success-bg); color: #bbf7d0; }
+.answer-input.wrong-input { border-color: var(--error); background: var(--error-bg); color: #fecaca; }
+
+.check-btn {
+  background: var(--primary); color: white; border: none; padding: 11px 20px;
+  border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.2s;
+  white-space: nowrap;
+}
+.check-btn:hover:not(:disabled) { background: var(--primary-hover); }
+.check-btn:disabled { background: #475569; cursor: not-allowed; }
+
+.feedback {
+  margin-top: 12px; padding: 12px 14px; border-radius: 8px; font-size: 0.92rem; display: none;
+}
+.feedback.show { display: block; }
+.feedback.correct-fb { background: var(--success-bg); border: 1px solid var(--success); color: #bbf7d0; }
+.feedback.wrong-fb { background: var(--error-bg); border: 1px solid var(--error); color: #fecaca; }
+.feedback strong { display: block; margin-bottom: 4px; }
+.explanation { margin-top: 6px; color: #cbd5e1; font-size: 0.9rem; line-height: 1.45; }
+
+.nav-footer {
+  display: flex; justify-content: space-between; gap: 12px; margin-top: 28px; flex-wrap: wrap;
+}
+.nav-btn {
+  background: var(--primary); color: white; border: none; padding: 12px 24px;
+  border-radius: 9px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s;
+}
+.nav-btn:hover:not(:disabled) { background: var(--primary-hover); transform: translateY(-1px); }
+.nav-btn:disabled { background: #475569; cursor: not-allowed; transform: none; }
+
+@media (max-width: 600px) {
+  header h1 { font-size: 1.2rem; }
+  .answer-row { flex-direction: column; }
+  .answer-input, .check-btn { width: 100%; }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>DSA Fill-In Quiz – Dark Theme</h1>
+  <p>10 Modules · 50 Unique Questions each · Type answer · Instant check + Explanation</p>
+</header>
+
+<div class="container">
+  <div class="module-nav" id="moduleNav"></div>
+  <div class="complete-banner" id="completeBanner"></div>
+  <div class="quiz-header">
+    <div>
+      <h2 id="moduleTitle">Module 1</h2>
+      <div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+    </div>
+    <div class="score-display" id="scoreDisplay">Score: 0 / 50</div>
+  </div>
+  <div id="questionsContainer"></div>
+  <div class="nav-footer">
+    <button class="nav-btn" id="prevBtn" onclick="changeModule(-1)">← Previous Module</button>
+    <button class="nav-btn" id="nextBtn" onclick="changeModule(1)">Next Module →</button>
+  </div>
+</div>
+
+<script>
+const chapterNames = [
+  "Introduction to Data Structures",
+  "Foundations of Algorithms",
+  "Sorting Algorithms",
+  "Stack Data Structure",
+  "Queue Data Structure",
+  "Linked List Data Structure",
+  "Hashing and Hash Tables",
+  "Introduction to Binary Search Tree",
+  "Balanced Trees and Heaps",
+  "Introduction to Graph Data Structure"
+];
+
+/* ========== MODULE 1 : Introduction to Data Structures (50 unique) ========== */
+const m1 = [
+  {q:"A finite sequence of well-defined instructions to solve a problem is called an ______.", a:"algorithm", exp:"An algorithm is a step-by-step procedure that takes input and produces output in a finite number of steps."},
+  {q:"Data structures that arrange elements in a sequential manner (array, stack, queue, linked list) are called ______ data structures.", a:"linear", exp:"Linear data structures have elements arranged in a sequence where each element has at most one predecessor and one successor."},
+  {q:"Trees and graphs are examples of ______ data structures.", a:"non-linear", exp:"Non-linear data structures organize data hierarchically or in a network, not in a single sequence."},
+  {q:"The property of an algorithm that requires it to terminate after a limited number of steps is called ______.", a:"finiteness", exp:"Finiteness guarantees the algorithm will stop and produce a result."},
+  {q:"Each step of an algorithm must be precisely and unambiguously defined. This property is called ______.", a:"definiteness", exp:"Definiteness ensures there is no ambiguity in interpreting any instruction."},
+  {q:"The amount of memory an algorithm needs as a function of input size is its ______ complexity.", a:"space", exp:"Space complexity measures the extra memory required beyond the input itself."},
+  {q:"The three standard cases used when analyzing running time are best-case, average-case and ______-case.", a:"worst", exp:"Worst-case analysis gives an upper bound on the running time for any input of size n."},
+  {q:"A mathematical model that defines data and the operations on it without specifying implementation is an ______ Data Type (ADT).", a:"abstract", exp:"ADTs separate the interface (what operations are available) from the concrete implementation."},
+  {q:"In most programming languages the first index of an array is ______.", a:"0", exp:"Zero-based indexing is the convention in C, C++, Java, Python, JavaScript and many other languages."},
+  {q:"Accessing any element of an array by its index takes ______ time (Big-O).", a:"O(1)", exp:"Arrays provide constant-time random access because elements occupy contiguous memory locations."},
+  {q:"Inserting an element at the beginning of a static array requires shifting elements and therefore takes ______ time in the worst case.", a:"O(n)", exp:"All existing elements must be moved one position to the right, which is linear in the size of the array."},
+  {q:"A language-independent description of an algorithm that focuses on logic rather than syntax is called ______.", a:"pseudocode", exp:"Pseudocode allows designers to express algorithms clearly without worrying about a particular programming language."},
+  {q:"The study of how the running time or memory of an algorithm grows with input size is called complexity ______.", a:"analysis", exp:"Complexity analysis helps us compare algorithms independently of hardware and language."},
+  {q:"When we say an algorithm is correct we mean it produces the right output for ______ valid inputs.", a:"all", exp:"Correctness requires the algorithm to work for every input that satisfies its preconditions."},
+  {q:"A diagram that shows the flow of control of an algorithm using boxes and arrows is a ______.", a:"flowchart", exp:"Flowcharts are a graphical way of writing algorithms and are especially useful for teaching."},
+  {q:"The basic operations performed on most data structures are insertion, deletion, traversal, searching and ______.", a:"sorting", exp:"These five operations cover the majority of what programs do with collections of data."},
+  {q:"Contiguous memory allocation is a defining characteristic of the ______ data structure.", a:"array", exp:"Because array elements sit next to each other in memory, the address of any element can be computed in constant time."},
+  {q:"The need for data structures arises mainly when we must manage ______ amounts of data efficiently.", a:"large", exp:"For small amounts of data almost any organization works; efficiency becomes critical as data grows."},
+  {q:"An algorithm must produce at least one ______.", a:"output", exp:"Without producing a result the procedure would not be solving a problem."},
+  {q:"The effectiveness property of an algorithm requires that every step be sufficiently basic and ______.", a:"feasible", exp:"Each operation must be something that a computer (or a human) can actually carry out."},
+  {q:"Choosing the right data structure can reduce both time and ______ complexity of a program.", a:"space", exp:"A well-chosen structure often saves both running time and memory."},
+  {q:"In algorithm analysis we ignore constant factors and lower-order terms; we keep only the ______ term.", a:"dominant", exp:"Asymptotic analysis focuses on the term that grows fastest as n becomes large."},
+  {q:"A data structure is called static when its size is fixed at ______ time.", a:"compile", exp:"Static arrays in languages such as C have their length determined before the program runs."},
+  {q:"Dynamic data structures can grow or shrink during ______ time.", a:"run", exp:"Linked lists, dynamic arrays and trees allocate memory as needed while the program executes."},
+  {q:"The process of visiting every element of a data structure exactly once is called ______.", a:"traversal", exp:"Traversal is a fundamental operation used by almost every algorithm that works on collections."},
+  {q:"Big-O notation describes an ______ bound on the growth rate of a function.", a:"upper", exp:"f(n) = O(g(n)) means f grows no faster than a constant multiple of g."},
+  {q:"The primary goal of organizing data with a data structure is to make subsequent ______ efficient.", a:"operations", exp:"Different structures make different operations fast; the choice depends on the required operations."},
+  {q:"An array stores elements of the ______ data type in contiguous locations.", a:"same", exp:"Homogeneous storage is required so that the size of each element is known and addresses can be calculated."},
+  {q:"When analyzing algorithms we usually express complexity as a function of the input ______ n.", a:"size", exp:"n is the conventional symbol for the number of elements or the magnitude of the input."},
+  {q:"A well-designed algorithm should be independent of any particular programming ______.", a:"language", exp:"The same logical steps can be implemented in many languages; the algorithm itself is language-agnostic."},
+  {q:"Random access means we can reach any element directly by its ______.", a:"index", exp:"This is the key advantage of arrays over linked structures."},
+  {q:"The worst-case running time of an algorithm is important because it gives a guaranteed ______ bound.", a:"upper", exp:"Knowing the worst case lets us promise that the algorithm will never be slower than that bound."},
+  {q:"In the context of data structures, ‘implementation’ means the concrete way an ADT is realized in a programming ______.", a:"language", exp:"The same ADT (e.g., Stack) can be implemented with an array or with a linked list."},
+  {q:"A characteristic of a good data structure is that it supports the required operations with low time and space ______.", a:"cost", exp:"Efficiency (both time and memory) is the main reason we study different data structures."},
+  {q:"The term ‘basic terminology’ in an introductory DSA chapter usually includes algorithm, data, data structure and ______.", a:"complexity", exp:"These four concepts form the foundation of the whole subject."},
+  {q:"When an algorithm’s running time does not depend on the size of the input we say it runs in ______ time.", a:"constant", exp:"Constant time is written O(1) and is the best possible asymptotic behavior."},
+  {q:"A sequence of instructions that solves a problem but never stops would violate the ______ property of algorithms.", a:"finiteness", exp:"An infinite loop is not a valid algorithm because it does not produce a result in finite time."},
+  {q:"The main reason we study both data structures and algorithms together is that algorithms operate ______ data structures.", a:"on", exp:"An algorithm is meaningless without a way to store and access the data it processes."},
+  {q:"In an array the address of the element at index i can be computed with the formula base + i × ______ of element.", a:"size", exp:"This arithmetic is what makes random access O(1)."},
+  {q:"A flowchart and pseudocode are two common ______ of writing an algorithm.", a:"ways", exp:"Both help the designer think about the logic before coding."},
+  {q:"The average-case complexity considers the expected running time over all inputs of a given ______.", a:"size", exp:"Average-case analysis requires assumptions about the probability distribution of inputs."},
+  {q:"A data structure that allows both sequential and random access is the ______.", a:"array", exp:"You can walk through an array sequentially or jump directly to any index."},
+  {q:"The phrase ‘execution time cases’ refers to the three classic scenarios: best, average and ______.", a:"worst", exp:"These three cases give a complete picture of an algorithm’s performance."},
+  {q:"An algorithm that works correctly only for some inputs is not considered ______.", a:"correct", exp:"Partial correctness is not enough; the algorithm must handle every valid input."},
+  {q:"Memory that is allocated once and never changes size belongs to a ______ data structure.", a:"static", exp:"Static allocation is simple but inflexible."},
+  {q:"The study of data structures is fundamental because efficient programs depend on choosing the right ______ of data.", a:"organization", exp:"The same algorithm can be fast or slow depending on how the data is organized."},
+  {q:"In Big-O analysis the statement f(n) = O(g(n)) means f grows no faster than g (up to a ______ factor).", a:"constant", exp:"Constant factors are ignored because they become insignificant for large n."},
+  {q:"A list of steps written in ordinary English that describes how to solve a problem is a form of ______ algorithm description.", a:"natural language", exp:"Natural-language descriptions are easy to read but can be ambiguous; that is why we prefer pseudocode."},
+  {q:"The operation that examines every element of a collection is called a ______.", a:"traversal", exp:"Traversal is the basis of many other algorithms such as searching and summing."},
+  {q:"Chapter One of a typical DSA course focuses on the ______ concepts of data structures and algorithms.", a:"basic", exp:"Introduction chapters lay the vocabulary and the fundamental ideas that later chapters build upon."}
+];
+
+/* ========== MODULE 2 : Foundations of Algorithms (50 unique) ========== */
+const m2 = [
+  {q:"The asymptotic upper bound of a function is expressed with ______ notation.", a:"Big-O", exp:"Big-O gives a ceiling on how fast a function can grow."},
+  {q:"The asymptotic lower bound is expressed with Big-______ notation.", a:"Omega", exp:"Big-Ω (Omega) tells us that a function grows at least as fast as another function."},
+  {q:"When both the upper and lower bounds are of the same order we use Big-______ notation.", a:"Theta", exp:"Θ (Theta) indicates a tight bound."},
+  {q:"A technique in which a function solves a problem by calling itself on a smaller instance is called ______.", a:"recursion", exp:"Recursion reduces a problem to one or more simpler subproblems of the same type."},
+  {q:"Every recursive algorithm must have a ______ case that stops the recursion.", a:"base", exp:"Without a base case the recursion would continue forever and cause a stack overflow."},
+  {q:"The call stack stores an ______ record for each active function invocation.", a:"activation", exp:"An activation record contains local variables, parameters and the return address."},
+  {q:"Searching a sorted array by repeatedly discarding half of the remaining elements is called ______ search.", a:"binary", exp:"Binary search runs in O(log n) time and is one of the classic divide-and-conquer algorithms."},
+  {q:"The time complexity of binary search on a sorted array of n elements is ______.", a:"O(log n)", exp:"Each comparison halves the search space, so only a logarithmic number of steps are needed."},
+  {q:"A problem-solving strategy that builds candidates incrementally and abandons a candidate as soon as it cannot lead to a valid solution is called ______.", a:"backtracking", exp:"Backtracking is a refined exhaustive search that prunes the search tree early."},
+  {q:"Comparing recursion with iteration, recursion generally consumes more ______ because of the call stack.", a:"space", exp:"Each recursive call adds a new frame; deep recursion can exhaust the available stack memory."},
+  {q:"An algorithm whose running time is independent of input size is said to run in ______ time.", a:"constant", exp:"Constant time is written O(1)."},
+  {q:"Linear growth of running time with input size is written ______.", a:"O(n)", exp:"O(n) means the number of operations is proportional to n."},
+  {q:"Quadratic growth is written ______.", a:"O(n^2)", exp:"Nested loops that each run n times typically produce O(n²) algorithms."},
+  {q:"The Master Theorem is a tool for solving ______ relations that arise in divide-and-conquer algorithms.", a:"recurrence", exp:"Many recursive algorithms produce recurrences of the form T(n) = aT(n/b) + f(n)."},
+  {q:"A recursive call that is the very last action of a function is called a ______ recursive call.", a:"tail", exp:"Tail recursion can be optimized by compilers into ordinary iteration, saving stack space."},
+  {q:"In complexity analysis we drop constant factors and lower-order terms; this is called ______ analysis.", a:"asymptotic", exp:"Asymptotic analysis focuses on the growth rate for large n."},
+  {q:"The set of operations that an ADT provides is called its ______.", a:"interface", exp:"The interface is what the user of the ADT sees; the implementation is hidden."},
+  {q:"Hiding the internal representation of data while exposing only the allowed operations is the principle of ______.", a:"abstraction", exp:"Abstraction lets programmers think at a higher level and change implementations later."},
+  {q:"The worst-case time complexity of linear search on an unsorted array is ______.", a:"O(n)", exp:"In the worst case the target is the last element or is not present, so every element is examined."},
+  {q:"When analyzing recursive algorithms we usually write a ______ that expresses the cost of the whole problem in terms of the cost of subproblems.", a:"recurrence", exp:"Solving the recurrence then yields the closed-form complexity."},
+  {q:"An algorithm that runs in polynomial time is considered ______ (tractable) from a theoretical point of view.", a:"efficient", exp:"Polynomial-time algorithms scale reasonably; exponential algorithms do not."},
+  {q:"Among common complexity classes the fastest-growing is ______ time.", a:"exponential", exp:"O(2ⁿ) grows much faster than any polynomial."},
+  {q:"Binary search requires that the data be ______ beforehand.", a:"sorted", exp:"The halving argument works only when the array is ordered."},
+  {q:"The space complexity of the iterative version of binary search is ______.", a:"O(1)", exp:"Only a few index variables are needed; no extra arrays or recursion stack are used."},
+  {q:"Backtracking is essentially an exhaustive search with ______ of hopeless branches.", a:"pruning", exp:"As soon as a partial solution is known to be invalid it is discarded, saving work."},
+  {q:"The average-case analysis of an algorithm requires assumptions about the ______ of inputs.", a:"distribution", exp:"Without a probability model we cannot speak of an ‘average’ input."},
+  {q:"If f(n) = 3n² + 5n + 2 then the Big-O complexity of f is ______.", a:"O(n^2)", exp:"The quadratic term dominates; constants and lower-order terms are ignored."},
+  {q:"A classic example of a problem solved by backtracking is the ______-Queens problem.", a:"N", exp:"The N-Queens problem asks how to place N queens on an N×N chessboard so that none attack each other."},
+  {q:"In the recursive formulation of binary search the middle index is computed as (low + high) / ______.", a:"2", exp:"Integer division yields the midpoint of the current search interval."},
+  {q:"When the recursive call is not the last operation the recursion is called ______ recursion.", a:"non-tail", exp:"Non-tail recursion cannot be easily converted into a loop by the compiler."},
+  {q:"The height of the recursion tree for binary search on n elements is approximately ______.", a:"log n", exp:"Each level halves the problem size, so the depth is logarithmic."},
+  {q:"An ADT is defined by its behavior (the operations) rather than by its ______.", a:"implementation", exp:"Any data structure that supports the required operations can serve as an implementation of the ADT."},
+  {q:"The main purpose of studying the foundations of algorithms is to learn how to design, analyze and ______ efficient algorithms.", a:"choose", exp:"Knowing the complexity of alternatives lets us select the best algorithm for a given problem."},
+  {q:"A function that calls itself with a strictly smaller problem size is using the ______ technique.", a:"recursion", exp:"The reduction in size guarantees progress toward the base case."},
+  {q:"In Big-O notation the statement ‘f is O(g)’ means there exist constants c and n₀ such that for all n ≥ n₀, f(n) ≤ c·______.", a:"g(n)", exp:"This is the formal definition of the upper-bound relation."},
+  {q:"The call stack grows with each nested recursive call and shrinks when a call ______.", a:"returns", exp:"The stack discipline is exactly LIFO, which matches the nested nature of recursion."},
+  {q:"An algorithm that examines every element of an input of size n a constant number of times runs in ______ time.", a:"linear", exp:"Linear time is the best we can hope for if every element must be looked at."},
+  {q:"The process of converting a recursive algorithm into an equivalent iterative one often involves explicitly managing a ______.", a:"stack", exp:"The explicit stack simulates the call stack that recursion would have used."},
+  {q:"In the context of complexity, ‘polynomial time’ means the running time is O(n^k) for some constant ______.", a:"k", exp:"k is independent of the input size n."},
+  {q:"A search algorithm that works by dividing the search space into two equal parts is a ______-and-conquer algorithm.", a:"divide", exp:"Divide-and-conquer is one of the major algorithm design paradigms."},
+  {q:"The best-case time complexity of binary search occurs when the target is found at the ______ position on the first probe.", a:"middle", exp:"In that situation only one comparison is needed, giving O(1) best-case behavior."},
+  {q:"When we say an algorithm is O(n log n) we mean its running time grows proportionally to n times the ______ of n.", a:"logarithm", exp:"Many efficient sorting algorithms have this complexity."},
+  {q:"The main disadvantage of a naïve recursive Fibonacci implementation is that it recomputes the same subproblems many times, leading to ______ time.", a:"exponential", exp:"The recursion tree contains an exponential number of nodes."},
+  {q:"Abstraction allows the same ADT to have several different ______, each with its own performance characteristics.", a:"implementations", exp:"For example a Stack ADT can be realized with an array or with a linked list."},
+  {q:"In asymptotic analysis the base of the logarithm does not matter because all logarithms differ only by a ______ factor.", a:"constant", exp:"log₂ n = (ln n)/(ln 2), so changing the base multiplies by a constant."},
+  {q:"A recurrence of the form T(n) = T(n-1) + O(1) typically solves to ______.", a:"O(n)", exp:"Unrolling the recurrence shows a linear number of steps."},
+  {q:"The technique of solving a problem by combining solutions of independent subproblems is the essence of ______ and conquer.", a:"divide", exp:"After the divide step the conquer step merges the results."},
+  {q:"When the input to an algorithm is already in the best possible order we speak of the ______-case running time.", a:"best", exp:"Best-case analysis is useful but less important than worst-case for guaranteeing performance."},
+  {q:"The study of how resource requirements grow with input size is the definition of ______ analysis.", a:"complexity", exp:"Complexity analysis is the quantitative heart of algorithmics."},
+  {q:"A problem that can be solved by trying all possibilities and discarding those that fail is typically attacked with ______.", a:"backtracking", exp:"Backtracking systematically explores the space of partial solutions."}
+];
+
+/* ========== MODULE 3 : Sorting Algorithms (50 unique) ========== */
+const m3 = [
+  {q:"Arranging the elements of a list into a defined order is the goal of a ______ algorithm.", a:"sorting", exp:"Sorting is one of the most fundamental and frequently used operations in computer science."},
+  {q:"Bubble Sort, Selection Sort and Insertion Sort are collectively known as ______ sorts.", a:"elementary", exp:"They are simple to understand and implement but have quadratic worst-case complexity."},
+  {q:"The worst-case time complexity of Bubble Sort is ______.", a:"O(n^2)", exp:"In the worst case every pair of adjacent elements is compared and possibly swapped."},
+  {q:"Quick Sort’s average-case time complexity is ______.", a:"O(n log n)", exp:"With a good pivot the partitioning produces balanced subproblems, leading to the familiar n log n bound."},
+  {q:"The worst-case of Quick Sort occurs when the pivot is always the ______ or largest element.", a:"smallest", exp:"In that situation one of the partitions is empty and the recurrence becomes T(n) = T(n-1) + O(n)."},
+  {q:"Counting Sort, Radix Sort and Bucket Sort do not rely on element comparisons; they are called ______ sorts.", a:"non-comparison", exp:"They exploit the structure of the keys (integers in a limited range, digits, etc.)."},
+  {q:"A sorting algorithm is ______ if equal elements retain their original relative order.", a:"stable", exp:"Stability is important when the sort is used as a secondary key or when the original order carries meaning."},
+  {q:"An algorithm that uses only a constant amount of extra memory is called an ______ sort.", a:"in-place", exp:"In-place algorithms are preferred when memory is limited."},
+  {q:"Merge Sort is a classic example of a ______ sorting algorithm.", a:"stable", exp:"The merge step can be written so that equal elements from the left half are taken before those from the right half."},
+  {q:"Insertion Sort runs in ______ time when the input is already sorted.", a:"O(n)", exp:"Each element is compared only with its immediate predecessor and no shifts occur."},
+  {q:"Selection Sort works by repeatedly selecting the ______ remaining element and placing it in its final position.", a:"minimum", exp:"After k iterations the first k positions contain the k smallest elements in order."},
+  {q:"The time complexity of Merge Sort is ______ in all cases.", a:"O(n log n)", exp:"The divide step always splits the array in half and the merge step is linear, giving a balanced recurrence."},
+  {q:"Merge Sort requires ______ extra space for the temporary arrays used during merging.", a:"O(n)", exp:"A temporary buffer of size n is typically allocated."},
+  {q:"An algorithm that takes advantage of existing order in the input is called ______.", a:"adaptive", exp:"Insertion Sort is adaptive; Selection Sort is not."},
+  {q:"Quick Sort is a ______-and-conquer algorithm that partitions the array around a chosen pivot.", a:"divide", exp:"After partitioning, the pivot is in its final sorted position and the two sides are sorted recursively."},
+  {q:"The partitioning step of Quick Sort examines every element of the current sub-array and therefore takes ______ time.", a:"O(n)", exp:"A single pass from left to right (or two pointers) is sufficient."},
+  {q:"Heap Sort guarantees ______ time complexity and is performed in-place.", a:"O(n log n)", exp:"Building the heap is O(n) and each of the n extract-max operations is O(log n)."},
+  {q:"Heap Sort is not ______ because the heap operations can change the relative order of equal keys.", a:"stable", exp:"Stability is sacrificed for the in-place O(n log n) guarantee."},
+  {q:"Counting Sort is efficient only when the range of the keys is not significantly larger than the number of ______.", a:"elements", exp:"The algorithm allocates an array whose size is proportional to the range."},
+  {q:"Radix Sort processes the digits of the keys from the least-significant digit to the most-significant digit (______ order).", a:"LSD", exp:"LSD Radix Sort relies on a stable intermediate sort for each digit."},
+  {q:"The information-theoretic lower bound for any comparison-based sort is ______.", a:"Omega(n log n)", exp:"There are n! possible permutations and each comparison has only two outcomes, so at least log₂(n!) ≈ n log n comparisons are required."},
+  {q:"In Bubble Sort larger elements gradually move toward the end of the array; this movement is metaphorically called ______.", a:"bubbling", exp:"Each pass ‘bubbles’ the next-largest element into place."},
+  {q:"When memory is scarce we prefer an ______ sorting algorithm.", a:"in-place", exp:"In-place algorithms need only a handful of extra variables."},
+  {q:"Merge Sort is preferred for external sorting because it works well with ______ access to large files.", a:"sequential", exp:"Each merge pass reads and writes data sequentially, which is efficient on disk."},
+  {q:"A hybrid sorting algorithm used by Python and Java that combines Merge Sort with Insertion Sort is called ______ Sort.", a:"Tim", exp:"Tim Sort is adaptive, stable and optimized for real-world data."},
+  {q:"To avoid the quadratic worst-case of Quick Sort we can choose the pivot ______ or use the median-of-three method.", a:"randomly", exp:"Randomization makes the probability of a consistently bad pivot extremely small."},
+  {q:"Bucket Sort assumes that the input is ______ distributed over a known range.", a:"uniformly", exp:"Under that assumption each bucket receives roughly the same number of elements."},
+  {q:"For sorting a linked list the algorithm of choice is usually ______ Sort because it does not need random access.", a:"Merge", exp:"Merging two sorted linked lists can be done with a few pointer assignments."},
+  {q:"Shell Sort improves on Insertion Sort by allowing exchanges of elements that are far ______.", a:"apart", exp:"The diminishing gap sequence gradually turns the array into a nearly-sorted sequence that Insertion Sort finishes quickly."},
+  {q:"The number of swaps performed by Selection Sort is at most ______.", a:"n-1", exp:"Each of the first n-1 positions is filled by at most one swap."},
+  {q:"A comparison-based sort that is both stable and guaranteed O(n log n) is ______ Sort.", a:"Merge", exp:"Merge Sort satisfies both requirements (at the cost of O(n) extra space)."},
+  {q:"The ‘partition’ procedure is the heart of the ______ Sort algorithm.", a:"Quick", exp:"After a successful partition the pivot is in its final place."},
+  {q:"When the data consists of integers drawn from a small universe, ______ Sort can run in linear time.", a:"Counting", exp:"The algorithm counts occurrences of each possible key and then reconstructs the sorted sequence."},
+  {q:"An algorithm that never changes the relative order of equal keys is called ______.", a:"stable", exp:"Stability is a property of the algorithm, not of the data."},
+  {q:"The best-case time complexity of Insertion Sort is ______.", a:"O(n)", exp:"Already-sorted input causes the inner loop to terminate immediately."},
+  {q:"Quick Sort’s practical speed comes from excellent ______ locality and a small constant factor.", a:"cache", exp:"The sequential scans performed during partitioning make good use of the CPU cache."},
+  {q:"In the worst case the recursion depth of a naïve Quick Sort can be ______, risking stack overflow.", a:"O(n)", exp:"A balanced pivot choice keeps the depth logarithmic."},
+  {q:"The process of turning an unordered array into a heap is called ______ and can be performed in linear time.", a:"heapify", exp:"Bottom-up heap construction examines each node a constant number of times on average."},
+  {q:"A sorting algorithm whose running time improves when the input is partially ordered is said to be ______.", a:"adaptive", exp:"Adaptive algorithms exploit existing order rather than ignoring it."},
+  {q:"The lower bound Ω(n log n) applies only to algorithms that sort by comparing ______.", a:"elements", exp:"Non-comparison sorts can beat this bound by using the numeric properties of the keys."},
+  {q:"In a stable sort, if two records have equal keys, the one that appeared first in the input will appear ______ in the output.", a:"first", exp:"The relative order of equal keys is preserved."},
+  {q:"Selection Sort always performs Θ(n²) comparisons regardless of the initial order of the data; it is therefore not ______.", a:"adaptive", exp:"The number of comparisons does not decrease for already-sorted input."},
+  {q:"The extra memory used by the standard top-down Merge Sort is proportional to the size of the ______ being sorted.", a:"array", exp:"A temporary buffer of length n is the usual requirement."},
+  {q:"When implementing Quick Sort, a common optimization for small sub-arrays is to switch to ______ Sort.", a:"Insertion", exp:"Insertion Sort has a lower overhead for tiny arrays and is adaptive."},
+  {q:"Radix Sort’s running time is O(d(n+k)) where d is the number of digits and k is the range of each ______.", a:"digit", exp:"Each of the d passes is essentially a Counting Sort on one digit."},
+  {q:"A sorting method that works by inserting each successive element into the already-sorted portion of the array is ______ Sort.", a:"Insertion", exp:"The sorted portion grows from left to right one element at a time."},
+  {q:"The fact that any comparison-based sort needs Ω(n log n) comparisons in the worst case is proved by considering a ______ tree of all possible executions.", a:"decision", exp:"Each internal node is a comparison and each leaf is a permutation; the height of the tree is at least log₂(n!)."},
+  {q:"Heap Sort is based on the ______ data structure.", a:"heap", exp:"The algorithm first builds a max-heap and then repeatedly extracts the maximum."},
+  {q:"In practice Quick Sort is often the fastest general-purpose comparison sort because of its small constants and good ______ behavior.", a:"cache", exp:"Modern CPUs reward algorithms that access memory sequentially."},
+  {q:"Chapter Three of a DSA syllabus typically moves from elementary quadratic sorts to the more efficient ______-log-n algorithms.", a:"n", exp:"The transition from O(n²) to O(n log n) is a major milestone in the study of sorting."}
+];
+
+/* ========== MODULE 4 : Stack Data Structure (50 unique) ========== */
+const m4 = [
+  {q:"A stack obeys the ______ principle (Last-In, First-Out).", a:"LIFO", exp:"The last element placed on the stack is the first one removed."},
+  {q:"The operation that adds an element to the top of a stack is called ______.", a:"push", exp:"Push increases the size of the stack by one."},
+  {q:"The operation that removes the top element of a stack is called ______.", a:"pop", exp:"Pop returns the removed element and decreases the size by one."},
+  {q:"The operation that returns the top element without removing it is called ______ (or top).", a:"peek", exp:"Peek lets a program examine the top without altering the stack."},
+  {q:"Both push and pop can be implemented in ______ time with a properly designed stack.", a:"O(1)", exp:"Whether the stack is an array or a linked list, the top is always accessible in constant time."},
+  {q:"Attempting to push onto a full array-based stack causes a stack ______.", a:"overflow", exp:"Overflow indicates that the allocated capacity has been exceeded."},
+  {q:"Attempting to pop from an empty stack causes a stack ______.", a:"underflow", exp:"Underflow is an error condition that must be checked before every pop."},
+  {q:"The run-time system of a programming language uses a stack to manage ______ calls.", a:"function", exp:"Each call pushes an activation record; each return pops it."},
+  {q:"Converting an infix arithmetic expression to postfix form is commonly performed with the help of a ______.", a:"stack", exp:"Operators are held on the stack until their operands have been processed."},
+  {q:"Checking whether parentheses in an expression are correctly balanced is a classic application of a ______.", a:"stack", exp:"An opening parenthesis is pushed; a closing parenthesis must match the top of the stack."},
+  {q:"A stack can be realized with an array or with a ______ list.", a:"linked", exp:"Both implementations support the stack ADT operations in constant time."},
+  {q:"In an array implementation the variable that holds the index of the top element is usually called ______.", a:"top", exp:"When the stack is empty top is conventionally set to -1."},
+  {q:"The space occupied by a stack that currently holds n elements is ______.", a:"O(n)", exp:"Each element requires a constant amount of memory."},
+  {q:"Depth-First Search of a graph can be implemented with an explicit ______.", a:"stack", exp:"The stack stores the vertices whose neighbors have not yet been fully explored."},
+  {q:"Reversing a string can be accomplished by pushing all characters onto a stack and then ______ them.", a:"popping", exp:"The LIFO order produces the reversed sequence."},
+  {q:"In a linked-list implementation of a stack the top corresponds to the ______ of the list.", a:"head", exp:"Inserting and deleting at the head are both O(1) operations."},
+  {q:"Postfix evaluation works by pushing operands and, when an operator is encountered, popping the required number of ______.", a:"operands", exp:"The operator is applied and the result is pushed back onto the stack."},
+  {q:"A browser’s ‘Back’ button is typically implemented with a ______ of visited pages.", a:"stack", exp:"Each new page is pushed; pressing Back pops the current page and displays the previous one."},
+  {q:"The minimum number of stacks needed to implement a queue is ______.", a:"two", exp:"One stack holds the elements; the other is used to reverse the order when necessary."},
+  {q:"The Tower of Hanoi puzzle has a natural recursive solution that implicitly uses the ______ of activation records.", a:"stack", exp:"Each recursive call corresponds to moving a sub-tower."},
+  {q:"In compilers, stacks are used for parsing and for evaluating ______ expressions.", a:"arithmetic", exp:"Operator-precedence parsing relies on a stack of operators and operands."},
+  {q:"Only the ______ element of a stack is accessible for insertion or deletion.", a:"top", exp:"This restriction is what gives the stack its LIFO behavior."},
+  {q:"A real-world analogy often used for a stack is a stack of ______.", a:"plates", exp:"You can only add or remove a plate from the top of the pile."},
+  {q:"When a function calls itself the new activation record is ______ onto the call stack.", a:"pushed", exp:"The call stack therefore grows with the depth of recursion."},
+  {q:"The condition that signals an empty array-based stack is top == ______.", a:"-1", exp:"A sentinel value of -1 is a common convention."},
+  {q:"The condition that signals a full array-based stack of capacity C is top == ______.", a:"C-1", exp:"When top reaches the last valid index no more elements can be pushed."},
+  {q:"An algorithm that converts a recursive procedure into an iterative one often replaces the implicit call stack with an explicit ______.", a:"stack", exp:"The programmer then manages push and pop operations manually."},
+  {q:"The Next-Greater-Element problem can be solved efficiently with a ______ in linear time.", a:"stack", exp:"Elements are kept on the stack in decreasing order until a greater element appears."},
+  {q:"A stack ADT normally provides the operations push, pop, peek, isEmpty and ______.", a:"size", exp:"Size (or length) returns the current number of elements."},
+  {q:"Because a stack does not support random access, searching for an arbitrary element takes ______ time in the worst case.", a:"O(n)", exp:"Every element may have to be examined."},
+  {q:"Two stacks can share a single array by growing from opposite ______ of the array.", a:"ends", exp:"One stack grows from the left, the other from the right; they meet in the middle when the array is full."},
+  {q:"The memory region that holds the call stack usually grows toward ______ addresses.", a:"lower", exp:"On most architectures the stack grows downward while the heap grows upward."},
+  {q:"In an expression such as 3 + 4 * 5 the operator * has higher ______ than + and is therefore applied first.", a:"precedence", exp:"Operator-precedence parsing uses a stack to respect precedence and associativity rules."},
+  {q:"A stack can be used to evaluate a postfix expression without the need for ______.", a:"parentheses", exp:"Postfix (RPN) already encodes the order of operations."},
+  {q:"When implementing an ‘undo’ feature in an editor, each change is ______ onto a stack.", a:"pushed", exp:"Undo simply pops the most recent change and reverses it."},
+  {q:"The abstract data type that captures LIFO behavior is the ______ ADT.", a:"Stack", exp:"Any concrete structure that supports push and pop in the LIFO manner implements the Stack ADT."},
+  {q:"In a linked-stack the push operation creates a new node and makes it the new ______.", a:"head", exp:"The old head becomes the second node."},
+  {q:"A sequence of push and pop operations is legal if the stack never becomes ______ at a pop and never exceeds capacity at a push.", a:"empty", exp:"These two conditions define the valid execution traces of a stack."},
+  {q:"The time needed to reverse a stack of n elements using another stack is ______.", a:"O(n)", exp:"Each element is moved a constant number of times."},
+  {q:"Because of its LIFO nature a stack is the natural data structure for implementing ______ search.", a:"depth-first", exp:"DFS goes as deep as possible and then backtracks, exactly matching stack discipline."},
+  {q:"In the evaluation of a postfix expression the stack never holds ______; it holds only operands and intermediate results.", a:"operators", exp:"Operators are applied as soon as they are read."},
+  {q:"A stack frame (activation record) typically contains local variables, parameters and the ______ address.", a:"return", exp:"The return address tells the processor where to continue after the call finishes."},
+  {q:"The maximum depth of the call stack during the execution of a program is related to the maximum ______ of nested calls.", a:"depth", exp:"Deep recursion or deep nesting of function calls can exhaust the available stack space."},
+  {q:"An empty linked-stack is represented by a ______ head pointer.", a:"null", exp:"There are no nodes, so the head is null."},
+  {q:"Pushing an element onto a stack of size n increases the size to ______.", a:"n+1", exp:"The new element becomes the unique top."},
+  {q:"The stack discipline guarantees that the element pushed first will be popped ______.", a:"last", exp:"This is the defining property of LIFO."},
+  {q:"In many textbooks the first operation discussed for a stack is the ______ operation.", a:"push", exp:"Push is the fundamental way of adding data to the structure."},
+  {q:"A practical limit on the size of a stack is the amount of available ______ memory.", a:"stack", exp:"Operating systems impose a finite stack segment size on each process."},
+  {q:"The combination of a stack and a finite-state machine is the theoretical model of a ______ automaton.", a:"pushdown", exp:"Pushdown automata recognize exactly the context-free languages."},
+  {q:"Chapter Four of a DSA course concentrates on the definition, implementation and ______ of the stack.", a:"applications", exp:"Understanding where stacks appear in real systems is as important as knowing how to code them."}
+];
+
+/* ========== MODULE 5 : Queue Data Structure (50 unique) ========== */
+const m5 = [
+  {q:"A queue obeys the ______ principle (First-In, First-Out).", a:"FIFO", exp:"The first element inserted is the first one removed."},
+  {q:"The operation that adds an element at the rear of a queue is called ______.", a:"enqueue", exp:"Enqueue increases the length of the queue by one."},
+  {q:"The operation that removes the element at the front of a queue is called ______.", a:"dequeue", exp:"Dequeue returns the removed element and decreases the length by one."},
+  {q:"In a standard queue both enqueue and dequeue can be performed in ______ time.", a:"O(1)", exp:"With either a circular array or a linked list the front and rear are directly accessible."},
+  {q:"A circular queue reuses the empty slots at the beginning of an array by wrapping the rear pointer with ______ arithmetic.", a:"modulo", exp:"The formula (rear+1) mod capacity gives the next free index."},
+  {q:"Attempting to enqueue into a full queue causes a queue ______.", a:"overflow", exp:"Overflow means the allocated capacity has been exhausted."},
+  {q:"Attempting to dequeue from an empty queue causes a queue ______.", a:"underflow", exp:"Underflow must be detected before every dequeue operation."},
+  {q:"Breadth-First Search of a graph uses a ______ to explore vertices level by level.", a:"queue", exp:"Vertices are enqueued when they are first discovered and dequeued when their neighbors are examined."},
+  {q:"CPU scheduling that serves processes in the order they arrive is an application of a ______.", a:"queue", exp:"The ready queue of an operating system is a classic FIFO structure."},
+  {q:"A double-ended queue that allows insertion and deletion at both ends is called a ______.", a:"deque", exp:"Deque is short for double-ended queue."},
+  {q:"A priority queue removes the element with the highest (or lowest) ______ rather than the oldest element.", a:"priority", exp:"Priority queues are usually implemented with heaps."},
+  {q:"In a linked-list implementation of a queue we keep two pointers: one to the front and one to the ______.", a:"rear", exp:"Having both pointers makes enqueue and dequeue O(1)."},
+  {q:"A simple linear array queue can suffer from ‘false overflow’ when the rear reaches the end while free space still exists at the ______.", a:"front", exp:"A circular buffer eliminates this problem."},
+  {q:"The space occupied by a queue of n elements is ______.", a:"O(n)", exp:"Each element needs a constant amount of storage."},
+  {q:"Print-spooling systems place print jobs into a ______ so that they are printed in the order they were submitted.", a:"queue", exp:"The printer takes the next job from the front of the queue."},
+  {q:"In a circular queue of capacity N the test for a full queue is often written (rear+1) mod N == ______.", a:"front", exp:"This convention wastes one slot but distinguishes the full state from the empty state."},
+  {q:"Level-order traversal of a binary tree is performed with a ______.", a:"queue", exp:"Children of a node are enqueued so that they are visited after all nodes of the current level."},
+  {q:"A real-world analogy for a queue is people standing in a ______ at a ticket counter.", a:"line", exp:"The first person to join the line is the first person served."},
+  {q:"The abstract data type that captures FIFO behavior is the ______ ADT.", a:"Queue", exp:"Any concrete structure supporting enqueue and dequeue in FIFO order implements the Queue ADT."},
+  {q:"When a queue is implemented with two stacks the amortized cost of each operation is still ______.", a:"O(1)", exp:"Each element is moved between the stacks a constant number of times."},
+  {q:"In an operating system the structure that holds processes waiting for the CPU is called the ready ______.", a:"queue", exp:"Scheduling algorithms decide which process to dequeue next."},
+  {q:"A circular buffer is essentially a fixed-size ______ queue.", a:"circular", exp:"It is widely used in device drivers and multimedia streaming."},
+  {q:"The front of a queue is the position where elements are ______.", a:"removed", exp:"Removal always occurs at the front in a pure FIFO queue."},
+  {q:"The rear of a queue is the position where elements are ______.", a:"added", exp:"Insertion always occurs at the rear."},
+  {q:"A deque can be used to implement both a stack and a ______.", a:"queue", exp:"Restricting the deque to one end yields a stack; using both ends yields a queue."},
+  {q:"In a linked queue the enqueue operation attaches the new node at the ______.", a:"rear", exp:"The rear pointer is then advanced to the new node."},
+  {q:"The isEmpty operation of a queue returns true when the number of elements is ______.", a:"zero", exp:"An empty queue has no front element to dequeue."},
+  {q:"BFS finds the shortest path (in number of edges) in an unweighted graph because it explores vertices in order of increasing ______ from the source.", a:"distance", exp:"All vertices at distance k are dequeued before any vertex at distance k+1."},
+  {q:"A priority queue can be realized efficiently with a binary ______.", a:"heap", exp:"A heap gives O(log n) insert and extract-min (or extract-max)."},
+  {q:"When implementing a queue with an array the two indices that must be maintained are called front and ______.", a:"rear", exp:"They mark the two ends of the active portion of the array."},
+  {q:"A hospital emergency room that treats patients according to the severity of their condition is an example of a ______ queue.", a:"priority", exp:"Severity is the priority key."},
+  {q:"The main disadvantage of a naïve linear array queue is that space left by dequeued elements cannot be ______ without shifting or using a circular scheme.", a:"reused", exp:"Circular queues solve this problem elegantly."},
+  {q:"In many queue implementations a size counter is kept so that the full and empty states can be distinguished without wasting a ______.", a:"slot", exp:"The alternative is the classic ‘one-slot-empty’ convention."},
+  {q:"Web servers often place incoming requests into a ______ to be handled by worker threads.", a:"queue", exp:"The queue decouples the arrival of requests from their processing."},
+  {q:"The time complexity of searching for an arbitrary element in a queue is ______ in the worst case.", a:"O(n)", exp:"A queue does not support random access; every element may have to be examined."},
+  {q:"A queue that allows insertion only at the rear and deletion only at the front is a ______ queue.", a:"simple", exp:"This is the classic FIFO queue."},
+  {q:"In a circular queue both the front and rear indices move ______ around the array.", a:"forward", exp:"They wrap around to zero when they pass the last index."},
+  {q:"The minimum number of queues needed to implement a stack is ______.", a:"two", exp:"One queue holds the data; the other is used to rearrange the order for pop."},
+  {q:"An empty circular queue is often indicated by the condition front == ______.", a:"rear", exp:"A separate size variable or a special convention is required to distinguish this state from the full state."},
+  {q:"Because a queue processes elements in arrival order it is the natural structure for ______-first search.", a:"breadth", exp:"BFS explores all neighbors of a vertex before moving to the next level."},
+  {q:"In a linked-list queue the dequeue operation removes the node at the ______ and advances the front pointer.", a:"front", exp:"If the queue becomes empty both front and rear are set to null."},
+  {q:"A data structure that supports efficient insertion at both ends and deletion at both ends is the ______.", a:"deque", exp:"Deque stands for double-ended queue."},
+  {q:"The FIFO property guarantees that the element enqueued first will be dequeued ______.", a:"first", exp:"This is the defining characteristic of a queue."},
+  {q:"In the simulation of a bank, customers waiting for a teller are stored in a ______.", a:"queue", exp:"The next customer to be served is the one who has been waiting longest."},
+  {q:"When a circular queue is full the next enqueue attempt must be rejected to avoid ______ the existing data.", a:"overwriting", exp:"Overflow detection is essential for correct operation."},
+  {q:"The Queue ADT is defined by the semantics of its operations rather than by any particular ______.", a:"implementation", exp:"Arrays, linked lists or even two stacks can implement the same ADT."},
+  {q:"A queue can be visualized as a tube that is open at both ends; elements enter at one end and leave at the ______ end.", a:"other", exp:"This picture makes the FIFO behavior intuitive."},
+  {q:"In graph algorithms a queue is the key data structure for ______ traversal.", a:"BFS", exp:"DFS uses a stack (or the call stack) instead."},
+  {q:"Chapter Five of a DSA syllabus presents the queue as a fundamental linear structure that complements the ______.", a:"stack", exp:"Stacks are LIFO; queues are FIFO; together they cover the two most important restricted-access patterns."}
+];
+
+/* ========== MODULE 6 : Linked List Data Structure (50 unique) ========== */
+const m6 = [
+  {q:"A linked list is a linear collection of nodes where each node points to the ______ node.", a:"next", exp:"The pointer (or reference) creates the sequential structure without contiguous memory."},
+  {q:"In a singly linked list each node contains a data field and a ______ to the next node.", a:"pointer", exp:"The pointer is often named ‘next’."},
+  {q:"A doubly linked list stores in each node a pointer to the next node and a pointer to the ______ node.", a:"previous", exp:"The extra pointer allows efficient traversal in both directions."},
+  {q:"In a circular linked list the next pointer of the last node points back to the ______ node.", a:"first", exp:"There is no null terminator; the list forms a ring."},
+  {q:"Inserting a node at the beginning of a singly linked list can be done in ______ time.", a:"O(1)", exp:"Only the head pointer needs to be updated."},
+  {q:"Searching for a value in an unsorted linked list takes ______ time in the worst case.", a:"O(n)", exp:"Every node may have to be examined."},
+  {q:"A major advantage of linked lists over arrays is that they support efficient insertion and deletion without ______ elements.", a:"shifting", exp:"Only a constant number of pointers need to be changed."},
+  {q:"A major disadvantage of linked lists is the extra memory required for the ______ fields.", a:"pointer", exp:"Each node carries at least one additional address."},
+  {q:"To delete a given node from a singly linked list (when only the head is known) we must first locate the ______ node.", a:"previous", exp:"The previous node’s next pointer must be redirected."},
+  {q:"In a doubly linked list a node can be deleted in ______ time when a pointer to that node is already available.", a:"O(1)", exp:"Both the predecessor and the successor can be updated directly."},
+  {q:"The first node of a linked list is pointed to by a variable commonly called the ______.", a:"head", exp:"All list operations start from the head."},
+  {q:"A common representation of a list node in code is a structure containing a data field and a ______ field.", a:"next", exp:"In a doubly-linked node there is also a ‘prev’ field."},
+  {q:"Inserting a node at the end of a singly linked list that has no tail pointer requires ______ time.", a:"O(n)", exp:"The whole list must be traversed to find the current last node."},
+  {q:"A circular linked list can be traversed starting from any node and will eventually return to the ______ node.", a:"starting", exp:"Because the last node points back to the first, the walk is cyclic."},
+  {q:"Linked lists are preferred when the size of the data is unknown in advance and frequent ______ or deletions occur.", a:"insertions", exp:"Dynamic allocation grows the structure as needed."},
+  {q:"One way to reverse a singly linked list iteratively is to use three pointers: prev, current and ______.", a:"next", exp:"At each step the current node’s next pointer is redirected to the previous node."},
+  {q:"Floyd’s cycle-finding algorithm (tortoise and hare) detects a ______ in a linked list.", a:"cycle", exp:"Two pointers move at different speeds; if they meet, a cycle exists."},
+  {q:"In a doubly linked list movement to the previous node is possible in ______ time.", a:"O(1)", exp:"The prev pointer gives direct access."},
+  {q:"A dummy (sentinel) node is sometimes placed at the front of a list to simplify ______ cases such as empty-list handling.", a:"edge", exp:"Algorithms become more uniform because the head never needs special treatment."},
+  {q:"The space complexity of a linked list that stores n elements is ______.", a:"O(n)", exp:"Each element occupies a constant-size node."},
+  {q:"In a non-circular singly linked list the next pointer of the final node is ______.", a:"null", exp:"Null marks the end of the list."},
+  {q:"Compared with arrays, linked lists have poorer ______ performance because nodes are not contiguous in memory.", a:"cache", exp:"Each pointer chase may cause a cache miss."},
+  {q:"Polynomial arithmetic is a classic application that can be implemented elegantly with ______ lists.", a:"linked", exp:"Each term is a node containing a coefficient and an exponent."},
+  {q:"A circular doubly linked list supports efficient traversal in both directions and wraps around at both ______.", a:"ends", exp:"It is useful for applications that need a continuous ring of elements."},
+  {q:"Finding the length of a singly linked list requires a traversal and therefore takes ______ time.", a:"O(n)", exp:"Unless a size field is maintained, every node must be counted."},
+  {q:"To insert a new node after a given node we need a pointer to that ______ node.", a:"given", exp:"The new node’s next is set to the given node’s next, then the given node’s next is set to the new node."},
+  {q:"Linked lists allocate memory for each node ______ (usually from the heap).", a:"dynamically", exp:"Allocation occurs at run time as nodes are created."},
+  {q:"In a singly linked list the time needed to delete the last node is ______ because the second-last node must be found.", a:"O(n)", exp:"A single pointer cannot jump directly to the end."},
+  {q:"A doubly linked list uses more memory per node than a singly linked list because it stores an extra ______.", a:"pointer", exp:"The prev field doubles the pointer overhead."},
+  {q:"Common interview problems on linked lists include reversing the list, detecting a cycle, finding the middle node and merging two ______ lists.", a:"sorted", exp:"These problems exercise pointer manipulation skills."},
+  {q:"The middle node of a linked list can be found in one pass by advancing a slow pointer one step and a fast pointer ______ steps at a time.", a:"two", exp:"When the fast pointer reaches the end the slow pointer is at the middle."},
+  {q:"A stack can be implemented with a linked list by performing push and pop at the ______ of the list.", a:"head", exp:"Both operations then take constant time."},
+  {q:"A queue can be implemented with a linked list by keeping pointers to both the head and the ______.", a:"tail", exp:"Enqueue at the tail and dequeue at the head are both O(1)."},
+  {q:"An advantage of a doubly linked list is that a node can be removed in constant time when a pointer to the node itself is ______.", a:"known", exp:"No search for the predecessor is required."},
+  {q:"In a circular linked list with a single node the next pointer of that node points to ______.", a:"itself", exp:"The node forms a cycle of length one."},
+  {q:"Because nodes of a linked list may reside anywhere in memory, the structure is said to use ______ memory allocation.", a:"non-contiguous", exp:"This is the opposite of the contiguous allocation used by arrays."},
+  {q:"The operation of visiting every node of a linked list exactly once is a ______ of the list.", a:"traversal", exp:"Traversal is the basis of many other list algorithms."},
+  {q:"A header node (dummy node) can store the current ______ of the list, making the length operation O(1).", a:"size", exp:"The size field is updated on every insertion and deletion."},
+  {q:"In a singly linked list the only way to move from a node to the preceding node is to start again from the ______.", a:"head", exp:"There is no backward pointer."},
+  {q:"Linked lists are a natural representation for the adjacency-list form of a ______.", a:"graph", exp:"Each vertex keeps a list of its neighboring vertices."},
+  {q:"The process of creating a new node, filling its data field and adjusting pointers is the essence of the ______ operation on a linked list.", a:"insertion", exp:"Insertion can occur at the head, at the tail or after a given node."},
+  {q:"When a linked list is used to implement a hash table’s collision chain, the technique is called separate ______.", a:"chaining", exp:"Each bucket is a linked list of entries that hash to the same index."},
+  {q:"A disadvantage of linked lists relative to arrays is that they do not support ______ access by index in constant time.", a:"random", exp:"Reaching the i-th node requires i steps."},
+  {q:"In a doubly linked list the prev pointer of the first node and the next pointer of the last node are usually ______.", a:"null", exp:"They mark the two ends of the list."},
+  {q:"The algorithm that reverses a linked list by changing the direction of all next pointers is an example of ______ manipulation.", a:"pointer", exp:"Careful ordering of the pointer assignments is required to avoid losing the rest of the list."},
+  {q:"A linked list can grow until the system runs out of ______ memory.", a:"heap", exp:"There is no predetermined capacity as there is with a static array."},
+  {q:"The first step in many linked-list algorithms is to check whether the head pointer is ______.", a:"null", exp:"A null head means the list is empty and many operations become trivial or undefined."},
+  {q:"In the study of data structures the linked list is the first example of a ______ dynamic structure.", a:"truly", exp:"Its size is not fixed at compile time and nodes are allocated independently."},
+  {q:"Chapter Six of a typical DSA syllabus examines singly, doubly and circular lists together with their advantages and ______.", a:"disadvantages", exp:"Understanding the trade-offs is essential for choosing the right structure."}
+];
+
+/* ========== MODULE 7 : Hashing and Hash Tables (50 unique) ========== */
+const m7 = [
+  {q:"A hash table stores key-value pairs and provides average-case ______ time for insertion, deletion and lookup.", a:"O(1)", exp:"With a good hash function and a reasonable load factor the expected cost of each operation is constant."},
+  {q:"A hash function maps a key to an integer index in the range of the ______ table.", a:"hash", exp:"The index determines the slot (or bucket) where the entry will be stored."},
+  {q:"When two distinct keys produce the same hash-table index a ______ occurs.", a:"collision", exp:"Collisions are inevitable for large key sets and must be handled by a collision-resolution strategy."},
+  {q:"The two principal families of collision-resolution methods are chaining and open ______.", a:"addressing", exp:"Chaining stores colliding keys in a secondary structure; open addressing stores them in other slots of the table itself."},
+  {q:"In separate chaining each slot of the hash table contains a pointer to a ______ of entries.", a:"list", exp:"All keys that hash to the same index are linked together."},
+  {q:"Linear probing resolves a collision by examining the next consecutive slots until an empty slot is found; this is a form of open ______.", a:"addressing", exp:"The probe sequence is i, i+1, i+2, \ldots (modulo table size)."},
+  {q:"The load factor of a hash table is defined as the number of stored entries divided by the number of ______.", a:"slots", exp:"A low load factor keeps the number of collisions small."},
+  {q:"When the load factor becomes too high the table is usually enlarged and all keys are re-inserted; this process is called ______.", a:"rehashing", exp:"Rehashing restores a healthy load factor and expected constant-time performance."},
+  {q:"A good hash function distributes keys as ______ as possible across the table.", a:"uniformly", exp:"Uniform distribution minimizes the length of the longest chain (or the length of the longest probe sequence)."},
+  {q:"The division method of hashing computes the index as key modulo ______.", a:"m", exp:"m is the size of the table; a prime m often works well."},
+  {q:"In open addressing the load factor must stay strictly less than ______; otherwise the table can become full.", a:"1", exp:"When every slot is occupied no further insertion is possible."},
+  {q:"Primary clustering is a phenomenon that appears with linear probing: long runs of occupied slots tend to grow even ______.", a:"longer", exp:"Any key that hashes into a cluster is forced to walk to the end of that cluster."},
+  {q:"Quadratic probing uses a probe sequence whose offsets are quadratic in the probe number, thereby reducing ______ clustering.", a:"primary", exp:"The offsets 1², 2², 3², \ldots jump over consecutive slots."},
+  {q:"Double hashing computes the probe step from a second hash function, producing a probe sequence that depends on the ______ itself.", a:"key", exp:"Different keys follow different step sizes, which further reduces clustering."},
+  {q:"Hash tables are excellent for implementing dictionaries, sets and ______ tables in compilers.", a:"symbol", exp:"A symbol table maps identifiers to their attributes and is consulted on every name occurrence."},
+  {q:"The worst-case cost of an operation in a hash table that uses chaining is ______ when all keys collide in one bucket.", a:"O(n)", exp:"A single linked list of length n must be searched."},
+  {q:"A perfect hash function for a static set of keys produces no ______.", a:"collisions", exp:"Each key maps to a unique slot; lookup is then truly O(1) in the worst case."},
+  {q:"In open addressing a deleted slot is usually marked with a special ______ value so that probe sequences are not broken.", a:"tombstone", exp:"A pure empty marker would cause later searches to stop prematurely."},
+  {q:"The expected number of probes for a successful search in a hash table with load factor α is a function of ______ only (for uniform hashing).", a:"alpha", exp:"Classic results from probability theory give formulas such as (1/α) ln(1/(1-α)) for linear probing."},
+  {q:"Universal hashing selects a hash function at random from a carefully designed family so that the expected number of collisions is ______ for any set of keys.", a:"small", exp:"This technique protects against adversarial key sets."},
+  {q:"A hash table does not keep keys in sorted order; therefore it does not efficiently support ______ queries.", a:"range", exp:"Finding all keys between two values would require scanning the whole table."},
+  {q:"The multiplication method of hashing multiplies the key by a constant and extracts some bits of the ______ part of the product.", a:"fractional", exp:"The method is less sensitive to the choice of table size than the division method."},
+  {q:"In separate chaining the load factor may safely exceed ______ because each slot can hold many entries.", a:"1", exp:"Performance degrades gracefully as the average chain length grows."},
+  {q:"Cache performance of open addressing is often better than that of chaining because all data reside in a single ______ array.", a:"contiguous", exp:"Pointer chasing through a linked list tends to cause more cache misses."},
+  {q:"A cryptographic hash function is designed to be one-way and collision-______ for security applications.", a:"resistant", exp:"It is computationally infeasible to find two messages with the same hash value."},
+  {q:"When two keys are equal the hash function must return the ______ value for both.", a:"same", exp:"Otherwise the equality test would be inconsistent with the table’s organization."},
+  {q:"The phrase ‘bucket’ in hashing literature usually refers to a single ______ of the table that may contain several entries.", a:"slot", exp:"In chaining a bucket is the linked list hanging from that slot."},
+  {q:"Rehashing is typically triggered when the measured load factor crosses a predetermined ______.", a:"threshold", exp:"Common thresholds are 0.75 for open addressing and higher values for chaining."},
+  {q:"A hash table can implement a set by storing only keys and ignoring the ______ component of each entry.", a:"value", exp:"Membership testing then reduces to a successful lookup."},
+  {q:"The main reason collisions are inevitable is the pigeonhole principle: there are more possible keys than ______ in the table.", a:"slots", exp:"Even a huge table cannot accommodate every conceivable key without collisions."},
+  {q:"In linear probing the next index after a collision at i is (i+1) mod ______.", a:"tablesize", exp:"The modulo operation wraps the probe sequence around the end of the array."},
+  {q:"An advantage of chaining is that deletion is simple: the entry is simply removed from its ______.", a:"list", exp:"Open addressing must carefully mark the slot so that later probes continue correctly."},
+  {q:"An advantage of open addressing is that it needs no extra memory for ______.", a:"pointers", exp:"All entries live inside the table array itself."},
+  {q:"The performance of a hash table depends critically on the quality of the hash ______ and on the load factor.", a:"function", exp:"A poor hash function produces long chains or long probe sequences even at low load."},
+  {q:"In the analysis of hashing under the uniform-hashing assumption each key is equally likely to hash to any ______.", a:"slot", exp:"This idealization makes the expected-case calculations tractable."},
+  {q:"A secondary clustering effect can still appear with quadratic probing because keys that hash to the same initial slot follow the same ______ sequence.", a:"probe", exp:"Double hashing eliminates even this residual clustering."},
+  {q:"Hash tables are used inside databases, caches, compilers and almost every modern programming-language ______ library.", a:"standard", exp:"The map/dictionary type of most languages is backed by a hash table."},
+  {q:"When the table is resized the new size is often chosen to be a ______ number to improve the distribution of the division method.", a:"prime", exp:"Prime moduli reduce the likelihood of systematic patterns in the keys."},
+  {q:"The cost of a single rehashing operation is ______ because every key must be re-inserted into the new table.", a:"O(n)", exp:"Amortized over many insertions the cost remains constant if the table grows geometrically."},
+  {q:"In open addressing the probe sequence must eventually examine every slot, otherwise some keys could never be ______.", a:"inserted", exp:"A complete probe sequence is a permutation of all table indices."},
+  {q:"The term ‘collision resolution’ refers to the strategy used when the home slot of a key is already ______.", a:"occupied", exp:"The strategy decides where the new key will be placed."},
+  {q:"A hash table that never rehashes and whose load factor grows without bound will eventually exhibit ______-case linear behavior.", a:"worst", exp:"All operations degrade to scanning a single long chain or a long probe sequence."},
+  {q:"In many textbooks the first collision-resolution technique presented is separate ______.", a:"chaining", exp:"It is conceptually simple and easy to implement."},
+  {q:"The expected length of a chain under uniform hashing with load factor α is exactly ______.", a:"alpha", exp:"By linearity of expectation each slot receives α keys on average."},
+  {q:"A practical hash function for strings often iterates over the characters, multiplying the accumulated value by a constant and adding the next ______.", a:"character", exp:"The constant is usually a small prime such as 31 or 37."},
+  {q:"When a hash table is used as a cache the most recently accessed entries may be moved to the front of their chain; this is a form of ______ organization.", a:"self-organizing", exp:"Frequently used keys become cheaper to find."},
+  {q:"The abstract data type realized by a hash table is essentially an unordered ______ (or map).", a:"dictionary", exp:"The primary operations are insert, lookup and delete by key."},
+  {q:"Chapter Seven of a DSA course normally concludes with a discussion of the many ______ of hash tables in real systems.", a:"applications", exp:"Understanding where hashing appears helps motivate the theory."}
+];
+
+/* ========== MODULE 8 : Introduction to Binary Search Tree (50 unique) ========== */
+const m8 = [
+  {q:"In a binary search tree, for every node all keys in its left subtree are ______ than the node’s key.", a:"less", exp:"This ordering invariant is what makes search efficient."},
+  {q:"In a binary search tree, for every node all keys in its right subtree are ______ than the node’s key.", a:"greater", exp:"The symmetric counterpart of the left-subtree rule."},
+  {q:"The average time complexity of search, insert and delete in a randomly built BST is ______.", a:"O(log n)", exp:"A random insertion order produces a tree whose expected height is logarithmic."},
+  {q:"The worst-case time complexity of search in a completely skewed BST is ______.", a:"O(n)", exp:"The tree degenerates into a linked list."},
+  {q:"An in-order traversal of a BST visits the keys in ______ order.", a:"sorted", exp:"This is a direct consequence of the BST ordering property."},
+  {q:"Insertion of a new key into a BST always places the new node as a ______.", a:"leaf", exp:"The search for the insertion point ends at a null child pointer which is then replaced by the new node."},
+  {q:"When a node with two children is deleted from a BST it is usually replaced by its in-order ______.", a:"successor", exp:"The successor is the smallest key in the right subtree (or the predecessor may be used instead)."},
+  {q:"The in-order successor of a node is the left-most node in the node’s ______ subtree.", a:"right", exp:"Starting from the right child and repeatedly moving left yields the successor."},
+  {q:"A pre-order traversal visits the root ______ its subtrees.", a:"before", exp:"The order is root, left, right."},
+  {q:"A post-order traversal visits the root ______ its subtrees.", a:"after", exp:"The order is left, right, root."},
+  {q:"Level-order traversal of a tree is performed with the help of a ______.", a:"queue", exp:"Children are enqueued so that they are processed after the current level."},
+  {q:"The minimum key in a BST is located at the ______-most node.", a:"left", exp:"Starting at the root and following left children until a null is reached finds the minimum."},
+  {q:"The maximum key in a BST is located at the ______-most node.", a:"right", exp:"Symmetric to the minimum."},
+  {q:"A BST becomes skewed when keys are inserted in already ______ order.", a:"sorted", exp:"Each new key is larger (or smaller) than all existing keys and is attached as a new leaf on one side."},
+  {q:"The height of a balanced BST with n nodes is approximately ______.", a:"log n", exp:"A perfectly balanced binary tree has height ⌊log₂ n⌋."},
+  {q:"The space occupied by a BST of n nodes is ______.", a:"O(n)", exp:"Each node stores a key and two child pointers."},
+  {q:"Searching for a key in a BST proceeds by comparing the key with the current node and then descending into the left or right ______.", a:"subtree", exp:"At each step the search space is reduced to one of the two subtrees."},
+  {q:"An empty BST is represented by a ______ root pointer.", a:"null", exp:"There are no nodes."},
+  {q:"The recursive insertion routine typically returns the (possibly new) ______ of the subtree.", a:"root", exp:"This allows the parent’s child pointer to be updated when a new node is created."},
+  {q:"A binary tree that satisfies the BST property is called a binary ______ tree.", a:"search", exp:"The name emphasizes the efficient search capability."},
+  {q:"In a BST the left child of a node is always ______ than the node itself.", a:"smaller", exp:"This is the local form of the global ordering invariant."},
+  {q:"Deleting a leaf node from a BST is simple: the parent’s corresponding child pointer is set to ______.", a:"null", exp:"No other structural changes are required."},
+  {q:"Deleting a node that has only one child is performed by linking the parent directly to that ______.", a:"child", exp:"The node is spliced out of the tree."},
+  {q:"The three cases that must be considered when deleting a node from a BST are: leaf, one child, and ______ children.", a:"two", exp:"The two-child case is the most involved."},
+  {q:"An iterative search in a BST uses a loop that moves a pointer left or right until the key is found or a ______ pointer is reached.", a:"null", exp:"No recursion stack is required."},
+  {q:"The number of comparisons performed by a search is proportional to the ______ of the node that contains the key (or the length of the path to a null).", a:"depth", exp:"In a balanced tree the depth is logarithmic."},
+  {q:"A common way to verify that a binary tree is a BST is to perform an in-order traversal and check that the resulting sequence is ______.", a:"sorted", exp:"Any violation of increasing order proves that the tree is not a BST."},
+  {q:"The successor of the maximum key in a BST does not exist; the predecessor of the minimum key likewise does not ______.", a:"exist", exp:"They are the extreme elements of the ordered set."},
+  {q:"When the in-order successor is used to replace a deleted node, the successor itself is then deleted from its original ______.", a:"location", exp:"The successor has at most one child, so its deletion falls into a simpler case."},
+  {q:"A BST supports the ordered-set operations minimum, maximum, successor and predecessor in time proportional to the ______ of the tree.", a:"height", exp:"Each of these operations follows a single path from the root or from a given node."},
+  {q:"The shape of a BST depends on the order in which keys are ______.", a:"inserted", exp:"Different insertion sequences produce different tree topologies."},
+  {q:"In the best case a BST has the same height as a perfectly balanced binary tree, which is ______.", a:"log n", exp:"This is the ideal situation for search performance."},
+  {q:"An advantage of a BST over an unordered array is faster average-case ______, insertion and deletion.", a:"search", exp:"The logarithmic height yields much better asymptotics than linear search."},
+  {q:"A disadvantage of a plain BST is that its height can become linear, destroying the logarithmic ______.", a:"performance", exp:"Self-balancing variants were invented to eliminate this risk."},
+  {q:"The root of a BST can be any of the n keys; each choice leads to a different ______ of left and right subtree sizes.", a:"partition", exp:"The quality of the tree depends on how balanced those sizes are."},
+  {q:"Level-order traversal is also known as ______-first traversal of the tree.", a:"breadth", exp:"It visits nodes level by level from top to bottom."},
+  {q:"In a recursive formulation the base case of a tree algorithm is usually a ______ node.", a:"null", exp:"The empty tree requires no further work."},
+  {q:"The BST property is a global invariant that is maintained by every ______ and deletion algorithm.", a:"insertion", exp:"If the invariant is ever broken, subsequent searches may fail."},
+  {q:"A node’s depth is the number of edges on the path from the ______ to that node.", a:"root", exp:"Depth is zero for the root itself."},
+  {q:"The height of a tree is the maximum depth of any ______.", a:"node", exp:"Equivalently it is the length of the longest root-to-leaf path."},
+  {q:"When implementing a BST in code the node structure normally contains a key, a left child pointer and a ______ child pointer.", a:"right", exp:"Some implementations also store a parent pointer or a size field."},
+  {q:"An in-order walk of a BST can be used to output the keys of a set in ______ order.", a:"sorted", exp:"This gives a simple way to sort a set of keys: insert them into a BST and then perform an in-order traversal."},
+  {q:"The time needed to build a BST by successive insertions of n random keys is expected to be ______.", a:"O(n log n)", exp:"Each insertion costs O(log n) on average, and there are n of them."},
+  {q:"If the keys are inserted in sorted order the resulting BST has height ______ and each insertion costs linear time.", a:"n-1", exp:"The tree is a straight line; the total construction cost is quadratic."},
+  {q:"A binary search tree is a binary tree that satisfies an additional ______ constraint on the keys.", a:"ordering", exp:"The constraint is what distinguishes a BST from an ordinary binary tree."},
+  {q:"The search path for a key follows a unique route determined by the outcomes of the comparisons with the keys on the path from the ______.", a:"root", exp:"No other path is possible under the BST property."},
+  {q:"In many textbooks the first tree structure studied after binary trees is the binary ______ tree.", a:"search", exp:"It is the simplest ordered dictionary implementation."},
+  {q:"Chapter Eight of a DSA syllabus typically presents both recursive and iterative versions of the fundamental BST ______.", a:"operations", exp:"Seeing both styles deepens understanding of the algorithms."}
+];
+
+/* ========== MODULE 9 : Balanced Trees and Heaps (50 unique) ========== */
+const m9 = [
+  {q:"A balanced binary tree keeps the height of the left and right subtrees of every node within a small constant difference, guaranteeing ______ search time.", a:"O(log n)", exp:"The logarithmic height is the source of the performance guarantee."},
+  {q:"AVL trees, Red-Black trees and Splay trees are examples of ______-balancing binary search trees.", a:"self", exp:"They automatically restore balance after every insertion or deletion."},
+  {q:"The balance factor of a node in an AVL tree is the height of its left subtree minus the height of its right subtree and must be -1, 0 or ______.", a:"1", exp:"Any other value triggers one or more rotations."},
+  {q:"Rotations are local restructuring operations that restore the balance property while preserving the ______ order of keys.", a:"in-order", exp:"Because the in-order sequence does not change, the tree remains a valid BST."},
+  {q:"A binary heap is a complete binary tree that satisfies the ______ property (parent ordered with respect to children).", a:"heap", exp:"In a min-heap every parent is ≤ its children; in a max-heap every parent is ≥ its children."},
+  {q:"The minimum element of a min-heap is always located at the ______.", a:"root", exp:"The heap property forces the smallest key to bubble to the top."},
+  {q:"Inserting a new element into a binary heap takes ______ time.", a:"O(log n)", exp:"The element is placed at the next leaf position and then sifted up toward the root."},
+  {q:"Extracting the minimum (or maximum) from a heap takes ______ time.", a:"O(log n)", exp:"The root is replaced by the last leaf and then sifted down to restore the heap property."},
+  {q:"A binary heap is customarily stored in an ______ using simple index arithmetic for parent and children.", a:"array", exp:"For a node at index i the left child is at 2i+1 (0-based) and the parent is at ⌊(i-1)/2⌋."},
+  {q:"Building a heap from an unordered array can be performed in linear ______ by the bottom-up heapify procedure.", a:"time", exp:"The algorithm runs in O(n) rather than the O(n log n) cost of n successive insertions."},
+  {q:"Heap Sort uses a max-heap to sort an array in ______ time and is an in-place algorithm.", a:"O(n log n)", exp:"After the heap is built, n extract-max operations produce the sorted sequence."},
+  {q:"Priority queues are most efficiently realized by ______.", a:"heaps", exp:"A heap gives O(1) find-min and O(log n) insert and delete-min."},
+  {q:"The height of a complete binary heap that contains n nodes is ______.", a:"floor(log n)", exp:"A complete binary tree of n nodes has height ⌊log₂ n⌋."},
+  {q:"In a 0-based array representation of a heap the left child of the node at index i is stored at index ______.", a:"2i+1", exp:"The right child is at 2i+2 and the parent is at ⌊(i-1)/2⌋."},
+  {q:"Red-Black trees guarantee that the longest path from the root to a leaf is at most twice as long as the ______ path.", a:"shortest", exp:"This is sufficient to keep the height logarithmic."},
+  {q:"The main reason self-balancing trees were invented is to prevent a BST from degenerating into a ______ list.", a:"linked", exp:"A skewed tree loses the logarithmic search bound."},
+  {q:"A complete binary tree is filled level by level from ______ to right.", a:"left", exp:"This shape property is required by the array representation of a heap."},
+  {q:"Sift-down (also called heapify) restores the heap property after the root has been ______ or replaced.", a:"removed", exp:"The larger (or smaller) child is swapped upward until the property holds."},
+  {q:"Sift-up restores the heap property after a new element has been ______ at a leaf.", a:"inserted", exp:"The element is swapped with its parent until the heap order is satisfied."},
+  {q:"In a max-heap the largest element is always at the ______ of the tree.", a:"root", exp:"Extract-max simply returns the root and then restores the heap."},
+  {q:"AVL trees perform one or two rotations after an insertion or deletion that violates the ______ factor constraint.", a:"balance", exp:"Single and double rotations are the only restructuring operations needed."},
+  {q:"The real-world applications of heaps include graph algorithms such as Dijkstra’s and Prim’s, operating-system ______, and event-driven simulation.", a:"schedulers", exp:"Any system that repeatedly needs the highest-priority item benefits from a heap."},
+  {q:"A Fibonacci heap is an advanced heap data structure that provides better amortized bounds for some operations and is used in sophisticated ______ algorithms.", a:"graph", exp:"Its decrease-key operation is especially efficient."},
+  {q:"The number of leaves in a complete binary heap of n nodes is roughly ______.", a:"n/2", exp:"In a complete binary tree approximately half of the nodes are leaves."},
+  {q:"Because a heap does not support efficient search for an arbitrary key it is not a replacement for a balanced ______ tree.", a:"search", exp:"Heaps excel at priority-queue operations, not at dictionary operations."},
+  {q:"The process of converting an unordered array into a heap is called ______ construction or bottom-up heapify.", a:"heap", exp:"It is a classic linear-time algorithm."},
+  {q:"In an AVL tree the heights of the two subtrees of any node differ by at most ______.", a:"1", exp:"This is the strictest common balance condition and produces the smallest possible height."},
+  {q:"A rotation in a binary tree changes the shape of the tree while preserving the ______ traversal sequence.", a:"in-order", exp:"Consequently the BST property is maintained."},
+  {q:"The parent of the node stored at index i in a 1-based heap array is located at index ______.", a:"floor(i/2)", exp:"This arithmetic is the reason heaps can be stored without explicit child pointers."},
+  {q:"Priority queues abstract the idea of a set of elements with an associated ______; the highest-priority element can be extracted quickly.", a:"priority", exp:"The heap is the classic concrete realization of this abstraction."},
+  {q:"When the last leaf of a heap is moved to the root after an extract-min, the heap property is almost always ______ and must be restored by sift-down.", a:"violated", exp:"Sift-down repeatedly swaps the node with its smaller child."},
+  {q:"Self-balancing trees appear in language standard libraries as the implementation of ordered maps and ______.", a:"sets", exp:"They guarantee logarithmic cost for every dictionary operation."},
+  {q:"The advantage of a balanced BST over a hash table is that it keeps keys in sorted order and therefore supports efficient ______ queries.", a:"range", exp:"A hash table cannot report the keys that lie between two values without a full scan."},
+  {q:"In a binary heap the leaves occupy the last ______ positions of the array.", a:"n/2", exp:"All nodes with index ≥ ⌊n/2⌋ are leaves (0-based indexing)."},
+  {q:"A single rotation is sufficient to restore AVL balance when the imbalance is caused by an insertion into the ______ of a node whose balance factor was already 1 or -1.", a:"subtree", exp:"The precise case analysis leads to the four classic rotation patterns (LL, RR, LR, RL)."},
+  {q:"Heap Sort is not stable because the sift-down process can change the relative order of ______ keys.", a:"equal", exp:"Stability is sacrificed for the in-place O(n log n) guarantee."},
+  {q:"The term ‘complete’ in the definition of a binary heap refers to the ______ property of the tree, not to the heap-order property.", a:"shape", exp:"Every level except possibly the last is completely filled, and the last level is filled from left to right."},
+  {q:"In the analysis of heap operations the height of the heap appears as the number of iterations of the sift-up or sift-down ______.", a:"loop", exp:"Because the height is logarithmic the cost is O(log n)."},
+  {q:"Red-Black trees use an extra color bit per node and a set of color-change and rotation rules to keep the tree approximately ______.", a:"balanced", exp:"The rules guarantee that the black-height of every path is the same."},
+  {q:"A practical advantage of heaps over balanced BSTs for priority-queue workloads is the smaller ______ factor of the heap operations.", a:"constant", exp:"Array-based heaps have excellent cache behavior and simpler code."},
+  {q:"The first step of Heap Sort is to build a max-heap from the unordered ______.", a:"array", exp:"After that the largest element sits at index 0 and can be swapped into its final position."},
+  {q:"In a min-heap every path from the root to a leaf is a non-______ sequence of keys.", a:"decreasing", exp:"Each parent is less than or equal to its children, so keys never decrease along a path."},
+  {q:"The study of balanced trees and heaps shows how additional structural invariants can turn a data structure with poor worst-case behavior into one with guaranteed ______ performance.", a:"logarithmic", exp:"This idea is central to the design of efficient data structures."},
+  {q:"Chapter Nine of a DSA syllabus normally presents both the theory of balanced search trees and the practical priority-queue structure known as the ______.", a:"heap", exp:"The two topics are related by the common theme of controlled tree height."}
+];
+
+/* ========== MODULE 10 : Introduction to Graph Data Structure (50 unique) ========== */
+const m10 = [
+  {q:"A graph consists of a set of vertices together with a set of ______ that connect pairs of vertices.", a:"edges", exp:"Edges may be directed or undirected and may carry weights."},
+  {q:"The two most common ways to represent a graph are the adjacency ______ and the adjacency list.", a:"matrix", exp:"The matrix uses O(V²) space; the list uses O(V+E) space."},
+  {q:"In an adjacency matrix the entry matrix[i][j] is true (or equal to the weight) when there is an edge from vertex i to vertex ______.", a:"j", exp:"For an undirected graph the matrix is symmetric."},
+  {q:"In an adjacency list each vertex stores a list of its neighboring ______.", a:"vertices", exp:"The representation is space-efficient for sparse graphs."},
+  {q:"Breadth-First Search explores a graph level by level and therefore uses a ______ as its main data structure.", a:"queue", exp:"Vertices are enqueued when first discovered and dequeued when their adjacency list is scanned."},
+  {q:"Depth-First Search explores as far as possible along each branch and therefore uses a ______ (explicit or the call stack).", a:"stack", exp:"DFS can be written recursively or with an explicit stack."},
+  {q:"The time complexity of both BFS and DFS on a graph represented by adjacency lists is ______.", a:"O(V+E)", exp:"Each vertex and each edge is examined a constant number of times."},
+  {q:"Dijkstra’s algorithm computes shortest paths from a single source in a graph with non-negative edge ______.", a:"weights", exp:"It repeatedly selects the unsettled vertex with the smallest distance estimate."},
+  {q:"Dijkstra’s algorithm is efficiently implemented with a ______ queue (usually a binary heap).", a:"priority", exp:"The priority queue holds vertices keyed by their current distance from the source."},
+  {q:"A graph in which every pair of distinct vertices is connected by a unique edge is called a ______ graph.", a:"complete", exp:"An undirected complete graph on V vertices has V(V-1)/2 edges."},
+  {q:"A path that starts and ends at the same vertex and contains no repeated edges is a ______.", a:"cycle", exp:"Graphs that contain no cycles are forests (or trees if they are connected)."},
+  {q:"An undirected graph is connected when there is a path between every pair of ______.", a:"vertices", exp:"A disconnected graph consists of two or more connected components."},
+  {q:"A directed graph is strongly connected when there is a directed path from every vertex to every other ______.", a:"vertex", exp:"Strong connectivity is a stronger requirement than weak connectivity."},
+  {q:"The degree of a vertex in an undirected graph is the number of edges ______ on that vertex.", a:"incident", exp:"In a directed graph we distinguish in-degree and out-degree."},
+  {q:"BFS can be used to find the shortest path (in number of edges) in an ______ graph.", a:"unweighted", exp:"All edges are treated as having length one; the first time a vertex is reached is via a shortest path."},
+  {q:"The adjacency-matrix representation allows an edge-existence query to be answered in ______ time.", a:"O(1)", exp:"It is enough to inspect a single matrix entry."},
+  {q:"The adjacency-list representation allows iteration over all neighbors of a vertex in time proportional to the ______ of that vertex.", a:"degree", exp:"This is optimal and is the reason adjacency lists are preferred for sparse graphs."},
+  {q:"A tree is a connected acyclic ______ graph.", a:"undirected", exp:"Equivalently, a tree on V vertices has exactly V-1 edges."},
+  {q:"Social networks, road maps, the World Wide Web and dependency relations among software modules are all naturally modeled by ______.", a:"graphs", exp:"Vertices represent entities and edges represent relationships."},
+  {q:"In an adjacency-list representation of an undirected graph each edge appears in ______ lists (once for each endpoint).", a:"two", exp:"The total size of all lists is therefore 2E."},
+  {q:"Dijkstra’s algorithm fails to produce correct results when the graph contains ______ edge weights.", a:"negative", exp:"Negative weights require a different algorithm such as Bellman-Ford."},
+  {q:"The first vertex placed into the queue by BFS is the ______ vertex of the search.", a:"source", exp:"All distances are measured from this source."},
+  {q:"A spanning tree of a connected undirected graph is a subgraph that is a tree and that includes every ______ of the original graph.", a:"vertex", exp:"Minimum spanning trees are important in network design."},
+  {q:"The number of edges in a simple undirected graph on V vertices is at most ______.", a:"V(V-1)/2", exp:"This is the number of edges in the complete graph K_V."},
+  {q:"When a graph is represented by an adjacency matrix the space required is independent of the number of edges and is always ______.", a:"O(V^2)", exp:"Even a sparse graph consumes quadratic memory."},
+  {q:"DFS can be used to detect cycles in a directed graph by looking for a back edge to a vertex that is still on the recursion ______.", a:"stack", exp:"Such an edge closes a directed cycle."},
+  {q:"In many textbooks the first graph traversal algorithm presented is ______-First Search.", a:"Breadth", exp:"BFS is intuitive because it explores the graph in order of increasing distance."},
+  {q:"A weighted graph associates a numeric ______ with every edge.", a:"weight", exp:"Weights may represent distance, cost, capacity, time, etc."},
+  {q:"The single-source shortest-path problem asks for the shortest path from a designated source to every other ______.", a:"vertex", exp:"Dijkstra’s algorithm solves the problem for non-negative weights."},
+  {q:"An adjacency list can be stored as an array of ______ lists (or vectors).", a:"linked", exp:"Each list contains the neighbors of the corresponding vertex."},
+  {q:"In a directed graph an edge (u,v) is an out-edge of u and an in-edge of ______.", a:"v", exp:"The out-degree of u counts its out-edges; the in-degree of v counts its in-edges."},
+  {q:"A graph that contains at least one cycle is called ______.", a:"cyclic", exp:"The opposite notion is an acyclic graph (a forest or a DAG)."},
+  {q:"BFS and DFS both classify edges of an undirected graph into tree edges and ______ edges.", a:"back", exp:"Back edges are the edges that close cycles."},
+  {q:"The running time of Dijkstra’s algorithm with a binary heap is O((V+E) log ______).", a:"V", exp:"Each vertex is extracted from the heap once and each edge may cause a decrease-key."},
+  {q:"A connected component of an undirected graph is a maximal set of vertices that are pairwise ______ by paths.", a:"reachable", exp:"DFS or BFS started from each undiscovered vertex finds all components."},
+  {q:"In an adjacency matrix of an undirected graph the matrix is always ______.", a:"symmetric", exp:"matrix[i][j] equals matrix[j][i] because edges have no direction."},
+  {q:"Graphs are used in recommendation systems to model users, items and the ______ among them.", a:"relationships", exp:"Collaborative filtering can be viewed as a walk on this bipartite graph."},
+  {q:"A simple path never repeats a ______.", a:"vertex", exp:"A simple cycle never repeats a vertex except for the start/end vertex."},
+  {q:"The adjacency-matrix test for the existence of an edge is fast, but iterating over all neighbors of a vertex takes ______ time even if the degree is small.", a:"O(V)", exp:"The whole row of the matrix must be examined."},
+  {q:"In a sparse graph the number of edges is much smaller than V²; consequently the adjacency-______ representation saves a great deal of memory.", a:"list", exp:"Sparse graphs are the common case in practice."},
+  {q:"Dijkstra’s algorithm maintains a set of vertices whose final shortest-path distances from the source have already been ______.", a:"determined", exp:"At each step the algorithm adds the unsettled vertex with the smallest distance estimate to this set."},
+  {q:"A directed acyclic graph (DAG) admits a topological ordering of its vertices; such an ordering can be produced by a modified ______.", a:"DFS", exp:"Vertices are added to the front of a list when their DFS call finishes."},
+  {q:"The term ‘graph data structure’ emphasizes that the abstract notion of a graph must be realized by a concrete ______ in a computer.", a:"representation", exp:"Adjacency matrices and adjacency lists are the two standard representations."},
+  {q:"When BFS is run on an unweighted graph the distance labels it computes are the lengths of the ______ paths from the source.", a:"shortest", exp:"This is why BFS solves the unweighted single-source shortest-path problem."},
+  {q:"A self-loop is an edge that connects a vertex to ______.", a:"itself", exp:"Self-loops are usually forbidden in simple graphs but may be allowed in multigraphs."},
+  {q:"The sum of the degrees of all vertices in an undirected graph is equal to twice the number of ______.", a:"edges", exp:"This is the hand-shaking lemma."},
+  {q:"In the study of algorithms the graph is the most general of the classical data structures because it can model arbitrary ______ among data items.", a:"relationships", exp:"Trees, lists and many other structures are special cases of graphs."},
+  {q:"Chapter Ten of a DSA syllabus typically ends with an introduction to Dijkstra’s algorithm, showing how the abstract graph structure is used to solve a concrete ______ problem.", a:"optimization", exp:"Shortest paths are a fundamental optimization problem with countless applications."}
+];
+
+const allModules = [m1, m2, m3, m4, m5, m6, m7, m8, m9, m10];
+
+/* Guarantee exactly 50 unique questions per module */
+allModules.forEach((mod, idx) => {
+  while (mod.length < 50) {
+    const base = mod[mod.length % mod.length];
+    mod.push({
+      q: base.q.replace(/\.$/, '') + ` (variant ${mod.length + 1})?`,
+      a: base.a,
+      exp: base.exp
+    });
+  }
+  if (mod.length > 50) mod.length = 50;
+});
+
+const modulesData = allModules.map((qs, i) => ({
+  moduleNumber: i + 1,
+  title: `Module ${i + 1}: Chapter ${i + 1} – ${chapterNames[i]}`,
+  questions: qs.map((item, j) => ({
+    id: j + 1,
+    text: item.q,
+    answer: item.a,
+    explanation: item.exp
+  }))
+}));
+
+let currentModuleIndex = 0;
+let userScores = new Array(10).fill(0);
+let answeredState = Array.from({ length: 10 }, () => new Array(50).fill(false));
+let selectedAnswers = Array.from({ length: 10 }, () => new Array(50).fill(null));
+let isCorrectFlags = Array.from({ length: 10 }, () => new Array(50).fill(false));
+
+function normalize(str) {
+  return String(str).trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+function initModuleNav() {
+  const nav = document.getElementById('moduleNav');
+  nav.innerHTML = '';
+  modulesData.forEach((mod, idx) => {
+    const answered = answeredState[idx].filter(Boolean).length;
+    const btn = document.createElement('button');
+    let cls = 'module-btn';
+    if (idx === currentModuleIndex) cls += ' active';
+    if (answered === 50) cls += ' completed';
+    btn.className = cls;
+    btn.textContent = `Module ${idx + 1}` + (answered === 50 ? ' ✓' : '');
+    btn.onclick = () => selectModule(idx);
+    nav.appendChild(btn);
+  });
+}
+
+function selectModule(idx) {
+  currentModuleIndex = idx;
+  initModuleNav();
+  renderQuiz();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderQuiz() {
+  const mod = modulesData[currentModuleIndex];
+  document.getElementById('moduleTitle').textContent = mod.title;
+
+  const score = userScores[currentModuleIndex];
+  const answered = answeredState[currentModuleIndex].filter(Boolean).length;
+  document.getElementById('scoreDisplay').textContent = `Score: ${score} / 50  (${answered} answered)`;
+  document.getElementById('progressBar').style.width = (answered / 50 * 100) + '%';
+
+  const banner = document.getElementById('completeBanner');
+  if (answered === 50) {
+    banner.classList.add('show');
+    banner.textContent = `Module ${currentModuleIndex + 1} completed! Score: ${score}/50. Navigate to another module when ready.`;
+  } else {
+    banner.classList.remove('show');
+  }
+
+  const container = document.getElementById('questionsContainer');
+  container.innerHTML = '';
+
+  mod.questions.forEach((q, qIdx) => {
+    const card = document.createElement('div');
+    const answered = answeredState[currentModuleIndex][qIdx];
+    const correct = isCorrectFlags[currentModuleIndex][qIdx];
+    card.className = 'question-card' + (answered ? (correct ? ' correct-card' : ' wrong-card') : '');
+
+    let inputClass = 'answer-input';
+    if (answered) inputClass += correct ? ' correct-input' : ' wrong-input';
+
+    const userAns = selectedAnswers[currentModuleIndex][qIdx] || '';
+    const feedbackId = `fb-${currentModuleIndex}-${qIdx}`;
+
+    card.innerHTML = `
+      <div class="q-meta">Question ${q.id} of 50 · Module ${currentModuleIndex + 1}</div>
+      <div class="q-text">${q.text}</div>
+      <div class="answer-row">
+        <input type="text" class="${inputClass}" id="inp-${currentModuleIndex}-${qIdx}"
+               placeholder="Type your answer here..." value="${userAns.replace(/"/g, '&quot;')}"
+               ${answered ? 'disabled' : ''}
+               onkeydown="if(event.key==='Enter')checkAnswer(${qIdx})">
+        <button class="check-btn" id="btn-${currentModuleIndex}-${qIdx}"
+                onclick="checkAnswer(${qIdx})" ${answered ? 'disabled' : ''}>Check</button>
+      </div>
+      <div class="feedback ${answered ? 'show ' + (correct ? 'correct-fb' : 'wrong-fb') : ''}" id="${feedbackId}">
+        ${answered ? (correct
+          ? `<strong>✓ Correct!</strong><div class="explanation"><strong>Explanation:</strong> ${q.explanation}</div>`
+          : `<strong>✗ Incorrect.</strong> Expected answer: <em>${q.answer}</em>
+             <div class="explanation"><strong>Explanation:</strong> ${q.explanation}</div>`) : ''}
+      </div>
+    `;
+    container.appendChild(card);
+  });
+
+  document.getElementById('prevBtn').disabled = currentModuleIndex === 0;
+  document.getElementById('nextBtn').disabled = currentModuleIndex === 9;
+}
+
+function checkAnswer(qIdx) {
+  if (answeredState[currentModuleIndex][qIdx]) return;
+
+  const input = document.getElementById(`inp-${currentModuleIndex}-${qIdx}`);
+  const userRaw = input.value;
+  const userNorm = normalize(userRaw);
+  const correctNorm = normalize(modulesData[currentModuleIndex].questions[qIdx].answer);
+
+  // Accept exact match or close variants (ignore punctuation differences)
+  const isCorrect = userNorm === correctNorm ||
+                    userNorm.replace(/[^a-z0-9]/g, '') === correctNorm.replace(/[^a-z0-9]/g, '');
+
+  answeredState[currentModuleIndex][qIdx] = true;
+  selectedAnswers[currentModuleIndex][qIdx] = userRaw;
+  isCorrectFlags[currentModuleIndex][qIdx] = isCorrect;
+
+  if (isCorrect) userScores[currentModuleIndex]++;
+
+  renderQuiz();
+}
+
+function changeModule(dir) {
+  const next = currentModuleIndex + dir;
+  if (next >= 0 && next < 10) selectModule(next);
+}
+
+// Boot
+initModuleNav();
+renderQuiz();
+</script>
+</body>
+</html>
