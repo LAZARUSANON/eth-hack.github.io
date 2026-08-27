@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DSA Interactive Course Quiz (50 MCQs)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .score-board {
+            font-size: 1.2em;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 25px;
+            color: #2980b9;
+        }
+        .question-card {
+            margin-bottom: 25px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            background: #fafafa;
+        }
+        .question-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #34495e;
+        }
+        .citation {
+            font-size: 0.85em;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+        .options {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .options li {
+            margin-bottom: 10px;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 10px 15px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            background: #fff;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1em;
+        }
+        .option-btn:hover:not(:disabled) {
+            background: #ecf0f1;
+        }
+        .option-btn.correct {
+            background-color: #2ecc71 !important;
+            color: white;
+            border-color: #27ae60;
+        }
+        .option-btn.wrong {
+            background-color: #e74c3c !important;
+            color: white;
+            border-color: #c0392b;
+        }
+        .option-btn:disabled {
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Data Structures & Algorithms - Practice Test</h1>
+    <div class="score-board" id="scoreBoard">Score: 0 / 50</div>
+    <div id="quizContainer"></div>
+</div>
+
+<script>
+const quizData = [
+    // CHAPTER 1
+    {
+        q: "What are the core characteristics of a data structure?",
+        options: ["Organization, processing, retrieval, and storage", "Only compiling code", "Writing raw binary streams", "Hardware manufacturing"],
+        correct: 0,
+        section: "Section 1.2"
+    },
+    {
+        q: "What is the primary need for data structures?",
+        options: ["To store data inefficiently", "To organize and manage data efficiently for easy access", "To increase memory consumption", "To slow down execution"],
+        correct: 1,
+        section: "Section 1.3"
+    },
+    {
+        q: "Which of the following represents execution time cases?",
+        options: ["High, Medium, Low", "Fast, Slow, Moderate", "Best-case, Worst-case, Average-case", "Local, Global, Static"],
+        correct: 2,
+        section: "Section 1.4"
+    },
+    {
+        q: "Which term refers to basic building blocks of data structures?",
+        options: ["Basic Terminology / Data items", "Operating Systems", "Compilers", "Registers"],
+        correct: 0,
+        section: "Section 1.5"
+    },
+    {
+        q: "What is a basic concept of algorithms?",
+        options: ["A random guess", "An ambiguous set of rules", "A finite step-by-step procedure to solve a problem", "An infinite loop"],
+        correct: 2,
+        section: "Section 1.6"
+    },
+    {
+        q: "Why are algorithms important in computer science?",
+        options: ["They optimize resource usage and solve problems systematically", "They eliminate the need for computers", "They increase hardware costs", "They prevent software bugs entirely"],
+        correct: 0,
+        section: "Section 1.7"
+    },
+    {
+        q: "Which of the following are common ways of writing an algorithm?",
+        options: ["Pseudocode and Flowcharts", "Binary and Hexadecimal", "Audio and Video", "Ciphertext only"],
+        correct: 0,
+        section: "Section 1.8"
+    },
+    {
+        q: "What defines an Array Data Structure?",
+        options: ["Elements stored randomly across non-contiguous memory", "A collection of elements stored at contiguous memory locations", "A non-linear hierarchical network", "A purely dynamic structure with no fixed limits"],
+        correct: 1,
+        section: "Section 1.9"
+    },
+    {
+        q: "Which of the following is a basic operation performed on data structures?",
+        options: ["Traversal, Insertion, Deletion", "Compilation, Linking, Loading", "Formatting, Partitioning, Partitioning", "Modulation, Demodulation"],
+        correct: 0,
+        section: "Section 1.10"
+    },
+
+    // CHAPTER 2
+    {
+        q: "Why do data structures and algorithms matter together?",
+        options: ["They form the foundation of efficient software development and problem solving", "They are entirely unrelated concepts", "Algorithms only matter in hardware", "Data structures are obsolete"],
+        correct: 0,
+        section: "Section 2.1"
+    },
+    {
+        q: "What is the role of Abstraction and ADTs (Abstract Data Types)?",
+        options: ["To expose internal implementation details", "To define a logical model independent of its implementation", "To slow down execution", "To compile source code"],
+        correct: 1,
+        section: "Section 2.2"
+    },
+    {
+        q: "What does complexity analysis evaluate?",
+        options: ["The number of team members", "Time and space requirements as input size grows", "The aesthetic design of code", "Network bandwidth"],
+        correct: 1,
+        section: "Section 2.3"
+    },
+    {
+        q: "Which notation represents the upper bound of an algorithm's running time?",
+        options: ["Big-O notation", "Big-Omega notation", "Big-Theta notation", "Little-o notation"],
+        correct: 0,
+        section: "Section 2.4"
+    },
+    {
+        q: "Which notation represents the lower bound?",
+        options: ["Big-O", "Big-Omega (Omega)", "Big-Theta", "Little-omega"],
+        correct: 1,
+        section: "Section 2.4"
+    },
+    {
+        q: "What does Time Complexity (Best, Worst, Average Case) measure?",
+        options: ["The time taken by an algorithm under various input scenarios", "The physical clock time of the CPU", "The typing speed of the developer", "The download speed"],
+        correct: 0,
+        section: "Section 2.5"
+    },
+    {
+        q: "What does Space Complexity measure?",
+        options: ["Disk storage capacity of a hard drive", "The total amount of memory space used by the algorithm relative to input size", "Screen resolution", "Monitor size"],
+        correct: 1,
+        section: "Section 2.6"
+    },
+    {
+        q: "What are the essential components of Recursion?",
+        options: ["Loops and counters", "Base case and recursive step", "Pointers and arrays", "Queues and stacks"],
+        correct: 1,
+        section: "Section 2.7"
+    },
+    {
+        q: "What is a core difference between recursion and iteration?",
+        options: ["Recursion uses function calls and call stack, while iteration uses loops", "Iteration uses function calls, recursion uses loops", "There is no difference", "Recursion cannot solve loops"],
+        correct: 0,
+        section: "Section 2.8"
+    },
+    {
+        q: "How does recursive Binary Search operate?",
+        options: ["Scanning every element linearly", "Repeatedly dividing the sorted search interval in half", "Sorting the array first using bubble sort", "Using a hash function"],
+        correct: 1,
+        section: "Section 2.9"
+    },
+    {
+        q: "What is the core idea of Backtracking?",
+        options: ["Building solutions incrementally and abandoning paths that violate constraints", "Always picking the maximum element", "Randomly guessing values", "Sorting arrays in reverse"],
+        correct: 0,
+        section: "Section 2.10"
+    },
+    {
+        q: "How are time and space complexity typically expressed?",
+        options: ["As a function of the input size n", "As a fixed constant value", "In megabytes per second", "In voltage"],
+        correct: 0,
+        section: "Section 2.11"
+    },
+
+    // CHAPTER 3
+    {
+        q: "Which of the following is considered an elementary sort?",
+        options: ["Quick Sort", "Merge Sort", "Bubble Sort", "Radix Sort"],
+        correct: 2,
+        section: "Section 3.2"
+    },
+    {
+        q: "What is the average-case time complexity of Quick Sort?",
+        options: ["O(n)", "O(n log n)", "O(n^2)", "O(1)"],
+        correct: 1,
+        section: "Section 3.3"
+    },
+    {
+        q: "Which of these is a Non-Comparison Sort?",
+        options: ["Insertion Sort", "Counting Sort", "Selection Sort", "Quick Sort"],
+        correct: 1,
+        section: "Section 3.4"
+    },
+    {
+        q: "What does a stable sorting algorithm preserve?",
+        options: ["The original memory addresses", "The relative order of duplicate elements", "The maximum element position", "The sorted order in descending format"],
+        correct: 1,
+        section: "Section 3.5"
+    },
+    {
+        q: "What defines an In-Place Sorting algorithm?",
+        options: ["It requires O(1) or minimal extra auxiliary memory space", "It requires O(n^2) extra space", "It modifies the hard drive", "It sorts files online"],
+        correct: 0,
+        section: "Section 3.6"
+    },
+
+    // CHAPTER 4
+    {
+        q: "Which principle does a stack follow?",
+        options: ["FIFO (First In, First Out)", "LIFO (Last In, First Out)", "Random Access", "Priority Queue"],
+        correct: 1,
+        section: "Section 4.1"
+    },
+
+    // CHAPTER 5
+    {
+        q: "Which principle does a queue follow?",
+        options: ["LIFO", "FIFO (First In, First Out)", "FILO", "LILO"],
+        correct: 1,
+        section: "Section 5.1"
+    },
+    {
+        q: "What are the basic operations of a queue?",
+        options: ["Push and Pop", "Enqueue and Dequeue", "Insert and Delete front only", "Add and Multiply"],
+        correct: 1,
+        section: "Section 5.2"
+    },
+    {
+        q: "In a Queue Abstract Data Type, where are elements inserted?",
+        options: ["At the rear (back)", "At the front", "At random positions", "Only in the middle"],
+        correct: 0,
+        section: "Section 5.3"
+    },
+
+    // CHAPTER 6
+    {
+        q: "What is a primary feature of a linked list compared to an array?",
+        options: ["Fixed size and contiguous memory", "Dynamic size and non-contiguous memory allocation", "Faster random access", "No pointer overhead"],
+        correct: 1,
+        section: "Section 6.1"
+    },
+    {
+        q: "What does each node in a Singly Linked List contain?",
+        options: ["Data and a pointer to the next node", "Data and two pointers", "Only pointers", "Only data"],
+        correct: 0,
+        section: "Section 6.2"
+    },
+    {
+        q: "What do nodes in a Doubly Linked List contain?",
+        options: ["Data and next pointer", "Data, next pointer, and previous pointer", "Only previous pointer", "Index numbers"],
+        correct: 1,
+        section: "Section 6.3"
+    },
+    {
+        q: "What characterizes a Circular Linked List?",
+        options: ["The last node points to null", "The last node points back to the first node", "It forms a tree structure", "It has no nodes"],
+        correct: 1,
+        section: "Section 6.4"
+    },
+    {
+        q: "Which of the following is a type of circular linked list?",
+        options: ["Singly circular and doubly circular linked lists", "Static circular arrays", "Binary circular trees", "Linear stack lists"],
+        correct: 0,
+        section: "Section 6.5"
+    },
+    {
+        q: "What is an advantage of linked lists?",
+        options: ["O(1) random index access", "Efficient insertions and deletions without reallocation", "Zero memory overhead", "Contiguous cache friendliness"],
+        correct: 1,
+        section: "Section 6.6"
+    },
+    {
+        q: "What is a disadvantage of linked lists?",
+        options: ["Sequential access and extra memory for pointers", "Cannot grow dynamically", "Insertions are always slow", "Too simple to implement"],
+        correct: 0,
+        section: "Section 6.7"
+    },
+
+    // CHAPTER 7
+    {
+        q: "What is the main purpose of hashing?",
+        options: ["To encrypt passwords securely", "Fast data retrieval using keys", "To sort arrays alphabetically", "To create balanced trees"],
+        correct: 1,
+        section: "Section 7.1"
+    },
+    {
+        q: "What is a collision in a hash table?",
+        options: ["When two different keys hash to the same index", "When memory overflows completely", "When a hash function returns zero", "When the table is empty"],
+        correct: 0,
+        section: "Section 7.2"
+    },
+    {
+        q: "Which technique handles collisions?",
+        options: ["Linear probing and separate chaining", "Binary search", "Quick partitioning", "Stack popping"],
+        correct: 0,
+        section: "Section 7.3"
+    },
+    {
+        q: "What is linear probing?",
+        options: ["Searching linearly through a linked list", "Checking the next sequential slot in the hash table when a collision occurs", "Probing memory using pointers", "Sorting elements linearly"],
+        correct: 1,
+        section: "Section 7.4"
+    },
+    {
+        q: "How does collision resolution using linked lists work?",
+        options: ["Storing colliding elements in a linked list at that specific table index", "Deleting the colliding element", "Replacing the old element", "Moving to the next array index permanently"],
+        correct: 0,
+        section: "Section 7.5"
+    },
+    {
+        q: "What is a common application of hash tables?",
+        options: ["Database indexing and symbol tables", "Pixel rendering", "Audio compression", "Network routing protocols"],
+        correct: 0,
+        section: "Section 7.6"
+    },
+
+    // CHAPTER 8
+    {
+        q: "What is the key property of a Binary Search Tree (BST)?",
+        options: ["Left child < parent < right child", "Parent < left child", "Right child < left child", "All nodes are equal"],
+        correct: 0,
+        section: "Section 8.1"
+    },
+    {
+        q: "Which operations are fundamental in a BST?",
+        options: ["Search, Insertion, and Deletion", "Enqueue and Dequeue", "Push and Pop", "Hashing and Probing"],
+        correct: 0,
+        section: "Section 8.2"
+    },
+    {
+        q: "How is insertion performed in a BST?",
+        options: ["By traversing and placing the new value adhering to BST property", "Always inserting at the root", "Inserting at the very end of an array", "Using a queue"],
+        correct: 0,
+        section: "Section 8.3"
+    },
+    {
+        q: "Can insertion in a BST be done recursively?",
+        options: ["Yes", "No", "Only in arrays", "Only in graphs"],
+        correct: 0,
+        section: "Section 8.4"
+    },
+    {
+        q: "Can insertion in a BST be done iteratively?",
+        options: ["Yes", "No", "Only with heaps", "Only with stacks"],
+        correct: 0,
+        section: "Section 8.5"
+    },
+    {
+        q: "What makes deletion in a BST complex?",
+        options: ["Handling nodes with two children (successor/predecessor)", "Deleting root nodes only", "Deleting leaf nodes", "It is never complex"],
+        correct: 0,
+        section: "Section 8.6"
+    },
+    {
+        q: "Which of the following is a standard tree traversal method?",
+        options: ["In-order, Pre-order, Post-order", "Linear, Binary, Exponential", "Push, Pop, Peek", "Enqueue, Dequeue, Front"],
+        correct: 0,
+        section: "Section 8.7"
+    },
+
+    // CHAPTER 9 & 10
+    {
+        q: "What is a balanced binary tree designed to prevent?",
+        options: ["Worst-case linear height/skewed performance", "Memory leaks", "Syntax errors", "Compilation failures"],
+        correct: 0,
+        section: "Section 9.1"
+    },
+    {
+        q: "What is Dijkstra's algorithm used for?",
+        options: ["Finding the shortest paths from a source to all vertices in a weighted graph", "Sorting elements in O(n log n)", "Balancing binary search trees", "Resolving hash collisions"],
+        correct: 0,
+        section: "Section 10.8"
+    }
+];
+
+let score = 0;
+
+function loadQuiz() {
+    const container = document.getElementById('quizContainer');
+    container.innerHTML = '';
+
+    quizData.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'question-card';
+
+        const citation = document.div;
+        
+        let optionsHTML = '';
+        item.options.forEach((opt, optIndex) => {
+            optionsHTML += `<li><button class="option-btn" onclick="checkAnswer(this, ${index}, ${optIndex})">${opt}</button></li>`;
+        });
+
+        card.innerHTML = `
+            <div class="citation">Source Reference: ${item.section}</div>
+            <div class="question-title">Q${index + 1}: ${item.q}</div>
+            <ul class="options">${optionsHTML}</ul>
+        `;
+        container.appendChild(card);
+    });
+}
+
+function checkAnswer(button, qIndex, selectedOptIndex) {
+    const questionObj = quizData[qIndex];
+    const parentList = button.parentElement.parentElement;
+    const buttons = parentList.getElementsByTagName('button');
+
+    // Disable all options for this question once chosen
+    for (let btn of buttons) {
+        btn.disabled = true;
+    }
+
+    if (selectedOptIndex === questionObj.correct) {
+        button.classList.add('correct');
+        score++;
+    } else {
+        button.classList.add('wrong');
+        // Highlight the correct answer
+        buttons[questionObj.correct].classList.add('correct');
+    }
+
+    document.getElementById('scoreBoard').innerText = `Score: ${score} / ${quizData.length}`;
+}
+
+// Initialize quiz on load
+loadQuiz();
+</script>
+
+</body>
+</html>
