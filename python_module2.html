@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Quiz - Module 2: Variables & Data | W3Schools Style</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --card: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #58a6ff;
+    --success: #3fb950;
+    --error: #f85149;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+  .header {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 1.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .logo { font-size: 1.25rem; font-weight: 700; color: var(--accent); }
+  .module-title { color: var(--muted); font-size: 0.95rem; }
+  .progress-wrap {
+    max-width: 900px;
+    margin: 1rem auto 0;
+    padding: 0 1.5rem;
+  }
+  .progress-bar {
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #79c0ff);
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+  .stats {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--muted);
+  }
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 1.5rem;
+  }
+  .question-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+  .question-card.answered { border-color: var(--accent); }
+  .q-number {
+    font-size: 0.75rem;
+    color: var(--accent);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+  }
+  .q-text {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 1.25rem;
+  }
+  .options { display: flex; flex-direction: column; gap: 0.6rem; }
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .option:hover:not(.disabled) {
+    border-color: var(--accent);
+    background: #1c2128;
+  }
+  .option.selected { border-color: var(--accent); }
+  .option.correct {
+    border-color: var(--success);
+    background: rgba(63, 185, 80, 0.12);
+  }
+  .option.wrong {
+    border-color: var(--error);
+    background: rgba(248, 81, 73, 0.12);
+  }
+  .option.disabled { cursor: default; opacity: 0.85; }
+  .option input { display: none; }
+  .radio {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--muted);
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 2px;
+    position: relative;
+  }
+  .option.selected .radio { border-color: var(--accent); }
+  .option.correct .radio { border-color: var(--success); background: var(--success); }
+  .option.wrong .radio { border-color: var(--error); background: var(--error); }
+  .option.correct .radio::after,
+  .option.wrong .radio::after {
+    content: "";
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 8px; height: 8px;
+    background: #fff;
+    border-radius: 50%;
+  }
+  .explanation {
+    display: none;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #0d1117;
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    font-size: 0.95rem;
+    color: var(--muted);
+  }
+  .explanation.show { display: block; }
+  .explanation strong { color: var(--success); }
+  .nav-footer {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 1.5rem 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #0d1117;
+  }
+  .btn-primary:hover { background: #79c0ff; }
+  .btn-secondary {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .score-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.95rem;
+  }
+  .score-box span { color: var(--accent); font-weight: 700; }
+</style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <div>
+        <div class="logo">🐍 Python Quiz</div>
+        <div class="module-title">Module 2 of 4 · Variables & Data (Variables, Data Types, Numbers, Casting, Strings, Booleans, Operators)</div>
+      </div>
+      <div class="score-box">Score: <span id="score">0</span> / <span id="total">50</span></div>
+    </div>
+  </header>
+
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+    <div class="stats">
+      <span>Answered: <span id="answered">0</span>/50</span>
+      <span>Correct: <span id="correct-count">0</span></span>
+    </div>
+  </div>
+
+  <div class="container" id="quiz-container"></div>
+
+  <div class="nav-footer">
+    <a href="python_main.html" class="btn btn-secondary">← Module 1: Basics</a>
+    <a href="python_module3.html" class="btn btn-primary">Next Module: Collections →</a>
+  </div>
+
+<script>
+const questions = [
+  {
+    q: "How do you create a variable in Python?",
+    options: ["var x = 5", "x = 5", "int x = 5", "let x = 5"],
+    correct: 1,
+    exp: "Python has no command for declaring a variable. A variable is created the moment you first assign a value to it: x = 5"
+  },
+  {
+    q: "Which of the following is a valid variable name in Python?",
+    options: ["2name", "my-name", "my_name", "my name"],
+    correct: 2,
+    exp: "Variable names can contain letters, numbers and underscores, but cannot start with a number or contain spaces or hyphens."
+  },
+  {
+    q: "Are variable names in Python case-sensitive?",
+    options: ["No", "Yes", "Only for constants", "Only for functions"],
+    correct: 1,
+    exp: "Variable names are case-sensitive. age, Age and AGE are three different variables."
+  },
+  {
+    q: "What is the data type of the value 5 in Python?",
+    options: ["float", "int", "str", "bool"],
+    correct: 1,
+    exp: "Whole numbers without a decimal point are of type int (integer)."
+  },
+  {
+    q: "What is the data type of 5.0?",
+    options: ["int", "float", "complex", "str"],
+    correct: 1,
+    exp: "Numbers with a decimal point are of type float."
+  },
+  {
+    q: "Which function is used to get the data type of an object?",
+    options: ["typeof()", "type()", "datatype()", "gettype()"],
+    correct: 1,
+    exp: "The type() function returns the data type of an object: type(5) returns <class 'int'>."
+  },
+  {
+    q: "How do you convert an integer to a string?",
+    options: ["str(5)", "string(5)", "toString(5)", "cast(5, str)"],
+    correct: 0,
+    exp: "Use the str() constructor to cast (convert) a value to a string."
+  },
+  {
+    q: "What does the following produce? int(\"3\")",
+    options: ["\"3\"", "3", "3.0", "Error"],
+    correct: 1,
+    exp: "int() casts a string (or float) to an integer when possible. int(\"3\") returns the integer 3."
+  },
+  {
+    q: "Which of these is a complex number in Python?",
+    options: ["3j", "3 + 5", "3.5", "True"],
+    correct: 0,
+    exp: "Complex numbers are written with a 'j' as the imaginary part, e.g. 3+5j or 3j."
+  },
+  {
+    q: "How do you create a string in Python?",
+    options: ["Only with double quotes", "With single or double quotes", "Only with triple quotes", "With backticks"],
+    correct: 1,
+    exp: "Strings can be enclosed in single quotes ('...') or double quotes (\"...\") with the same result."
+  },
+  {
+    q: "What is the output of: print(\"Hello\"[1])",
+    options: ["H", "e", "l", "Error"],
+    correct: 1,
+    exp: "Strings are zero-indexed. Index 0 is 'H', index 1 is 'e'."
+  },
+  {
+    q: "Which method returns the length of a string?",
+    options: ["size()", "length()", "len()", "count()"],
+    correct: 2,
+    exp: "The built-in len() function returns the number of characters in a string."
+  },
+  {
+    q: "What are the two Boolean values in Python?",
+    options: ["true and false", "True and False", "1 and 0 only", "yes and no"],
+    correct: 1,
+    exp: "Boolean values are True and False (capitalized). They are of type bool."
+  },
+  {
+    q: "What is the result of: 10 > 9",
+    options: ["10", "9", "True", "False"],
+    correct: 2,
+    exp: "Comparison operators return Boolean values. 10 > 9 evaluates to True."
+  },
+  {
+    q: "Which operator is used for assignment?",
+    options: ["==", "=", "===", ":="],
+    correct: 1,
+    exp: "The single equals sign (=) is the assignment operator. == is for comparison."
+  },
+  {
+    q: "What is the arithmetic operator for exponentiation (power)?",
+    options: ["^", "**", "pow", "^^"],
+    correct: 1,
+    exp: "The ** operator raises a number to a power. Example: 2 ** 3 equals 8."
+  },
+  {
+    q: "What does the // operator do?",
+    options: ["Regular division", "Floor division (integer division)", "Modulus", "Exponentiation"],
+    correct: 1,
+    exp: "// performs floor division, returning the largest integer less than or equal to the result."
+  },
+  {
+    q: "What is the modulus operator in Python?",
+    options: ["%", "/", "//", "**"],
+    correct: 0,
+    exp: "The % operator returns the remainder of a division. 7 % 3 equals 1."
+  },
+  {
+    q: "Which logical operator returns True if both statements are true?",
+    options: ["or", "and", "not", "xor"],
+    correct: 1,
+    exp: "The 'and' operator returns True only if both operands are true."
+  },
+  {
+    q: "What is the result of: not True",
+    options: ["True", "False", "None", "Error"],
+    correct: 1,
+    exp: "The 'not' operator inverts the Boolean value. not True is False."
+  },
+  {
+    q: "Can you assign values to multiple variables in one line?",
+    options: ["No", "Yes, e.g. x, y, z = 1, 2, 3", "Only with lists", "Only with tuples"],
+    correct: 1,
+    exp: "Python allows multiple assignment: x, y, z = \"Orange\", \"Banana\", \"Cherry\""
+  },
+  {
+    q: "What is the correct way to cast a float to an integer?",
+    options: ["int(3.9)", "float(3)", "str(3.9)", "round only"],
+    correct: 0,
+    exp: "int(3.9) truncates toward zero and returns 3. It does not round."
+  },
+  {
+    q: "Which of these is a valid string concatenation?",
+    options: ["\"Hello\" + \"World\"", "\"Hello\" - \"World\"", "\"Hello\" * \"World\"", "\"Hello\" / \"World\""],
+    correct: 0,
+    exp: "The + operator concatenates strings. \"Hello\" + \"World\" produces \"HelloWorld\"."
+  },
+  {
+    q: "What does bool(0) return?",
+    options: ["True", "False", "0", "Error"],
+    correct: 1,
+    exp: "Most values are True, but empty values, 0, None, and empty collections evaluate to False. bool(0) is False."
+  },
+  {
+    q: "Which operator checks if two values are equal?",
+    options: ["=", "==", "===", "eq"],
+    correct: 1,
+    exp: "== is the equality comparison operator. = is assignment."
+  },
+  {
+    q: "What is the identity operator that returns True if both variables are the same object?",
+    options: ["==", "is", "equals", "same"],
+    correct: 1,
+    exp: "The 'is' operator checks identity (same object in memory), while == checks equality of values."
+  },
+  {
+    q: "Which membership operator checks if a value is present in a sequence?",
+    options: ["in", "has", "contains", "inside"],
+    correct: 0,
+    exp: "The 'in' operator returns True if a value is found in the specified sequence (string, list, etc.)."
+  },
+  {
+    q: "What is the output of: type(True)",
+    options: ["<class 'int'>", "<class 'bool'>", "<class 'str'>", "<class 'True'>"],
+    correct: 1,
+    exp: "True and False are of type bool."
+  },
+  {
+    q: "How do you create a multi-line string?",
+    options: ["Using triple quotes \"\"\" or '''", "Using \\n only", "Using multiple +", "Using parentheses only"],
+    correct: 0,
+    exp: "You can assign a multi-line string to a variable by using three quotes (\"\"\" or ''')."
+  },
+  {
+    q: "What is the result of: 5 + 2.0",
+    options: ["7", "7.0", "52.0", "Error"],
+    correct: 1,
+    exp: "When an int and a float are used in an arithmetic operation, the result is a float: 7.0"
+  },
+  {
+    q: "Which of the following is NOT a valid numeric type in Python?",
+    options: ["int", "float", "complex", "decimal (built-in without import)"],
+    correct: 3,
+    exp: "The three built-in numeric types are int, float and complex. decimal requires the decimal module."
+  },
+  {
+    q: "What does the following do? x = str(3)",
+    options: ["Converts 3 to the string \"3\"", "Converts 3 to float", "Raises an error", "Does nothing"],
+    correct: 0,
+    exp: "str(3) casts the integer 3 to the string \"3\"."
+  },
+  {
+    q: "Can variable names start with an underscore?",
+    options: ["No", "Yes", "Only if followed by a number", "Only in classes"],
+    correct: 1,
+    exp: "Variable names can start with a letter or an underscore (_)."
+  },
+  {
+    q: "What is the result of: \"Python\" * 2",
+    options: ["PythonPython", "Python2", "Error", "2Python"],
+    correct: 0,
+    exp: "The * operator with a string and an integer repeats the string. \"Python\" * 2 = \"PythonPython\"."
+  },
+  {
+    q: "Which comparison operator means 'not equal to'?",
+    options: ["<>", "!=", "!==", "not="],
+    correct: 1,
+    exp: "!= is the not-equal-to operator. (<> was used in older Python 2.)"
+  },
+  {
+    q: "What is the output of: print(bool(\"Hello\"))",
+    options: ["False", "True", "Hello", "Error"],
+    correct: 1,
+    exp: "Non-empty strings evaluate to True in a Boolean context."
+  },
+  {
+    q: "Which operator has higher precedence: * or + ?",
+    options: ["+", "*", "They are equal", "Depends on the numbers"],
+    correct: 1,
+    exp: "Multiplication (*) has higher precedence than addition (+). 2 + 3 * 4 equals 14, not 20."
+  },
+  {
+    q: "How do you assign the same value to multiple variables?",
+    options: ["x = y = z = \"Orange\"", "x, y, z = \"Orange\"", "x = \"Orange\"; y = \"Orange\" only", "Not possible"],
+    correct: 0,
+    exp: "You can assign the same value to multiple variables in one line: x = y = z = \"Orange\""
+  },
+  {
+    q: "What is the data type of the result of 10 / 2 in Python 3?",
+    options: ["int", "float", "str", "bool"],
+    correct: 1,
+    exp: "In Python 3, the / operator always performs true division and returns a float (5.0)."
+  },
+  {
+    q: "Which of these is a valid Boolean expression?",
+    options: ["5 > 3 and 2 < 4", "5 > 3 && 2 < 4", "5 > 3 AND 2 < 4", "5 > 3 & 2 < 4"],
+    correct: 0,
+    exp: "Python uses the keywords 'and', 'or', 'not' for logical operations, not && or &."
+  },
+  {
+    q: "What does casting mean in Python?",
+    options: ["Deleting a variable", "Converting a value from one data type to another", "Creating a class", "Looping"],
+    correct: 1,
+    exp: "Casting is the process of converting a value from one data type to another using constructors like int(), float(), str()."
+  },
+  {
+    q: "What is the result of: float(\"3.14\")",
+    options: ["3", "3.14", "\"3.14\"", "Error"],
+    correct: 1,
+    exp: "float() converts a string (or int) to a floating-point number when possible."
+  },
+  {
+    q: "Are strings mutable in Python?",
+    options: ["Yes", "No, strings are immutable", "Only if created with double quotes", "Only multi-line strings"],
+    correct: 1,
+    exp: "Strings are immutable. You cannot change a character in place; you must create a new string."
+  },
+  {
+    q: "What is the correct way to check if a variable is of type int?",
+    options: ["type(x) == int", "typeof(x) == \"int\"", "x is int", "Both type(x) == int and isinstance(x, int)"],
+    correct: 3,
+    exp: "Both type(x) == int and isinstance(x, int) work; isinstance is generally preferred for inheritance."
+  },
+  {
+    q: "What does the following return? 5 == 5.0",
+    options: ["False", "True", "Error", "None"],
+    correct: 1,
+    exp: "== compares values. 5 and 5.0 have the same value, so the result is True (even though types differ)."
+  },
+  {
+    q: "Which operator is used for bitwise AND?",
+    options: ["and", "&", "&&", "AND"],
+    correct: 1,
+    exp: "& is the bitwise AND operator. 'and' is the logical AND operator."
+  },
+  {
+    q: "What is the output of: print(type(3 + 5j))",
+    options: ["<class 'int'>", "<class 'float'>", "<class 'complex'>", "<class 'str'>"],
+    correct: 2,
+    exp: "Numbers written with a j (imaginary part) are of type complex."
+  },
+  {
+    q: "Can you use the + operator to add a string and an integer directly?",
+    options: ["Yes", "No, it raises a TypeError", "Yes, it converts automatically", "Only with float"],
+    correct: 1,
+    exp: "You cannot concatenate str and int with +. You must cast: str(5) + \" apples\" or use formatting."
+  },
+  {
+    q: "What is the result of: bool([])",
+    options: ["True", "False", "None", "Error"],
+    correct: 1,
+    exp: "Empty lists, tuples, sets, dictionaries, and strings evaluate to False."
+  },
+  {
+    q: "Which of the following correctly creates three variables with different values in one line?",
+    options: ["x = 1, y = 2, z = 3", "x, y, z = 1, 2, 3", "x = y = z = 1, 2, 3", "x y z = 1 2 3"],
+    correct: 1,
+    exp: "Unpacking assignment: x, y, z = 1, 2, 3 assigns 1 to x, 2 to y and 3 to z."
+  }
+];
+
+let score = 0;
+let answered = 0;
+const container = document.getElementById('quiz-container');
+
+function renderQuestions() {
+  questions.forEach((item, idx) => {
+    const card = document.createElement('div');
+    card.className = 'question-card';
+    card.id = `q${idx}`;
+    card.innerHTML = `
+      <div class="q-number">Question ${idx + 1} of 50</div>
+      <div class="q-text">${item.q}</div>
+      <div class="options">
+        ${item.options.map((opt, oIdx) => `
+          <label class="option" data-q="${idx}" data-opt="${oIdx}">
+            <input type="radio" name="q${idx}" value="${oIdx}">
+            <span class="radio"></span>
+            <span>${opt}</span>
+          </label>
+        `).join('')}
+      </div>
+      <div class="explanation" id="exp${idx}"></div>
+    `;
+    container.appendChild(card);
+  });
+
+  document.querySelectorAll('.option').forEach(opt => {
+    opt.addEventListener('click', function() {
+      const qIdx = parseInt(this.dataset.q);
+      const oIdx = parseInt(this.dataset.opt);
+      const card = document.getElementById(`q${qIdx}`);
+      if (card.classList.contains('answered')) return;
+
+      card.classList.add('answered');
+      answered++;
+      document.getElementById('answered').textContent = answered;
+      document.getElementById('progress').style.width = (answered / 50 * 100) + '%';
+
+      const correctIdx = questions[qIdx].correct;
+      const options = card.querySelectorAll('.option');
+      options.forEach(o => o.classList.add('disabled'));
+
+      if (oIdx === correctIdx) {
+        this.classList.add('correct', 'selected');
+        score++;
+        document.getElementById('score').textContent = score;
+        document.getElementById('correct-count').textContent = score;
+      } else {
+        this.classList.add('wrong', 'selected');
+        options[correctIdx].classList.add('correct');
+      }
+
+      const exp = document.getElementById(`exp${qIdx}`);
+      exp.innerHTML = `<strong>Correct answer:</strong> ${questions[qIdx].options[correctIdx]}<br><br>${questions[qIdx].exp}`;
+      exp.classList.add('show');
+    });
+  });
+}
+
+renderQuestions();
+</script>
+</body>
+</html>
