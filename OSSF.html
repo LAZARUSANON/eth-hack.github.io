@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSSF.html – Chapter 1: General Introduction to Operating Systems</title>
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --success: #22c55e;
+            --error: #ef4444;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --header-bg: linear-gradient(135deg, #0f172a, #1e3a8a);
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        header {
+            background: var(--header-bg);
+            color: white;
+            padding: 22px 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            border-bottom: 1px solid var(--border);
+        }
+        header h1 { margin: 0 0 6px 0; font-size: 1.5rem; }
+        header p { margin: 0; opacity: 0.9; font-size: 0.95rem; }
+        .container {
+            max-width: 900px;
+            margin: 25px auto;
+            padding: 0 16px 60px;
+        }
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: var(--card-bg);
+            padding: 16px 22px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .score-display {
+            font-size: 1.15em;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background: #334155;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: var(--primary);
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        .question-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 22px;
+            margin-bottom: 18px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+        }
+        .question-meta {
+            font-size: 0.8em;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+        .question-title {
+            font-size: 1.12em;
+            font-weight: 600;
+            margin-bottom: 18px;
+            line-height: 1.45;
+        }
+        .options-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            gap: 10px;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 13px 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: #0f172a;
+            color: var(--text);
+            cursor: pointer;
+            font-size: 0.98em;
+            transition: all 0.2s;
+        }
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--primary);
+            background: #1e3a5f;
+        }
+        .option-btn.correct {
+            background-color: var(--success) !important;
+            color: white;
+            border-color: var(--success);
+        }
+        .option-btn.wrong {
+            background-color: var(--error) !important;
+            color: white;
+            border-color: var(--error);
+        }
+        .option-btn:disabled { cursor: not-allowed; opacity: 0.95; }
+        .explanation {
+            margin-top: 14px;
+            padding: 12px 14px;
+            background: #0f172a;
+            border-left: 4px solid var(--primary);
+            border-radius: 0 8px 8px 0;
+            font-size: 0.92em;
+            line-height: 1.5;
+            color: #cbd5e1;
+            display: none;
+        }
+        .explanation.show { display: block; }
+        .explanation strong { color: #93c5fd; }
+        .footer-note {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9em;
+            margin-top: 30px;
+            padding: 15px;
+        }
+        .reset-btn {
+            display: block;
+            margin: 25px auto 0;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        .reset-btn:hover { background: var(--primary-dark); }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Chapter 1: General Introduction to Operating Systems</h1>
+    <p>50 Objective Questions · Instant Feedback · Detailed Explanations · Dark Theme</p>
+</header>
+<div class="container">
+    <div class="quiz-header">
+        <h2 style="margin:0;font-size:1.2rem;">OSSF – OS Fundamentals Quiz</h2>
+        <div class="score-display" id="scoreDisplay">Score: 0 / 50</div>
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+    </div>
+    <div id="questionsContainer"></div>
+    <button class="reset-btn" onclick="resetQuiz()">Reset Quiz</button>
+    <div class="footer-note">
+        Answer all questions. Correct answers turn green, wrong answers turn red, and an explanation appears after each attempt.
+    </div>
+</div>
+<script>
+const questions = [
+    {
+        id: 1,
+        text: "An Operating System is best described as:",
+        options: ["A type of hardware", "Software that manages hardware and software resources", "A programming language", "An internet browser"],
+        correct: 1,
+        explanation: "An Operating System is system software that manages computer hardware and software resources and provides common services for computer programs."
+    },
+    {
+        id: 2,
+        text: "Which of these is NOT a function of an Operating System?",
+        options: ["Memory management", "File management", "Word processing", "Process management"],
+        correct: 2,
+        explanation: "Word processing is an application program, not a core function of the Operating System. Memory, file and process management are fundamental OS functions."
+    },
+    {
+        id: 3,
+        text: "The core part of an Operating System is called the:",
+        options: ["Shell", "Driver", "Kernel", "Compiler"],
+        correct: 2,
+        explanation: "The kernel is the central component of an OS. It has complete control over system resources and is the first program loaded on startup."
+    },
+    {
+        id: 4,
+        text: "Which OS type allows many users to share a system at the same time?",
+        options: ["Batch OS", "Time-sharing OS", "Real-time OS", "Embedded OS"],
+        correct: 1,
+        explanation: "A Time-sharing OS allows multiple users to interact with the computer at the same time by rapidly switching the CPU among users' programs."
+    },
+    {
+        id: 5,
+        text: "A Real-time Operating System is mainly used where:",
+        options: ["Speed does not matter", "Instant response is required", "Only one user exists", "Files are stored permanently"],
+        correct: 1,
+        explanation: "Real-time Operating Systems are designed for applications that require immediate (deterministic) response, such as industrial control systems, medical devices and robotics."
+    },
+    {
+        id: 6,
+        text: "Which of the following is an example of an Operating System?",
+        options: ["Microsoft Word", "Windows", "Google Chrome", "Adobe Photoshop"],
+        correct: 1,
+        explanation: "Windows is an Operating System. Microsoft Word, Google Chrome and Adobe Photoshop are application programs that run on top of an OS."
+    },
+    {
+        id: 7,
+        text: "The part of the OS that allows users to interact with the kernel is the:",
+        options: ["Shell", "Driver", "Register", "Cache"],
+        correct: 0,
+        explanation: "The shell is the user interface (command-line or graphical) that interprets user commands and communicates them to the kernel."
+    },
+    {
+        id: 8,
+        text: "Which OS type processes jobs in groups without user interaction?",
+        options: ["Time-sharing OS", "Batch OS", "Distributed OS", "Mobile OS"],
+        correct: 1,
+        explanation: "A Batch Operating System processes jobs in batches. Users submit jobs and do not interact with the computer while the jobs are running."
+    },
+    {
+        id: 9,
+        text: "Device drivers are used to:",
+        options: ["Store files", "Help hardware communicate with software", "Manage user accounts", "Compile programs"],
+        correct: 1,
+        explanation: "Device drivers are special programs that act as translators between the operating system and hardware devices, enabling proper communication."
+    },
+    {
+        id: 10,
+        text: "A Distributed Operating System uses:",
+        options: ["One single computer", "Many computers working as one system", "Only mobile devices", "No hardware at all"],
+        correct: 1,
+        explanation: "A Distributed OS manages a collection of independent computers and makes them appear to the users as a single coherent system."
+    },
+    {
+        id: 11,
+        text: "Which of these is a Mobile Operating System?",
+        options: ["Linux", "Android", "Windows Server", "UNIX"],
+        correct: 1,
+        explanation: "Android is a mobile operating system designed primarily for smartphones and tablets. Linux, Windows Server and UNIX are mainly used on desktops/servers."
+    },
+    {
+        id: 12,
+        text: "The File System is responsible for:",
+        options: ["Managing internet connections", "Organizing and storing data", "Running antivirus scans", "Displaying graphics only"],
+        correct: 1,
+        explanation: "The file system organises how data is stored, named, accessed and retrieved on storage devices."
+    },
+    {
+        id: 13,
+        text: "Which is an example of a Single-user Operating System?",
+        options: ["Windows Server", "MS-DOS", "UNIX", "Linux Server"],
+        correct: 1,
+        explanation: "MS-DOS is a classic single-user, single-tasking operating system. The others are designed for multi-user environments."
+    },
+    {
+        id: 14,
+        text: "The main aim of memory management in an OS is to:",
+        options: ["Delete unused files", "Allocate and control computer memory", "Print documents", "Browse the internet"],
+        correct: 1,
+        explanation: "Memory management is responsible for allocating memory to processes, tracking which parts are in use, and reclaiming memory when processes finish."
+    },
+    {
+        id: 15,
+        text: "Which of the following best defines \"process management\"?",
+        options: ["Managing internet speed", "Controlling how programs run and share CPU time", "Formatting hard disks", "Installing new software"],
+        correct: 1,
+        explanation: "Process management involves creating, scheduling, suspending, resuming and terminating processes, and controlling how they share the CPU."
+    },
+    {
+        id: 16,
+        text: "A User Interface allows:",
+        options: ["Hardware to run without software", "Users to interact with the computer", "Files to be deleted automatically", "The CPU to cool down"],
+        correct: 1,
+        explanation: "The user interface (CLI or GUI) is the means by which a human interacts with the computer system."
+    },
+    {
+        id: 17,
+        text: "Which OS component controls everything in the system?",
+        options: ["Shell", "Kernel", "Monitor", "Mouse driver"],
+        correct: 1,
+        explanation: "The kernel is the core of the OS and has complete control over all system resources and hardware."
+    },
+    {
+        id: 18,
+        text: "UNIX and Linux are examples of:",
+        options: ["Application software", "Operating Systems", "Hardware devices", "Input devices"],
+        correct: 1,
+        explanation: "UNIX and Linux are well-known multi-user, multi-tasking operating systems."
+    },
+    {
+        id: 19,
+        text: "Which of these is a function of an Operating System?",
+        options: ["Security management", "Cooking recipes", "Video editing", "Music composition"],
+        correct: 0,
+        explanation: "Security management (access control, authentication, protection) is a core function of modern operating systems."
+    },
+    {
+        id: 20,
+        text: "A Multi-user Operating System allows:",
+        options: ["Only one person to use the computer", "Several users to access the system", "No access to files", "Only batch processing"],
+        correct: 1,
+        explanation: "A multi-user OS is designed to allow multiple users to access the system concurrently, each with their own protected environment."
+    },
+    {
+        id: 21,
+        text: "Which OS type is commonly used in robots and machines?",
+        options: ["Batch OS", "Real-time OS", "Time-sharing OS", "Mobile OS"],
+        correct: 1,
+        explanation: "Real-time Operating Systems are widely used in robots, industrial machines, medical devices and any system that requires deterministic, timely responses."
+    },
+    {
+        id: 22,
+        text: "The Operating System acts as an interface between:",
+        options: ["Two printers", "The user and computer hardware", "Two different networks", "RAM and ROM only"],
+        correct: 1,
+        explanation: "One of the fundamental roles of an OS is to act as an intermediary between the user (and application programs) and the computer hardware."
+    },
+    {
+        id: 23,
+        text: "Which of the following is NOT an OS type?",
+        options: ["Batch OS", "Real-time OS", "Spreadsheet OS", "Distributed OS"],
+        correct: 2,
+        explanation: "There is no such category as 'Spreadsheet OS'. Spreadsheets are application software. Batch, Real-time and Distributed are recognised OS types."
+    },
+    {
+        id: 24,
+        text: "Security management in an OS helps to:",
+        options: ["Slow down the computer", "Protect data and system resources", "Increase file size", "Delete the kernel"],
+        correct: 1,
+        explanation: "Security management protects the system and its data from unauthorised access, modification or destruction."
+    },
+    {
+        id: 25,
+        text: "Which is a key component of OS architecture?",
+        options: ["Speaker", "Kernel", "Mouse", "Monitor screen"],
+        correct: 1,
+        explanation: "The kernel is the central architectural component of every operating system."
+    },
+    {
+        id: 26,
+        text: "Windows, macOS, and Linux are all examples of:",
+        options: ["Applications", "Operating Systems", "Hardware parts", "Search engines"],
+        correct: 1,
+        explanation: "Windows, macOS and Linux are three of the most widely used general-purpose operating systems."
+    },
+    {
+        id: 27,
+        text: "The Shell can be in the form of:",
+        options: ["Only a command line", "Only a graphical interface", "Command line or graphical interface", "Neither"],
+        correct: 2,
+        explanation: "A shell can be a command-line interface (CLI) such as bash, or a graphical user interface (GUI) such as Windows Explorer or GNOME."
+    },
+    {
+        id: 28,
+        text: "Which function of the OS deals with saving, opening, and deleting data?",
+        options: ["Process management", "File management", "Device management", "Security management"],
+        correct: 1,
+        explanation: "File management is responsible for creating, opening, reading, writing, deleting and organising files and directories."
+    },
+    {
+        id: 29,
+        text: "iOS is an Operating System designed for:",
+        options: ["Desktop computers", "Mobile devices", "Servers only", "Printers"],
+        correct: 1,
+        explanation: "iOS is Apple’s mobile operating system used on iPhones and iPads."
+    },
+    {
+        id: 30,
+        text: "Time-sharing systems divide CPU time among:",
+        options: ["One user only", "Multiple users", "No users", "Hardware devices only"],
+        correct: 1,
+        explanation: "Time-sharing systems rapidly switch the CPU among multiple users so that each user feels they have dedicated access to the system."
+    },
+    {
+        id: 31,
+        text: "Which of the following manages input and output devices?",
+        options: ["Device management", "File management", "Security management", "Memory management"],
+        correct: 0,
+        explanation: "Device management (I/O management) is the OS function that controls and coordinates the use of input and output devices."
+    },
+    {
+        id: 32,
+        text: "A key benefit of a Distributed OS is:",
+        options: ["Using only one processor", "Sharing resources across many computers", "Removing the need for hardware", "Reducing user access"],
+        correct: 1,
+        explanation: "A Distributed OS enables resource sharing, load balancing and higher availability by coordinating multiple independent computers."
+    },
+    {
+        id: 33,
+        text: "Which is TRUE about an Operating System?",
+        options: ["It is optional for a computer to function", "It manages both hardware and software resources", "It only works on mobile phones", "It cannot manage memory"],
+        correct: 1,
+        explanation: "An OS is essential system software that manages both hardware resources and provides services to software applications."
+    },
+    {
+        id: 34,
+        text: "RAM management is part of:",
+        options: ["File management", "Memory management", "Device management", "User interface"],
+        correct: 1,
+        explanation: "RAM (main memory) allocation, protection and deallocation are core responsibilities of the memory management component of the OS."
+    },
+    {
+        id: 35,
+        text: "Which of these best classifies Android and iOS?",
+        options: ["Batch Operating Systems", "Mobile Operating Systems", "Real-time Operating Systems", "Distributed Operating Systems"],
+        correct: 1,
+        explanation: "Android and iOS are mobile operating systems designed for smartphones and tablets."
+    },
+    {
+        id: 36,
+        text: "The main task of the kernel is to:",
+        options: ["Display icons", "Control hardware and system resources directly", "Play music", "Browse websites"],
+        correct: 1,
+        explanation: "The kernel is the privileged core that directly controls hardware and manages system resources such as CPU, memory and devices."
+    },
+    {
+        id: 37,
+        text: "Which OS type has NO direct user interaction during job processing?",
+        options: ["Batch OS", "Time-sharing OS", "Mobile OS", "Real-time OS"],
+        correct: 0,
+        explanation: "In a Batch OS, jobs are submitted and processed without interactive user involvement while they are running."
+    },
+    {
+        id: 38,
+        text: "Which of the following is an OS architecture component?",
+        options: ["Web browser", "File system", "Search engine", "Antivirus only"],
+        correct: 1,
+        explanation: "The file system is a fundamental architectural component of an operating system responsible for data organisation and storage."
+    },
+    {
+        id: 39,
+        text: "A computer without an OS can:",
+        options: ["Run all programs normally", "Not function properly", "Browse the internet directly", "Manage its own memory"],
+        correct: 1,
+        explanation: "Without an operating system, a computer cannot manage resources or run application programs in a practical way. It essentially cannot function as a usable system."
+    },
+    {
+        id: 40,
+        text: "Which best describes \"Functions of an OS\"?",
+        options: ["Tasks the OS performs to manage the computer", "Games installed on the computer", "Types of computer hardware", "Internet protocols"],
+        correct: 0,
+        explanation: "The functions of an OS are the essential tasks it performs: process management, memory management, file management, device management, security, etc."
+    },
+    {
+        id: 41,
+        text: "Which OS type is best for banking transaction systems needing instant response?",
+        options: ["Batch OS", "Real-time OS", "Mobile OS", "Single-user OS"],
+        correct: 1,
+        explanation: "Real-time Operating Systems are designed for environments that require guaranteed, timely responses, such as banking transaction systems and industrial control."
+    },
+    {
+        id: 42,
+        text: "The user interface can be described as:",
+        options: ["The physical computer case", "What the user sees and uses to interact with the system", "A type of printer", "A network cable"],
+        correct: 1,
+        explanation: "The user interface is the part of the system that the user interacts with — either a command-line interface or a graphical user interface."
+    },
+    {
+        id: 43,
+        text: "Which of these OS types processes multiple users' requests almost simultaneously?",
+        options: ["Batch OS", "Time-sharing OS", "Embedded OS", "Single-user OS"],
+        correct: 1,
+        explanation: "Time-sharing systems give the illusion of simultaneous service by rapidly switching the CPU among multiple users’ processes."
+    },
+    {
+        id: 44,
+        text: "Device drivers act as a bridge between:",
+        options: ["Two operating systems", "Hardware and software", "Two users", "Two files"],
+        correct: 1,
+        explanation: "Device drivers translate general OS commands into the specific instructions that a particular hardware device understands."
+    },
+    {
+        id: 45,
+        text: "Which of the following is NOT a key OS architecture component?",
+        options: ["Kernel", "Shell", "File system", "Web page"],
+        correct: 3,
+        explanation: "A web page is content delivered by a web server/application. Kernel, shell and file system are core architectural components of an OS."
+    },
+    {
+        id: 46,
+        text: "An Operating System helps prevent unauthorized access through:",
+        options: ["File management", "Security management", "Memory management", "Device management"],
+        correct: 1,
+        explanation: "Security management (authentication, access control, protection mechanisms) is the OS function that prevents unauthorised access to resources."
+    },
+    {
+        id: 47,
+        text: "MS-DOS is an example of a:",
+        options: ["Multi-user OS", "Single-user OS", "Distributed OS", "Mobile OS"],
+        correct: 1,
+        explanation: "MS-DOS is a classic single-user, single-tasking operating system."
+    },
+    {
+        id: 48,
+        text: "Which is the correct order from user to hardware?",
+        options: ["Hardware → Kernel → Shell → User", "User → Shell → Kernel → Hardware", "User → Hardware → Shell → Kernel", "Kernel → User → Hardware → Shell"],
+        correct: 1,
+        explanation: "The correct flow is: User interacts with the Shell → Shell communicates with the Kernel → Kernel controls the Hardware."
+    },
+    {
+        id: 49,
+        text: "Classifying operating systems helps us understand:",
+        options: ["Different types of printers", "How OS are grouped based on use and design", "Internet speed differences", "Types of keyboards"],
+        correct: 1,
+        explanation: "Classification (batch, time-sharing, real-time, distributed, mobile, etc.) helps us understand the design goals and typical use-cases of different operating systems."
+    },
+    {
+        id: 50,
+        text: "Overall, the Operating System is important because it:",
+        options: ["Is optional software", "Manages and coordinates all computer resources", "Only stores pictures", "Replaces the need for hardware"],
+        correct: 1,
+        explanation: "The Operating System is essential system software that manages and coordinates all hardware and software resources so that users and applications can use the computer effectively and safely."
+    }
+];
+
+let score = 0;
+let answered = new Array(50).fill(false);
+let selected = new Array(50).fill(null);
+
+function renderQuiz() {
+    document.getElementById('scoreDisplay').innerText = `Score: ${score} / 50`;
+    const answeredCount = answered.filter(Boolean).length;
+    document.getElementById('progressBar').style.width = `${(answeredCount / 50) * 100}%`;
+
+    const container = document.getElementById('questionsContainer');
+    container.innerHTML = '';
+
+    questions.forEach((q, qIdx) => {
+        const card = document.createElement('div');
+        card.className = 'question-card';
+
+        let optionsHTML = '';
+        q.options.forEach((opt, optIdx) => {
+            let btnClass = 'option-btn';
+            const isDisabled = answered[qIdx];
+            if (isDisabled) {
+                if (optIdx === q.correct) btnClass += ' correct';
+                else if (selected[qIdx] === optIdx) btnClass += ' wrong';
+            }
+            optionsHTML += `<li><button class="${btnClass}" ${isDisabled ? 'disabled' : ''} onclick="handleAnswer(${qIdx}, ${optIdx})">${String.fromCharCode(65 + optIdx)}. ${opt}</button></li>`;
+        });
+
+        const showExpl = answered[qIdx];
+        card.innerHTML = `
+            <div class="question-meta">Question ${q.id} of 50</div>
+            <div class="question-title">${q.text}</div>
+            <ul class="options-list">${optionsHTML}</ul>
+            <div class="explanation ${showExpl ? 'show' : ''}">
+                <strong>Explanation:</strong> ${q.explanation}
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+function handleAnswer(qIdx, optIdx) {
+    if (answered[qIdx]) return;
+    answered[qIdx] = true;
+    selected[qIdx] = optIdx;
+    if (optIdx === questions[qIdx].correct) {
+        score++;
+    }
+    renderQuiz();
+}
+
+function resetQuiz() {
+    score = 0;
+    answered = new Array(50).fill(false);
+    selected = new Array(50).fill(null);
+    renderQuiz();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+renderQuiz();
+</script>
+</body>
+</html>
