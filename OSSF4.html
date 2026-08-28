@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSSF4.html – Fill-in-the-Blank Quiz Set 2 (All 13 Chapters)</title>
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --success: #22c55e;
+            --error: #ef4444;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --header-bg: linear-gradient(135deg, #0f172a, #1e3a8a);
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        header {
+            background: var(--header-bg);
+            color: white;
+            padding: 22px 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            border-bottom: 1px solid var(--border);
+        }
+        header h1 { margin: 0 0 6px 0; font-size: 1.45rem; }
+        header p { margin: 0; opacity: 0.9; font-size: 0.95rem; }
+        .container {
+            max-width: 900px;
+            margin: 25px auto;
+            padding: 0 16px 60px;
+        }
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: var(--card-bg);
+            padding: 16px 22px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .score-display {
+            font-size: 1.15em;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background: #334155;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: var(--primary);
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        .question-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 22px;
+            margin-bottom: 18px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+        }
+        .question-meta {
+            font-size: 0.78em;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .question-title {
+            font-size: 1.08em;
+            font-weight: 600;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+        .blank-input {
+            display: inline-block;
+            min-width: 140px;
+            padding: 6px 12px;
+            margin: 0 4px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            background: #0f172a;
+            color: var(--text);
+            font-size: 1em;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        .blank-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        .blank-input.correct {
+            border-color: var(--success);
+            background: rgba(34, 197, 94, 0.15);
+            color: #86efac;
+        }
+        .blank-input.wrong {
+            border-color: var(--error);
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+        }
+        .blank-input:disabled {
+            cursor: not-allowed;
+            opacity: 0.95;
+        }
+        .check-btn {
+            margin-top: 14px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.95em;
+        }
+        .check-btn:hover:not(:disabled) { background: var(--primary-dark); }
+        .check-btn:disabled {
+            background: #475569;
+            cursor: not-allowed;
+        }
+        .explanation {
+            margin-top: 14px;
+            padding: 12px 14px;
+            background: #0f172a;
+            border-left: 4px solid var(--primary);
+            border-radius: 0 8px 8px 0;
+            font-size: 0.92em;
+            line-height: 1.5;
+            color: #cbd5e1;
+            display: none;
+        }
+        .explanation.show { display: block; }
+        .explanation strong { color: #93c5fd; }
+        .answer-reveal {
+            color: #86efac;
+            font-weight: 600;
+        }
+        .footer-actions {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 28px;
+            flex-wrap: wrap;
+        }
+        .action-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 26px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        .action-btn:hover { background: var(--primary-dark); }
+        .action-btn.secondary {
+            background: #475569;
+        }
+        .action-btn.secondary:hover { background: #64748b; }
+        .footer-note {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9em;
+            margin-top: 20px;
+            padding: 12px;
+        }
+        .chapter-tag {
+            display: inline-block;
+            background: #1e3a5f;
+            color: #93c5fd;
+            font-size: 0.75em;
+            padding: 3px 10px;
+            border-radius: 20px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>OSSF4 – Fill-in-the-Blank Quiz (Set 2)</h1>
+    <p>50 New Unique Questions · All 13 Chapters · Type your answers · Instant Feedback</p>
+</header>
+<div class="container">
+    <div class="quiz-header">
+        <h2 style="margin:0;font-size:1.15rem;">Operating System Security &amp; Forensics</h2>
+        <div class="score-display" id="scoreDisplay">Score: 0 / 50</div>
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+    </div>
+    <div id="questionsContainer"></div>
+    <div class="footer-actions">
+        <button class="action-btn" onclick="checkAll()">Check All Unanswered</button>
+        <button class="action-btn secondary" onclick="resetQuiz()">Reset Quiz</button>
+    </div>
+    <div class="footer-note">
+        Type your answer in each blank and press Enter or click “Check Answer”. Answers are case-insensitive.
+    </div>
+</div>
+<script>
+const questions = [
+    // ===== CHAPTER 1: General Introduction (1–4) =====
+    {
+        chapter: "Chapter 1 – General Introduction",
+        text: "An operating system that allows several users to access the computer at the same time is called a __________-user OS.",
+        answer: ["multi"],
+        explanation: "A multi-user OS supports concurrent access by multiple users, each with their own protected environment (e.g. Linux, UNIX, Windows Server)."
+    },
+    {
+        chapter: "Chapter 1 – General Introduction",
+        text: "An OS that can run only one program at a time is described as __________-tasking.",
+        answer: ["single"],
+        explanation: "A single-tasking OS (e.g. MS-DOS) dedicates the CPU to one program until it finishes before another can run."
+    },
+    {
+        chapter: "Chapter 1 – General Introduction",
+        text: "Special programs that act as translators between the operating system and hardware devices are called device __________.",
+        answer: ["drivers"],
+        explanation: "Device drivers convert general OS commands into the specific instructions that each hardware device understands."
+    },
+    {
+        chapter: "Chapter 1 – General Introduction",
+        text: "An OS that manages a collection of independent computers and presents them as one coherent system is called a __________ operating system.",
+        answer: ["distributed"],
+        explanation: "A Distributed OS coordinates multiple machines so users and applications see a single system image."
+    },
+
+    // ===== CHAPTER 2: CIA Triad (5–8) =====
+    {
+        chapter: "Chapter 2 – CIA Triad",
+        text: "Protecting data from unauthorised modification is the security goal known as __________.",
+        answer: ["integrity"],
+        explanation: "Integrity ensures that data and systems are not altered in an unauthorised manner. It is supported by checksums, digital signatures and access controls."
+    },
+    {
+        chapter: "Chapter 2 – CIA Triad",
+        text: "A structured description of potential adversaries, their capabilities and the assets they might target is called a __________ model.",
+        answer: ["threat"],
+        explanation: "Threat modelling helps prioritise defences by identifying who might attack, what they want, and how they might succeed."
+    },
+    {
+        chapter: "Chapter 2 – CIA Triad",
+        text: "The formal confidentiality model that uses the rules “no read up” and “no write down” is named after Bell and __________.",
+        answer: ["lapadula", "la padula"],
+        explanation: "The Bell-LaPadula model is the classic multilevel security model focused on protecting confidentiality."
+    },
+    {
+        chapter: "Chapter 2 – CIA Triad",
+        text: "When a system remains usable by authorised users even under attack or partial failure, it is said to provide __________.",
+        answer: ["availability"],
+        explanation: "Availability is the CIA goal that counters denial-of-service and ensures legitimate users can obtain the services they need."
+    },
+
+    // ===== CHAPTER 3: OS Security Architecture (9–12) =====
+    {
+        chapter: "Chapter 3 – OS Security Architecture",
+        text: "The two CPU privilege levels that isolate untrusted application code from critical OS functions are called user mode and __________ mode.",
+        answer: ["kernel"],
+        explanation: "Hardware-enforced modes (rings) prevent ordinary programs from executing privileged instructions or accessing kernel memory."
+    },
+    {
+        chapter: "Chapter 3 – OS Security Architecture",
+        text: "The principle that security mechanisms should be as simple and small as possible is called __________ of mechanism.",
+        answer: ["economy"],
+        explanation: "Economy of mechanism states that simple designs are easier to implement correctly, analyse and maintain."
+    },
+    {
+        chapter: "Chapter 3 – OS Security Architecture",
+        text: "The requirement that every access to every object must be checked against the security policy is called complete __________.",
+        answer: ["mediation"],
+        explanation: "Complete mediation is one of the classic Saltzer & Schroeder secure-design principles."
+    },
+    {
+        chapter: "Chapter 3 – OS Security Architecture",
+        text: "The principle that access should be denied unless it is explicitly permitted is known as __________-safe defaults.",
+        answer: ["fail"],
+        explanation: "Fail-safe defaults ensure that configuration errors or missing permissions tend to produce a safe (deny) outcome."
+    },
+
+    // ===== CHAPTER 4: Access Control Models (13–17) =====
+    {
+        chapter: "Chapter 4 – Access Control Models",
+        text: "Lists attached to objects that specify which subjects have which permissions are called Access Control __________ (ACLs).",
+        answer: ["lists"],
+        explanation: "ACLs are the most common concrete realisation of both discretionary and some mandatory access-control policies."
+    },
+    {
+        chapter: "Chapter 4 – Access Control Models",
+        text: "An unforgeable token that both identifies an object and confers specific rights to the holder is called a __________.",
+        answer: ["capability"],
+        explanation: "Capability-based systems invert the ACL model: rights travel with the subject rather than being stored with the object."
+    },
+    {
+        chapter: "Chapter 4 – Access Control Models",
+        text: "The integrity model that uses well-formed transactions and separation of duties is the __________-Wilson model.",
+        answer: ["clark"],
+        explanation: "Clark-Wilson is well suited to commercial environments where data integrity and transaction correctness are paramount."
+    },
+    {
+        chapter: "Chapter 4 – Access Control Models",
+        text: "In RBAC, permissions are assigned to __________; users acquire permissions by being assigned to those.",
+        answer: ["roles"],
+        explanation: "Role-Based Access Control groups privileges into roles, greatly simplifying administration in large organisations."
+    },
+    {
+        chapter: "Chapter 4 – Access Control Models",
+        text: "The model that dynamically builds walls so a person who has seen one company’s data cannot later access a competitor’s data is the __________ Wall model.",
+        answer: ["chinese"],
+        explanation: "The Chinese Wall (Brewer-Nash) model prevents conflicts of interest using history-based access control."
+    },
+
+    // ===== CHAPTER 5: Process & Memory Protection (18–22) =====
+    {
+        chapter: "Chapter 5 – Process & Memory Protection",
+        text: "The memory-management technique that gives each process its own private address space is called __________ memory.",
+        answer: ["virtual"],
+        explanation: "Virtual memory, enforced by the MMU and page tables, is the foundation of process isolation."
+    },
+    {
+        chapter: "Chapter 5 – Process & Memory Protection",
+        text: "A defence that restricts the possible targets of indirect branches and calls, reducing the power of code-reuse attacks, is called Control Flow __________ (CFI).",
+        answer: ["integrity"],
+        explanation: "CFI makes return-oriented programming (ROP) and similar techniques much harder to exploit reliably."
+    },
+    {
+        chapter: "Chapter 5 – Process & Memory Protection",
+        text: "When a dangling pointer is used after the underlying memory has been freed, the resulting vulnerability is called use-after-__________.",
+        answer: ["free"],
+        explanation: "Use-after-free is one of the most common high-impact vulnerability classes in complex software written in unsafe languages."
+    },
+    {
+        chapter: "Chapter 5 – Process & Memory Protection",
+        text: "The policy of marking memory pages either writable or executable, but never both, is often summarised as W^__________.",
+        answer: ["x"],
+        explanation: "W^X (Writable XOR Executable) is the principle behind Data Execution Prevention (DEP/NX)."
+    },
+    {
+        chapter: "Chapter 5 – Process & Memory Protection",
+        text: "Kernel techniques such as KASLR, SMEP and SMAP are designed to protect __________ memory from user-mode processes.",
+        answer: ["kernel"],
+        explanation: "These mitigations reduce the ability of a compromised user process to locate, read or execute kernel memory."
+    },
+
+    // ===== CHAPTER 6: File System Security (23–26) =====
+    {
+        chapter: "Chapter 6 – File System Security",
+        text: "On UNIX-like systems the three standard permission categories for each file are owner, group and __________.",
+        answer: ["others", "other", "world"],
+        explanation: "Classic UNIX permissions use three sets of rwx bits: one for the owner, one for the group, and one for everyone else."
+    },
+    {
+        chapter: "Chapter 6 – File System Security",
+        text: "A race condition that occurs when a privileged program checks a condition and later uses an object that an attacker has changed in between is called a __________ race.",
+        answer: ["toctou", "time-of-check-to-time-of-use"],
+        explanation: "TOCTOU (Time-Of-Check to Time-Of-Use) races are classic sources of privilege-escalation bugs, especially with symbolic links."
+    },
+    {
+        chapter: "Chapter 6 – File System Security",
+        text: "Tools such as AIDE and Tripwire detect unauthorised modification of files by comparing current cryptographic __________ against a known-good baseline.",
+        answer: ["hashes", "hash", "checksums"],
+        explanation: "File-integrity monitoring tools alert administrators when critical system files have been changed."
+    },
+    {
+        chapter: "Chapter 6 – File System Security",
+        text: "The sticky bit on a directory (such as /tmp) prevents users from __________ other users’ files inside that directory.",
+        answer: ["deleting", "removing", "renaming"],
+        explanation: "The sticky bit is a classic, still-relevant protection that stops users from deleting or renaming files they do not own in a shared directory."
+    },
+
+    // ===== CHAPTER 7: Malware & OS Threats (27–30) =====
+    {
+        chapter: "Chapter 7 – Malware & OS Threats",
+        text: "A self-replicating program that spreads across networks without needing a host file or user action is called a __________.",
+        answer: ["worm"],
+        explanation: "Worms differ from viruses in that they are self-contained and can propagate automatically over networks."
+    },
+    {
+        chapter: "Chapter 7 – Malware & OS Threats",
+        text: "Malware that changes its code appearance on each infection while preserving functionality is described as __________.",
+        answer: ["polymorphic"],
+        explanation: "Polymorphism is used to evade signature-based antivirus detection by altering the binary’s appearance."
+    },
+    {
+        chapter: "Chapter 7 – Malware & OS Threats",
+        text: "Malware that resides primarily in memory or abuses legitimate system tools rather than writing traditional executable files is called __________ malware.",
+        answer: ["fileless"],
+        explanation: "Fileless techniques make traditional file-scanning approaches less effective; memory forensics and behavioural monitoring become more important."
+    },
+    {
+        chapter: "Chapter 7 – Malware & OS Threats",
+        text: "The infrastructure used by attackers to send commands to compromised systems and receive stolen data is called command-and-__________ (C2).",
+        answer: ["control"],
+        explanation: "Detecting and blocking C2 traffic is a key defensive technique against advanced malware."
+    },
+
+    // ===== CHAPTER 8: Privilege Escalation (31–34) =====
+    {
+        chapter: "Chapter 8 – Privilege Escalation",
+        text: "A program that runs with elevated privileges (often root) whenever any user executes it is typically marked __________-root on UNIX systems.",
+        answer: ["setuid", "suid"],
+        explanation: "Setuid-root binaries are a classic privilege-escalation target; any exploitable bug in them yields full administrative power."
+    },
+    {
+        chapter: "Chapter 8 – Privilege Escalation",
+        text: "The Windows vulnerability CVE-2021-41379 that allowed local privilege escalation via the Windows Installer is known as InstallerFile__________.",
+        answer: ["takeover"],
+        explanation: "InstallerFileTakeOver showed how trusted system services can be abused for elevation of privilege."
+    },
+    {
+        chapter: "Chapter 8 – Privilege Escalation",
+        text: "An attacker who changes a symbolic link between the time a privileged program checks a path and the time it uses that path is exploiting a __________ condition.",
+        answer: ["race"],
+        explanation: "Race conditions (especially TOCTOU) remain a reliable privilege-escalation technique against careless privileged programs."
+    },
+    {
+        chapter: "Chapter 8 – Privilege Escalation",
+        text: "Reducing the number of programs that run with elevated rights is an application of the principle of __________ privilege.",
+        answer: ["least"],
+        explanation: "Least privilege is one of the highest-value preventive controls against successful privilege escalation."
+    },
+
+    // ===== CHAPTER 9: System Hardening (35–38) =====
+    {
+        chapter: "Chapter 9 – System Hardening",
+        text: "Removing unused services, closing unnecessary ports and eliminating unneeded accounts is collectively known as attack-surface __________.",
+        answer: ["reduction"],
+        explanation: "Attack-surface reduction is one of the oldest and most effective hardening strategies: fewer entry points mean fewer opportunities for an attacker."
+    },
+    {
+        chapter: "Chapter 9 – System Hardening",
+        text: "On Linux, the mandatory access-control systems most commonly used for hardening are SELinux and __________.",
+        answer: ["apparmor"],
+        explanation: "SELinux and AppArmor both provide MAC; they confine processes according to policy even if the process is compromised."
+    },
+    {
+        chapter: "Chapter 9 – System Hardening",
+        text: "Windows features such as Credential Guard, Device Guard / WDAC and Controlled Folder Access are examples of platform __________ technologies.",
+        answer: ["hardening", "security"],
+        explanation: "Modern Windows editions include powerful security features that must be deliberately enabled and configured as part of hardening."
+    },
+    {
+        chapter: "Chapter 9 – System Hardening",
+        text: "A security configuration that is safe when first installed, reducing the window of exposure, is described as secure by __________.",
+        answer: ["default"],
+        explanation: "Secure-by-default systems reduce the chance that an administrator will leave the system in an insecure state."
+    },
+
+    // ===== CHAPTER 10: Virtualization & Containers (39–42) =====
+    {
+        chapter: "Chapter 10 – Virtualization & Containers",
+        text: "A hypervisor that runs directly on the hardware (without a host OS) is called a Type-__________ hypervisor.",
+        answer: ["1", "one"],
+        explanation: "Type-1 (bare-metal) hypervisors run directly on the hardware; Type-2 hypervisors run on top of a conventional host OS."
+    },
+    {
+        chapter: "Chapter 10 – Virtualization & Containers",
+        text: "Linux kernel features that provide process isolation and resource control for containers are namespaces and __________.",
+        answer: ["cgroups", "control groups"],
+        explanation: "Namespaces isolate what a process can see; cgroups limit the resources (CPU, memory, I/O) it can consume."
+    },
+    {
+        chapter: "Chapter 10 – Virtualization & Containers",
+        text: "A security profile that restricts the set of system calls a containerised process may issue is called a __________ profile.",
+        answer: ["seccomp"],
+        explanation: "Seccomp (secure computing mode) filters system calls, significantly reducing the kernel attack surface available to a compromised container."
+    },
+    {
+        chapter: "Chapter 10 – Virtualization & Containers",
+        text: "Mounting the Docker __________ into a container effectively grants that container control over the Docker daemon and is almost always a critical misconfiguration.",
+        answer: ["socket"],
+        explanation: "The Docker socket allows creation of privileged containers and is a well-known container-escape path when exposed."
+    },
+
+    // ===== CHAPTER 11: Logs, Monitoring & IR (43–45) =====
+    {
+        chapter: "Chapter 11 – Logs & Audit Trails",
+        text: "A system that not only detects suspicious activity but can also take automated action to block it is called an Intrusion __________ System (IPS).",
+        answer: ["prevention"],
+        explanation: "An IPS can actively block or contain an attack; an IDS only detects and alerts."
+    },
+    {
+        chapter: "Chapter 11 – Logs & Audit Trails",
+        text: "When a detection system generates too many low-value alerts and analysts become desensitised, the problem is called alert __________.",
+        answer: ["fatigue"],
+        explanation: "Tuning, prioritisation and automation are essential to keep detection systems actionable and avoid alert fatigue."
+    },
+    {
+        chapter: "Chapter 11 – Logs & Audit Trails",
+        text: "A platform that aggregates, correlates and analyses log and event data from many sources is commonly called a __________ (Security Information and Event Management).",
+        answer: ["siem"],
+        explanation: "SIEMs enable detection of multi-stage or multi-host attacks that would be invisible when examining any single log source."
+    },
+
+    // ===== CHAPTER 12: Forensics Basics (46–48) =====
+    {
+        chapter: "Chapter 12 – Forensics Basics",
+        text: "A bit-for-bit copy of a storage device that includes unallocated space and deleted files is called a forensic __________.",
+        answer: ["image", "disk image"],
+        explanation: "Working from a forensic image protects the original evidence from accidental modification during analysis."
+    },
+    {
+        chapter: "Chapter 12 – Forensics Basics",
+        text: "The practice of collecting the most perishable evidence first (RAM, network connections, then disk) follows the order of __________.",
+        answer: ["volatility"],
+        explanation: "Volatile evidence disappears when power is removed, so it must be prioritised during live response."
+    },
+    {
+        chapter: "Chapter 12 – Forensics Basics",
+        text: "On Windows, artefacts such as Prefetch, Shimcache, Amcache and Jump Lists help investigators reconstruct program __________ history.",
+        answer: ["execution"],
+        explanation: "These artefacts record which programs were run, when, and sometimes from where — invaluable for timeline reconstruction."
+    },
+
+    // ===== CHAPTER 13: Advanced Topics (49–50) =====
+    {
+        chapter: "Chapter 13 – Advanced Topics",
+        text: "A process in which each stage of the boot sequence hashes the next stage and records the result in TPM PCRs is called __________ Boot.",
+        answer: ["measured"],
+        explanation: "Measured Boot produces a trustworthy record of what actually executed, enabling remote attestation and sealing of secrets."
+    },
+    {
+        chapter: "Chapter 13 – Advanced Topics",
+        text: "Hardware-based trusted execution environments that protect data while it is being processed (e.g. Intel SGX, AMD SEV) fall under the term __________ computing.",
+        answer: ["confidential"],
+        explanation: "Confidential computing closes the traditional gap between protection of data at rest and data in transit by safeguarding data in use."
+    }
+];
+
+let score = 0;
+let answered = new Array(questions.length).fill(false);
+
+function normalize(str) {
+    return str.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+function checkAnswer(idx) {
+    if (answered[idx]) return;
+    const input = document.getElementById("input-" + idx);
+    const userAns = normalize(input.value);
+    if (!userAns) return;
+
+    const accepted = questions[idx].answer.map(normalize);
+    const isCorrect = accepted.some(a => userAns === a || userAns.includes(a) || a.includes(userAns));
+
+    answered[idx] = true;
+    input.disabled = true;
+    document.getElementById("btn-" + idx).disabled = true;
+
+    if (isCorrect) {
+        input.classList.add("correct");
+        score++;
+    } else {
+        input.classList.add("wrong");
+    }
+
+    const expl = document.getElementById("expl-" + idx);
+    expl.innerHTML = `<strong>Correct answer:</strong> <span class="answer-reveal">${questions[idx].answer[0]}</span><br><strong>Explanation:</strong> ${questions[idx].explanation}`;
+    expl.classList.add("show");
+    updateScore();
+}
+
+function checkAll() {
+    questions.forEach((_, idx) => {
+        if (!answered[idx]) {
+            const input = document.getElementById("input-" + idx);
+            if (input.value.trim()) checkAnswer(idx);
+        }
+    });
+}
+
+function updateScore() {
+    document.getElementById("scoreDisplay").innerText = `Score: ${score} / ${questions.length}`;
+    const done = answered.filter(Boolean).length;
+    document.getElementById("progressBar").style.width = `${(done / questions.length) * 100}%`;
+}
+
+function renderQuiz() {
+    const container = document.getElementById("questionsContainer");
+    container.innerHTML = "";
+    questions.forEach((q, idx) => {
+        const card = document.createElement("div");
+        card.className = "question-card";
+        const htmlText = q.text.replace(/_{3,}/g,
+            `<input type="text" class="blank-input" id="input-${idx}" autocomplete="off" spellcheck="false" ${answered[idx] ? "disabled" : ""}>`
+        );
+        card.innerHTML = `
+            <div class="chapter-tag">${q.chapter}</div>
+            <div class="question-meta">Question ${idx + 1} of ${questions.length}</div>
+            <div class="question-title">${htmlText}</div>
+            <button class="check-btn" id="btn-${idx}" onclick="checkAnswer(${idx})" ${answered[idx] ? "disabled" : ""}>Check Answer</button>
+            <div class="explanation" id="expl-${idx}"></div>
+        `;
+        container.appendChild(card);
+        const inp = document.getElementById("input-" + idx);
+        if (inp && !answered[idx]) {
+            inp.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") checkAnswer(idx);
+            });
+        }
+    });
+    updateScore();
+}
+
+function resetQuiz() {
+    score = 0;
+    answered = new Array(questions.length).fill(false);
+    renderQuiz();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+renderQuiz();
+</script>
+</body>
+</html>
