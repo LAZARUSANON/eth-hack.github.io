@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSSF3.html – Fill-in-the-Blank Quiz (All 13 Chapters)</title>
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --success: #22c55e;
+            --error: #ef4444;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --header-bg: linear-gradient(135deg, #0f172a, #1e3a8a);
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        header {
+            background: var(--header-bg);
+            color: white;
+            padding: 22px 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            border-bottom: 1px solid var(--border);
+        }
+        header h1 { margin: 0 0 6px 0; font-size: 1.45rem; }
+        header p { margin: 0; opacity: 0.9; font-size: 0.95rem; }
+        .container {
+            max-width: 900px;
+            margin: 25px auto;
+            padding: 0 16px 60px;
+        }
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: var(--card-bg);
+            padding: 16px 22px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .score-display {
+            font-size: 1.15em;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background: #334155;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: var(--primary);
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        .question-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 22px;
+            margin-bottom: 18px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+        }
+        .question-meta {
+            font-size: 0.78em;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .question-title {
+            font-size: 1.08em;
+            font-weight: 600;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+        .blank-input {
+            display: inline-block;
+            min-width: 140px;
+            padding: 6px 12px;
+            margin: 0 4px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            background: #0f172a;
+            color: var(--text);
+            font-size: 1em;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        .blank-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        .blank-input.correct {
+            border-color: var(--success);
+            background: rgba(34, 197, 94, 0.15);
+            color: #86efac;
+        }
+        .blank-input.wrong {
+            border-color: var(--error);
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+        }
+        .blank-input:disabled {
+            cursor: not-allowed;
+            opacity: 0.95;
+        }
+        .check-btn {
+            margin-top: 14px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.95em;
+        }
+        .check-btn:hover:not(:disabled) { background: var(--primary-dark); }
+        .check-btn:disabled {
+            background: #475569;
+            cursor: not-allowed;
+        }
+        .explanation {
+            margin-top: 14px;
+            padding: 12px 14px;
+            background: #0f172a;
+            border-left: 4px solid var(--primary);
+            border-radius: 0 8px 8px 0;
+            font-size: 0.92em;
+            line-height: 1.5;
+            color: #cbd5e1;
+            display: none;
+        }
+        .explanation.show { display: block; }
+        .explanation strong { color: #93c5fd; }
+        .answer-reveal {
+            color: #86efac;
+            font-weight: 600;
+        }
+        .footer-actions {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 28px;
+            flex-wrap: wrap;
+        }
+        .action-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 26px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        .action-btn:hover { background: var(--primary-dark); }
+        .action-btn.secondary {
+            background: #475569;
+        }
+        .action-btn.secondary:hover { background: #64748b; }
+        .footer-note {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9em;
+            margin-top: 20px;
+            padding: 12px;
+        }
+        .chapter-tag {
+            display: inline-block;
+            background: #1e3a5f;
+            color: #93c5fd;
+            font-size: 0.75em;
+            padding: 3px 10px;
+            border-radius: 20px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>OSSF3 – Fill-in-the-Blank Quiz</h1>
+    <p>50 Questions covering all 13 Chapters · Type your answers · Instant Feedback</p>
+</header>
+<div class="container">
+    <div class="quiz-header">
+        <h2 style="margin:0;font-size:1.15rem;">Operating System Security &amp; Forensics</h2>
+        <div class="score-display" id="scoreDisplay">Score: 0 / 50</div>
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+    </div>
+    <div id="questionsContainer"></div>
+    <div class="footer-actions">
+        <button class="action-btn" onclick="checkAll()">Check All Unanswered</button>
+        <button class="action-btn secondary" onclick="resetQuiz()">Reset Quiz</button>
+    </div>
+    <div class="footer-note">
+        Type your answer in each blank and click “Check Answer”. Answers are case-insensitive. Partial credit is not given — the key term must match.
+    </div>
+</div>
+<script>
+const questions = [
+    // ========== CHAPTER 1: General Introduction (1–5) ==========
+    {
+        chapter: "Chapter 1 – General Introduction",
+        text: "The core component of an operating system that runs in privileged mode and manages hardware resources is called the __________.",
+        answer: ["kernel"],
+        explanation: "The kernel is the privileged core of the OS. It controls process scheduling, memory management, device access and system calls."
+    },
+    {
+        chapter: "Chapter 1 – General Introduction",
+        text: "An OS that processes jobs in groups without interactive user involvement during execution is known as a __________ operating system.",
+        answer: ["batch"],
+        explanation: "A Batch OS collects jobs into batches and processes them without user interaction while they run."
+    },
+    {
+        chapter: "Chapter 1 – General Introduction",
+        text: "The interface that allows a user to interact with the kernel (either command-line or graphical) is called the __________.",
+        answer: ["shell"],
+        explanation: "The shell interprets user commands and communicates them to the kernel. It can be a CLI (e.g. bash) or a GUI."
+    },
+    {
+        chapter: "Chapter 1 – General Introduction",
+        text: "An operating system designed to provide immediate, deterministic responses (used in robots and medical devices) is called a __________ OS.",
+        answer: ["real-time", "realtime", "real time"],
+        explanation: "Real-time Operating Systems (RTOS) guarantee that critical tasks complete within strict time deadlines."
+    },
+    {
+        chapter: "Chapter 1 – General Introduction",
+        text: "Android and iOS are examples of __________ operating systems.",
+        answer: ["mobile"],
+        explanation: "Mobile operating systems are optimised for smartphones and tablets, focusing on touch interfaces, battery life and app ecosystems."
+    },
+
+    // ========== CHAPTER 2: CIA Triad (6–9) ==========
+    {
+        chapter: "Chapter 2 – CIA Triad",
+        text: "The three classic security goals are Confidentiality, Integrity and __________.",
+        answer: ["availability"],
+        explanation: "The CIA triad consists of Confidentiality (secrecy), Integrity (no unauthorised modification) and Availability (usable when needed)."
+    },
+    {
+        chapter: "Chapter 2 – CIA Triad",
+        text: "Ensuring that information is accessible only to authorised parties is the definition of __________.",
+        answer: ["confidentiality"],
+        explanation: "Confidentiality prevents unauthorised disclosure of data and is typically enforced by access controls and encryption."
+    },
+    {
+        chapter: "Chapter 2 – CIA Triad",
+        text: "The formal integrity model that enforces “no read down, no write up” is the __________ model.",
+        answer: ["biba"],
+        explanation: "The Biba model protects integrity by preventing high-integrity processes from being contaminated by low-integrity data."
+    },
+    {
+        chapter: "Chapter 2 – CIA Triad",
+        text: "The set of all points where an attacker can try to enter or extract data from a system is called the __________.",
+        answer: ["attack surface"],
+        explanation: "Reducing the attack surface (closing ports, removing software, limiting privileges) is a fundamental hardening principle."
+    },
+
+    // ========== CHAPTER 3: OS Security Architecture (10–13) ==========
+    {
+        chapter: "Chapter 3 – OS Security Architecture",
+        text: "The abstract machine that mediates all accesses by subjects to objects and must be always invoked, tamper-proof and verifiable is the __________ Monitor.",
+        answer: ["reference"],
+        explanation: "The Reference Monitor Concept (RMC) is a foundational idea in trusted systems. Its concrete implementation is the reference validation mechanism."
+    },
+    {
+        chapter: "Chapter 3 – OS Security Architecture",
+        text: "The set of all hardware, firmware and software components that are critical to the security of the system is called the Trusted Computing __________ (TCB).",
+        answer: ["base"],
+        explanation: "Anything outside the TCB is considered untrusted. Keeping the TCB small and correct is a central goal of secure design."
+    },
+    {
+        chapter: "Chapter 3 – OS Security Architecture",
+        text: "The security principle of giving every subject only the minimum rights necessary to perform its authorised tasks is called __________ privilege.",
+        answer: ["least"],
+        explanation: "Least privilege limits the damage that can be caused by a compromised or buggy component."
+    },
+    {
+        chapter: "Chapter 3 – OS Security Architecture",
+        text: "Layering multiple independent security controls so that the failure of one does not compromise the whole system is known as defence in __________.",
+        answer: ["depth"],
+        explanation: "Defence in depth increases the effort an attacker must expend because multiple layers must be defeated."
+    },
+
+    // ========== CHAPTER 4: Access Control Models (14–18) ==========
+    {
+        chapter: "Chapter 4 – Access Control Models",
+        text: "An access-control model in which the owner of an object decides who may access it is called __________ Access Control (DAC).",
+        answer: ["discretionary"],
+        explanation: "In DAC the owner has discretion over the permissions. It is flexible but can lead to privilege leakage."
+    },
+    {
+        chapter: "Chapter 4 – Access Control Models",
+        text: "An access-control model in which decisions are made by the system according to a central policy (not by object owners) is called __________ Access Control (MAC).",
+        answer: ["mandatory"],
+        explanation: "MAC is used in high-assurance systems such as those running SELinux or AppArmor."
+    },
+    {
+        chapter: "Chapter 4 – Access Control Models",
+        text: "A model that assigns permissions to roles and then assigns users to those roles is called __________-Based Access Control (RBAC).",
+        answer: ["role"],
+        explanation: "RBAC simplifies administration in large organisations by grouping privileges into roles."
+    },
+    {
+        chapter: "Chapter 4 – Access Control Models",
+        text: "The formal confidentiality model that enforces “no read up, no write down” is the __________-LaPadula model.",
+        answer: ["bell"],
+        explanation: "Bell-LaPadula is the classic multilevel security model used to protect confidentiality in military-style systems."
+    },
+    {
+        chapter: "Chapter 4 – Access Control Models",
+        text: "The security model that prevents conflicts of interest by restricting access based on previous accesses is the __________ Wall model.",
+        answer: ["chinese"],
+        explanation: "The Chinese Wall (Brewer-Nash) model dynamically builds walls so that a consultant who has seen one company’s data cannot later access a competitor’s data."
+    },
+
+    // ========== CHAPTER 5: Process & Memory Protection (19–23) ==========
+    {
+        chapter: "Chapter 5 – Process & Memory Protection",
+        text: "A technique that randomises the locations of the stack, heap, libraries and executable to make exploitation harder is called Address Space Layout __________ (ASLR).",
+        answer: ["randomization", "randomisation"],
+        explanation: "ASLR frustrates attacks that rely on knowing exact memory addresses (e.g. classic buffer-overflow exploits and ROP chains)."
+    },
+    {
+        chapter: "Chapter 5 – Process & Memory Protection",
+        text: "A hardware/software feature that marks memory pages as non-executable so that data cannot be run as code is called Data Execution __________ (DEP).",
+        answer: ["prevention"],
+        explanation: "DEP (also known as the NX bit) stops many classic attacks that inject shellcode into the stack or heap."
+    },
+    {
+        chapter: "Chapter 5 – Process & Memory Protection",
+        text: "A vulnerability that occurs when a program writes more data into a buffer than it can hold is called a buffer __________.",
+        answer: ["overflow"],
+        explanation: "Buffer overflows can overwrite adjacent memory (including return addresses) and potentially allow arbitrary code execution."
+    },
+    {
+        chapter: "Chapter 5 – Process & Memory Protection",
+        text: "Special secret values placed on the stack that are checked before a function returns to detect stack-smashing attacks are called stack __________.",
+        answer: ["canaries"],
+        explanation: "Stack canaries provide an early detection mechanism for many sequential stack-based buffer overflows."
+    },
+    {
+        chapter: "Chapter 5 – Process & Memory Protection",
+        text: "Preventing one process from reading or writing the memory of another process without authorisation is known as process __________.",
+        answer: ["isolation"],
+        explanation: "Process isolation is achieved primarily through virtual memory and hardware protection rings."
+    },
+
+    // ========== CHAPTER 6: File System Security (24–27) ==========
+    {
+        chapter: "Chapter 6 – File System Security",
+        text: "The standard Linux specification for full-disk and partition encryption is called __________ (Linux Unified Key Setup).",
+        answer: ["luks"],
+        explanation: "LUKS provides a standard on-disk format supporting multiple passphrases and key slots for encrypted volumes."
+    },
+    {
+        chapter: "Chapter 6 – File System Security",
+        text: "The Windows feature that provides transparent per-file or per-directory encryption tied to user certificates is called __________ (Encrypting File System).",
+        answer: ["efs"],
+        explanation: "EFS allows individual files or folders to be encrypted so that only authorised users can decrypt them."
+    },
+    {
+        chapter: "Chapter 6 – File System Security",
+        text: "Recording events is called logging; the systematic examination of those records for security-relevant activity is called __________.",
+        answer: ["auditing"],
+        explanation: "Logging produces the raw records; auditing is the review and analysis of those records to detect violations or support investigations."
+    },
+    {
+        chapter: "Chapter 6 – File System Security",
+        text: "Techniques that overwrite data so it cannot be recovered by forensic tools are known as __________ deletion.",
+        answer: ["secure"],
+        explanation: "Ordinary deletion only removes directory entries; secure deletion overwrites the actual data blocks."
+    },
+
+    // ========== CHAPTER 7: Malware & OS Threats (28–31) ==========
+    {
+        chapter: "Chapter 7 – Malware & OS Threats",
+        text: "Malware that encrypts a victim’s data and demands payment for the decryption key is called __________.",
+        answer: ["ransomware"],
+        explanation: "Ransomware is primarily an availability (and integrity) attack that has become one of the most financially damaging forms of malware."
+    },
+    {
+        chapter: "Chapter 7 – Malware & OS Threats",
+        text: "Malware that hides its presence by modifying the OS kernel or critical system components is called a __________.",
+        answer: ["rootkit"],
+        explanation: "Rootkits can operate at user or kernel level and are specifically designed to remain undetected by ordinary tools."
+    },
+    {
+        chapter: "Chapter 7 – Malware & OS Threats",
+        text: "Legitimate OS tools (such as PowerShell or WMI) that attackers abuse so they do not need to introduce new malicious binaries are called __________ binaries (LOLBins).",
+        answer: ["living-off-the-land", "living off the land", "lolbins", "lolbin"],
+        explanation: "Living-off-the-land techniques make detection harder because the binaries used are required for normal administration."
+    },
+    {
+        chapter: "Chapter 7 – Malware & OS Threats",
+        text: "Methods used by malware to survive reboots (registry run keys, scheduled tasks, services, etc.) are called __________ techniques.",
+        answer: ["persistence"],
+        explanation: "Understanding common persistence locations is essential for both detection and complete eradication of malware."
+    },
+
+    // ========== CHAPTER 8: Privilege Escalation (32–35) ==========
+    {
+        chapter: "Chapter 8 – Privilege Escalation",
+        text: "Gaining higher privileges than those originally assigned (e.g. ordinary user → administrator/root) is called __________ privilege escalation.",
+        answer: ["vertical"],
+        explanation: "Vertical escalation is usually the attacker’s primary goal after obtaining initial access."
+    },
+    {
+        chapter: "Chapter 8 – Privilege Escalation",
+        text: "Gaining access to resources belonging to another user who has the same privilege level is called __________ privilege escalation.",
+        answer: ["horizontal"],
+        explanation: "Horizontal escalation can still expose sensitive data even without obtaining administrative rights."
+    },
+    {
+        chapter: "Chapter 8 – Privilege Escalation",
+        text: "The critical Windows Print Spooler vulnerability (CVE-2021-34527) that allowed remote code execution and privilege escalation is commonly known as __________.",
+        answer: ["printnightmare", "print nightmare"],
+        explanation: "PrintNightmare demonstrated how a widely deployed privileged service can become a high-value attack target."
+    },
+    {
+        chapter: "Chapter 8 – Privilege Escalation",
+        text: "On Windows, stealing or impersonating a privileged process’s access token is a classic technique known as token __________.",
+        answer: ["theft", "impersonation"],
+        explanation: "Token theft/impersonation allows an attacker to create new processes that inherit the stolen privileges."
+    },
+
+    // ========== CHAPTER 9: System Hardening (36–39) ==========
+    {
+        chapter: "Chapter 9 – System Hardening",
+        text: "The process of configuring a system to reduce its attack surface and make exploitation more difficult is called system __________.",
+        answer: ["hardening"],
+        explanation: "Hardening includes patching, removing unnecessary services, enforcing least privilege, enabling logging and applying security baselines."
+    },
+    {
+        chapter: "Chapter 9 – System Hardening",
+        text: "Consensus-based, evidence-based sets of secure configuration settings published by the Center for Internet Security are called CIS __________.",
+        answer: ["benchmarks"],
+        explanation: "CIS Benchmarks provide Level 1 (practical) and Level 2 (high-security) recommendations that organisations can measure themselves against."
+    },
+    {
+        chapter: "Chapter 9 – System Hardening",
+        text: "The practice of identifying, testing and applying security updates in a timely manner is called __________ management.",
+        answer: ["patch"],
+        explanation: "Unpatched vulnerabilities remain one of the most common causes of successful attacks."
+    },
+    {
+        chapter: "Chapter 9 – System Hardening",
+        text: "A firmware feature that verifies the digital signature of the bootloader and OS kernel before allowing them to run is called __________ Boot.",
+        answer: ["secure"],
+        explanation: "Secure Boot helps prevent bootkits and other pre-OS malware by establishing a chain of trust from the firmware."
+    },
+
+    // ========== CHAPTER 10: Virtualization & Containers (40–43) ==========
+    {
+        chapter: "Chapter 10 – Virtualization & Containers",
+        text: "Software (or hardware) that creates and runs virtual machines, providing isolation between guest operating systems, is called a __________.",
+        answer: ["hypervisor"],
+        explanation: "Type-1 (bare-metal) and Type-2 (hosted) hypervisors form the foundation of server virtualization."
+    },
+    {
+        chapter: "Chapter 10 – Virtualization & Containers",
+        text: "Lightweight isolation that uses namespaces, cgroups and optionally seccomp/AppArmor/SELinux profiles (instead of a full guest OS) is called __________.",
+        answer: ["containerization", "containerisation", "containers"],
+        explanation: "Containers share the host kernel; therefore kernel vulnerabilities can affect all containers on the host."
+    },
+    {
+        chapter: "Chapter 10 – Virtualization & Containers",
+        text: "An attack that allows code running inside a virtual machine to break out and execute on the host is called a hypervisor __________.",
+        answer: ["escape"],
+        explanation: "Hypervisor escapes are rare but extremely high impact because they defeat the fundamental isolation model of virtualization."
+    },
+    {
+        chapter: "Chapter 10 – Virtualization & Containers",
+        text: "In cloud computing, the division of security duties between the provider (security of the cloud) and the customer (security in the cloud) is called the __________-responsibility model.",
+        answer: ["shared"],
+        explanation: "Misunderstanding the shared-responsibility model is a common source of cloud security failures."
+    },
+
+    // ========== CHAPTER 11: Logs & Audit Trails (44–46) ==========
+    {
+        chapter: "Chapter 11 – Logs & Audit Trails",
+        text: "A system that detects suspicious activity and generates alerts is called an Intrusion __________ System (IDS).",
+        answer: ["detection"],
+        explanation: "An IDS detects and alerts; an IPS (Intrusion Prevention System) can also take automated blocking action."
+    },
+    {
+        chapter: "Chapter 11 – Logs & Audit Trails",
+        text: "The standard incident-response lifecycle includes Preparation, Identification, Containment, Eradication, Recovery and __________ learned.",
+        answer: ["lessons"],
+        explanation: "The final “lessons learned” phase feeds improvements back into prevention and preparation."
+    },
+    {
+        chapter: "Chapter 11 – Logs & Audit Trails",
+        text: "Sending logs from many systems to a single collector or SIEM so they can be correlated and protected from local tampering is called __________ logging.",
+        answer: ["centralized", "centralised"],
+        explanation: "Centralised logging protects evidence from an attacker who has compromised a single host and enables multi-host correlation."
+    },
+
+    // ========== CHAPTER 12: Forensics Basics (47–48) ==========
+    {
+        chapter: "Chapter 12 – Forensics Basics",
+        text: "A documented, unbroken record of every person who handled evidence and every action performed on it is called the chain of __________.",
+        answer: ["custody"],
+        explanation: "Without a proper chain of custody, evidence may be challenged or ruled inadmissible in legal proceedings."
+    },
+    {
+        chapter: "Chapter 12 – Forensics Basics",
+        text: "Evidence that exists only while the system is powered on (RAM contents, network connections, running processes) is called __________ evidence.",
+        answer: ["volatile"],
+        explanation: "Volatile evidence disappears on power-off, so it must be collected first according to the order of volatility."
+    },
+
+    // ========== CHAPTER 13: Advanced Topics (49–50) ==========
+    {
+        chapter: "Chapter 13 – Advanced Topics",
+        text: "A hardware chip that provides a root of trust for cryptographic keys and boot measurements is called a Trusted Platform __________ (TPM).",
+        answer: ["module"],
+        explanation: "A TPM can store keys and measurements in a way that is resistant to software-only attacks, supporting Secure Boot, measured boot and disk encryption."
+    },
+    {
+        chapter: "Chapter 13 – Advanced Topics",
+        text: "A formal, machine-readable inventory of all components and dependencies in a software product, used to manage supply-chain risk, is called a Software Bill of __________ (SBOM).",
+        answer: ["materials"],
+        explanation: "SBOMs help organisations quickly determine whether they are affected by a newly disclosed vulnerability in any dependency."
+    }
+];
+
+let score = 0;
+let answered = new Array(questions.length).fill(false);
+
+function normalize(str) {
+    return str.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+function checkAnswer(idx) {
+    if (answered[idx]) return;
+    const input = document.getElementById("input-" + idx);
+    const userAns = normalize(input.value);
+    if (!userAns) return;
+
+    const accepted = questions[idx].answer.map(normalize);
+    const isCorrect = accepted.some(a => userAns === a || userAns.includes(a) || a.includes(userAns));
+
+    answered[idx] = true;
+    input.disabled = true;
+    document.getElementById("btn-" + idx).disabled = true;
+
+    if (isCorrect) {
+        input.classList.add("correct");
+        score++;
+    } else {
+        input.classList.add("wrong");
+    }
+
+    const expl = document.getElementById("expl-" + idx);
+    expl.innerHTML = `<strong>Correct answer:</strong> <span class="answer-reveal">${questions[idx].answer[0]}</span><br><strong>Explanation:</strong> ${questions[idx].explanation}`;
+    expl.classList.add("show");
+
+    updateScore();
+}
+
+function checkAll() {
+    questions.forEach((_, idx) => {
+        if (!answered[idx]) {
+            const input = document.getElementById("input-" + idx);
+            if (input.value.trim()) checkAnswer(idx);
+        }
+    });
+}
+
+function updateScore() {
+    document.getElementById("scoreDisplay").innerText = `Score: ${score} / ${questions.length}`;
+    const done = answered.filter(Boolean).length;
+    document.getElementById("progressBar").style.width = `${(done / questions.length) * 100}%`;
+}
+
+function renderQuiz() {
+    const container = document.getElementById("questionsContainer");
+    container.innerHTML = "";
+    questions.forEach((q, idx) => {
+        const card = document.createElement("div");
+        card.className = "question-card";
+        // Replace __________ with an input field
+        const htmlText = q.text.replace(/_{3,}/g, 
+            `<input type="text" class="blank-input" id="input-${idx}" autocomplete="off" spellcheck="false" ${answered[idx] ? "disabled" : ""}>`
+        );
+        card.innerHTML = `
+            <div class="chapter-tag">${q.chapter}</div>
+            <div class="question-meta">Question ${idx + 1} of ${questions.length}</div>
+            <div class="question-title">${htmlText}</div>
+            <button class="check-btn" id="btn-${idx}" onclick="checkAnswer(${idx})" ${answered[idx] ? "disabled" : ""}>Check Answer</button>
+            <div class="explanation" id="expl-${idx}"></div>
+        `;
+        container.appendChild(card);
+
+        // Allow Enter key to submit
+        const inp = document.getElementById("input-" + idx);
+        if (inp && !answered[idx]) {
+            inp.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") checkAnswer(idx);
+            });
+        }
+    });
+    updateScore();
+}
+
+function resetQuiz() {
+    score = 0;
+    answered = new Array(questions.length).fill(false);
+    renderQuiz();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+renderQuiz();
+</script>
+</body>
+</html>
