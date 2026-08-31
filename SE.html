@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SE.html - Software Engineering ICT353 Interactive Quiz</title>
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --success: #22c55e;
+            --error: #ef4444;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --option-bg: #0f172a;
+            --hover-bg: #1e3a5f;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+        }
+        header {
+            background: linear-gradient(135deg, #0f172a, #1e3a8a);
+            color: white;
+            padding: 24px 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            border-bottom: 1px solid var(--border);
+        }
+        header h1 {
+            margin: 0 0 8px 0;
+            font-size: 1.75rem;
+        }
+        header p {
+            margin: 0;
+            color: #94a3b8;
+            font-size: 0.95rem;
+        }
+        .container {
+            max-width: 920px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        .module-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 30px;
+            background: var(--card-bg);
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+        }
+        .module-btn {
+            background: #334155;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #cbd5e1;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+        .module-btn:hover {
+            background: #475569;
+            color: white;
+        }
+        .module-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: var(--card-bg);
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .score-display {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        .question-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+        }
+        .question-meta {
+            font-size: 0.8em;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .question-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 18px;
+            color: #f1f5f9;
+        }
+        .options-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            gap: 12px;
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 14px 18px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: var(--option-bg);
+            color: var(--text);
+            cursor: pointer;
+            font-size: 0.98em;
+            transition: all 0.2s;
+        }
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--primary);
+            background: var(--hover-bg);
+        }
+        .option-btn.correct {
+            background-color: var(--success) !important;
+            color: white;
+            border-color: var(--success);
+        }
+        .option-btn.wrong {
+            background-color: var(--error) !important;
+            color: white;
+            border-color: var(--error);
+        }
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.95;
+        }
+        .explanation {
+            margin-top: 16px;
+            padding: 14px 16px;
+            border-radius: 8px;
+            background: #0c4a6e;
+            border-left: 4px solid var(--primary);
+            color: #e0f2fe;
+            font-size: 0.95em;
+            display: none;
+        }
+        .explanation.show {
+            display: block;
+        }
+        .explanation strong {
+            color: #7dd3fc;
+        }
+        .navigation-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            margin-bottom: 50px;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .nav-action-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .nav-action-btn:hover:not(:disabled) {
+            background: var(--primary-dark);
+        }
+        .nav-action-btn:disabled {
+            background: #475569;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        @media (max-width: 600px) {
+            header h1 { font-size: 1.35rem; }
+            .quiz-header { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Software Engineering ICT353 – Interactive Quiz</h1>
+    <p>10 Modules · 50 Questions · Instant Marking & Explanations · Dark Theme</p>
+</header>
+<div class="container">
+    <div class="module-nav" id="moduleNav"></div>
+    <div class="quiz-header">
+        <h2 id="moduleTitle" style="margin: 0;">Module 1</h2>
+        <div class="score-display" id="scoreDisplay">Module Score: 0 / 5</div>
+    </div>
+    <div id="questionsContainer"></div>
+    <div class="navigation-footer">
+        <button class="nav-action-btn" id="prevModuleBtn" onclick="changeModule(-1)">Previous Module</button>
+        <button class="nav-action-btn" id="nextModuleBtn" onclick="changeModule(1)">Next Module</button>
+    </div>
+</div>
+<script>
+const modulesData = [
+    {
+        moduleNumber: 1,
+        title: "Module 1: Introduction to Software Engineering",
+        questions: [
+            {
+                id: 1,
+                text: "What primarily distinguishes Software Engineering from simple programming?",
+                options: [
+                    "Software Engineering focuses only on writing code quickly",
+                    "Software Engineering applies systematic, disciplined, and quantifiable approaches to the development, operation, and maintenance of software",
+                    "Programming always requires a full project team while Software Engineering does not",
+                    "Software Engineering ignores quality attributes and focuses solely on functionality"
+                ],
+                correct: 1,
+                explanation: "Software Engineering is defined as the application of a systematic, disciplined, quantifiable approach to the development, operation, and maintenance of software. It goes far beyond writing code to include processes, quality, ethics, and lifecycle management."
+            },
+            {
+                id: 2,
+                text: "Which of the following is a key software quality attribute?",
+                options: [
+                    "Code length",
+                    "Number of developers",
+                    "Reliability",
+                    "Programming language popularity"
+                ],
+                correct: 2,
+                explanation: "Reliability is a fundamental software quality attribute. Other important attributes include maintainability, usability, efficiency, portability, and security. Quality attributes describe how well the software performs its functions rather than just what functions it provides."
+            },
+            {
+                id: 3,
+                text: "The Software Development Life Cycle (SDLC) typically includes which sequence of high-level phases?",
+                options: [
+                    "Coding → Testing → Deployment only",
+                    "Requirements → Design → Implementation → Testing → Maintenance",
+                    "Marketing → Sales → Support",
+                    "Hardware selection → Networking → Installation"
+                ],
+                correct: 1,
+                explanation: "A classic SDLC includes requirements analysis, design, implementation (coding), testing, deployment, and maintenance. These phases provide a structured path from problem understanding to long-term system evolution."
+            },
+            {
+                id: 4,
+                text: "Ethical and professional responsibilities in software engineering include:",
+                options: [
+                    "Ignoring security vulnerabilities to meet deadlines",
+                    "Prioritizing personal profit over public safety",
+                    "Acting consistently with the public interest, honesty, and fairness",
+                    "Copying proprietary code without attribution when convenient"
+                ],
+                correct: 2,
+                explanation: "Professional codes of ethics (e.g., ACM/IEEE) emphasize that software engineers shall act consistently with the public interest, maintain integrity and independence, and treat colleagues and clients fairly. Public safety and honesty take precedence over expediency."
+            },
+            {
+                id: 5,
+                text: "Why is Software Engineering considered essential for large-scale systems?",
+                options: [
+                    "Because small programs never need testing",
+                    "Because complexity, team coordination, quality, and long-term maintenance require systematic methods",
+                    "Because only large systems use programming languages",
+                    "Because hardware is more important than software processes"
+                ],
+                correct: 1,
+                explanation: "As systems grow in size and complexity, ad-hoc programming becomes insufficient. Software Engineering provides processes, tools, and practices that manage complexity, enable team collaboration, ensure quality, and support maintenance over the system’s lifetime."
+            }
+        ]
+    },
+    {
+        moduleNumber: 2,
+        title: "Module 2: Software Process Models",
+        questions: [
+            {
+                id: 1,
+                text: "Which process model is characterized by sequential phases where each phase must be completed before the next begins?",
+                options: [
+                    "Scrum",
+                    "Spiral",
+                    "Waterfall",
+                    "Kanban"
+                ],
+                correct: 2,
+                explanation: "The Waterfall model is a linear, sequential approach. Progress flows steadily downward through phases (requirements, design, implementation, verification, maintenance). It works best when requirements are well-understood and unlikely to change significantly."
+            },
+            {
+                id: 2,
+                text: "The Spiral model is especially suitable for projects that:",
+                options: [
+                    "Have fixed, unchanging requirements and a short timeline",
+                    "Require heavy emphasis on risk analysis and iterative refinement",
+                    "Are purely research prototypes with no delivery expectation",
+                    "Avoid any documentation or planning"
+                ],
+                correct: 1,
+                explanation: "The Spiral model combines iterative development with systematic risk assessment. Each loop of the spiral involves planning, risk analysis, engineering, and evaluation, making it appropriate for large, high-risk projects."
+            },
+            {
+                id: 3,
+                text: "In Scrum, what is the typical duration of a Sprint?",
+                options: [
+                    "One year",
+                    "One to four weeks",
+                    "Exactly six months",
+                    "Until the product is fully complete"
+                ],
+                correct: 1,
+                explanation: "Scrum Sprints are time-boxed iterations usually lasting 1–4 weeks (commonly 2 weeks). At the end of each Sprint a potentially shippable product increment is delivered and the team inspects and adapts."
+            },
+            {
+                id: 4,
+                text: "CI/CD pipelines are most closely associated with which modern approach?",
+                options: [
+                    "Pure Waterfall with no automation",
+                    "DevOps practices that integrate development and operations through continuous integration and delivery",
+                    "Manual testing only after full system completion",
+                    "Ignoring version control"
+                ],
+                correct: 1,
+                explanation: "Continuous Integration / Continuous Delivery (or Deployment) is a core DevOps practice. Code changes are automatically built, tested, and prepared for release, enabling frequent, reliable software delivery."
+            },
+            {
+                id: 5,
+                text: "When would an Agile approach generally be preferred over a pure Waterfall approach?",
+                options: [
+                    "When requirements are stable, well-documented, and the technology is proven",
+                    "When requirements are expected to evolve and early customer feedback is valuable",
+                    "When the project has no stakeholders",
+                    "When the team refuses to collaborate"
+                ],
+                correct: 1,
+                explanation: "Agile methods thrive in environments of uncertainty and change. Frequent feedback, working software, and adaptive planning allow teams to respond to evolving requirements more effectively than a rigid sequential model."
+            }
+        ]
+    },
+    {
+        moduleNumber: 3,
+        title: "Module 3: Requirements Engineering",
+        questions: [
+            {
+                id: 1,
+                text: "What is the primary purpose of a Software Requirements Specification (SRS) document?",
+                options: [
+                    "To list the names of all developers",
+                    "To provide a complete, consistent, and unambiguous description of the software to be built",
+                    "To replace the need for testing",
+                    "To document only the marketing strategy"
+                ],
+                correct: 1,
+                explanation: "An SRS serves as the official agreement between stakeholders and the development team. It describes functional and non-functional requirements clearly so that design, implementation, and verification can proceed against a shared understanding."
+            },
+            {
+                id: 2,
+                text: "Which of the following is an example of a non-functional requirement?",
+                options: [
+                    "The system shall allow users to reset their password",
+                    "The system shall respond to search queries within 2 seconds under normal load",
+                    "The system shall display a user’s order history",
+                    "The system shall send an email confirmation after purchase"
+                ],
+                correct: 1,
+                explanation: "Non-functional requirements specify quality attributes or constraints (performance, security, usability, reliability, etc.). Response-time constraints are classic non-functional requirements, whereas the other options describe functional behavior."
+            },
+            {
+                id: 3,
+                text: "Use cases and user stories are primarily used for:",
+                options: [
+                    "Writing low-level machine code",
+                    "Capturing and communicating functional requirements from a user’s perspective",
+                    "Measuring network latency",
+                    "Selecting hardware vendors"
+                ],
+                correct: 1,
+                explanation: "Both use cases (more formal) and user stories (lightweight, agile) describe interactions between actors and the system. They help elicit, document, and validate functional requirements in a stakeholder-friendly form."
+            },
+            {
+                id: 4,
+                text: "Which technique is commonly used for requirements elicitation?",
+                options: [
+                    "Ignoring stakeholders completely",
+                    "Interviews, workshops, observation, and prototyping",
+                    "Only reading existing source code",
+                    "Random guessing of features"
+                ],
+                correct: 1,
+                explanation: "Effective elicitation employs multiple techniques: structured and unstructured interviews, joint application design workshops, observation of current processes, questionnaires, and throwaway or evolutionary prototypes."
+            },
+            {
+                id: 5,
+                text: "Functional requirements describe:",
+                options: [
+                    "How fast the system must run",
+                    "What the system should do (behavior and features)",
+                    "The preferred programming language",
+                    "The color scheme of the user interface only"
+                ],
+                correct: 1,
+                explanation: "Functional requirements specify the services, behaviors, and functions the system must provide. They answer “what” the system does, while non-functional requirements answer “how well” or under what constraints."
+            }
+        ]
+    },
+    {
+        moduleNumber: 4,
+        title: "Module 4: Unified Modeling Language (UML) and System Modeling",
+        questions: [
+            {
+                id: 1,
+                text: "UML diagrams are broadly classified into which two categories?",
+                options: [
+                    "Static and Dynamic only in hardware",
+                    "Structural and Behavioral",
+                    "Functional and Non-functional",
+                    "Sequential and Parallel code"
+                ],
+                correct: 1,
+                explanation: "UML organizes diagrams into structural diagrams (showing static structure: Class, Component, Deployment, etc.) and behavioral diagrams (showing dynamic behavior: Use Case, Sequence, Activity, State, etc.)."
+            },
+            {
+                id: 2,
+                text: "A Use Case diagram primarily shows:",
+                options: [
+                    "Detailed algorithm steps inside a method",
+                    "Actors and the system functions they interact with",
+                    "Memory allocation patterns",
+                    "Database table indexes"
+                ],
+                correct: 1,
+                explanation: "Use Case diagrams capture the functional requirements by illustrating actors (users or external systems) and the use cases (goals) they achieve through interaction with the system under consideration."
+            },
+            {
+                id: 3,
+                text: "Which UML diagram is best suited for modeling the order of messages exchanged between objects over time?",
+                options: [
+                    "Class diagram",
+                    "Sequence diagram",
+                    "Package diagram",
+                    "Deployment diagram"
+                ],
+                correct: 1,
+                explanation: "Sequence diagrams are interaction diagrams that emphasize the time ordering of messages. Lifelines represent objects/participants and vertical arrows show the sequence of method calls or messages."
+            },
+            {
+                id: 4,
+                text: "A Class diagram is an example of a:",
+                options: [
+                    "Behavioral diagram",
+                    "Structural diagram",
+                    "Deployment-only diagram",
+                    "Test-case diagram"
+                ],
+                correct: 1,
+                explanation: "Class diagrams belong to the structural category. They show classes, their attributes, operations, and the static relationships (association, inheritance, dependency, etc.) among them."
+            },
+            {
+                id: 5,
+                text: "Activity diagrams are particularly useful for modeling:",
+                options: [
+                    "Only the physical hardware layout",
+                    "Workflows, business processes, and parallel or alternative flows of control",
+                    "Exact memory addresses of variables",
+                    "Compiler optimization passes"
+                ],
+                correct: 1,
+                explanation: "Activity diagrams visualize the flow of control from activity to activity. They support decision points, parallel paths (fork/join), and are excellent for describing business processes or complex algorithms at a high level."
+            }
+        ]
+    },
+    {
+        moduleNumber: 5,
+        title: "Module 5: Software Design Principles and Architecture",
+        questions: [
+            {
+                id: 1,
+                text: "The SOLID principles are a set of guidelines primarily aimed at:",
+                options: [
+                    "Making code as short as possible regardless of clarity",
+                    "Creating maintainable, flexible, and understandable object-oriented designs",
+                    "Avoiding the use of any design patterns",
+                    "Writing only procedural code"
+                ],
+                correct: 1,
+                explanation: "SOLID (Single responsibility, Open-closed, Liskov substitution, Interface segregation, Dependency inversion) helps designers create systems that are easier to extend, test, and maintain over time."
+            },
+            {
+                id: 2,
+                text: "What does the DRY principle stand for?",
+                options: [
+                    "Do Repeat Yourself",
+                    "Don't Repeat Yourself",
+                    "Design Rapidly Yearly",
+                    "Deploy Runtime Yesterday"
+                ],
+                correct: 1,
+                explanation: "Don't Repeat Yourself advises that every piece of knowledge or logic should have a single, unambiguous representation within a system. Duplication increases maintenance cost and the risk of inconsistency."
+            },
+            {
+                id: 3,
+                text: "MVC is an architectural pattern that separates:",
+                options: [
+                    "Hardware, firmware, and software",
+                    "Model (data/logic), View (presentation), and Controller (input handling)",
+                    "Only the database from the network",
+                    "Testing from deployment"
+                ],
+                correct: 1,
+                explanation: "Model-View-Controller separates concerns: the Model manages data and business rules, the View renders the user interface, and the Controller handles user input and coordinates Model and View updates."
+            },
+            {
+                id: 4,
+                text: "Microservices architecture is characterized by:",
+                options: [
+                    "A single monolithic codebase that must be deployed as one unit",
+                    "Independently deployable services that communicate over a network, each focused on a business capability",
+                    "No use of APIs whatsoever",
+                    "Running everything inside a single process only"
+                ],
+                correct: 1,
+                explanation: "Microservices structure an application as a collection of loosely coupled, independently deployable services. Each service owns its data and can be developed, scaled, and updated separately."
+            },
+            {
+                id: 5,
+                text: "The KISS principle encourages designers to:",
+                options: [
+                    "Keep It Super Sophisticated",
+                    "Keep It Simple, Stupid – favor simplicity and avoid unnecessary complexity",
+                    "Keep Ignoring Security Standards",
+                    "Keep Implementing Spaghetti Structures"
+                ],
+                correct: 1,
+                explanation: "KISS reminds engineers that most systems work best when they are kept simple rather than made complicated. Unnecessary complexity is a major source of defects and maintenance burden."
+            }
+        ]
+    },
+    {
+        moduleNumber: 6,
+        title: "Module 6: Software Construction and Development",
+        questions: [
+            {
+                id: 1,
+                text: "Version control systems such as Git primarily help teams:",
+                options: [
+                    "Avoid writing any documentation",
+                    "Track changes, collaborate, manage branches, and recover previous versions of code",
+                    "Replace the need for testing",
+                    "Automatically generate user interfaces"
+                ],
+                correct: 1,
+                explanation: "Git (and similar systems) records the history of every change, supports parallel development through branching and merging, enables code reviews, and provides a safety net for recovering earlier states."
+            },
+            {
+                id: 2,
+                text: "Code reviews are valuable because they:",
+                options: [
+                    "Slow the team down with no quality benefit",
+                    "Help detect defects early, spread knowledge, and improve code quality and consistency",
+                    "Are only useful for junior developers",
+                    "Replace automated testing completely"
+                ],
+                correct: 1,
+                explanation: "Peer review catches bugs, design issues, and style violations before code reaches production. It also transfers knowledge across the team and reinforces coding standards."
+            },
+            {
+                id: 3,
+                text: "Refactoring means:",
+                options: [
+                    "Rewriting the entire system from scratch every month",
+                    "Improving the internal structure of code without changing its external behavior",
+                    "Adding as many new features as possible in one commit",
+                    "Deleting all comments from the source"
+                ],
+                correct: 1,
+                explanation: "Refactoring is a disciplined technique for restructuring existing code, improving readability, reducing complexity, and removing technical debt while preserving observable behavior."
+            },
+            {
+                id: 4,
+                text: "Clean code is characterized by:",
+                options: [
+                    "Being as cryptic as possible to protect intellectual property",
+                    "Readability, meaningful names, small focused functions, and minimal unnecessary complexity",
+                    "Maximum nesting depth and global variables",
+                    "Ignoring all coding standards"
+                ],
+                correct: 1,
+                explanation: "Clean code is easy for humans to understand and modify. Practices include intention-revealing names, short functions that do one thing, clear structure, and avoidance of duplication and cleverness that obscures intent."
+            },
+            {
+                id: 5,
+                text: "Build tools (e.g., Maven, Gradle, Make, npm scripts) are used to:",
+                options: [
+                    "Only write unit tests",
+                    "Automate compilation, dependency management, packaging, and other repetitive construction tasks",
+                    "Replace version control",
+                    "Design user interfaces graphically"
+                ],
+                correct: 1,
+                explanation: "Build automation tools standardize and accelerate the process of turning source code into runnable artifacts, managing libraries, running tests, and preparing deployable packages."
+            }
+        ]
+    },
+    {
+        moduleNumber: 7,
+        title: "Module 7: Software Testing and Quality Assurance",
+        questions: [
+            {
+                id: 1,
+                text: "Which testing level focuses on verifying individual functions or methods in isolation?",
+                options: [
+                    "System testing",
+                    "Acceptance testing",
+                    "Unit testing",
+                    "Load testing"
+                ],
+                correct: 2,
+                explanation: "Unit testing examines the smallest testable parts of an application (functions, methods, classes) in isolation, usually with the help of mocks or stubs for dependencies."
+            },
+            {
+                id: 2,
+                text: "Test-Driven Development (TDD) follows which cycle?",
+                options: [
+                    "Code first, then write tests if time permits",
+                    "Red (write a failing test) → Green (make it pass) → Refactor",
+                    "Deploy first, test in production only",
+                    "Write documentation after the product is finished"
+                ],
+                correct: 1,
+                explanation: "TDD’s short cycle is: write a failing automated test (Red), write the minimal code to make the test pass (Green), then improve the design while keeping tests green (Refactor). This produces a comprehensive regression suite and better design."
+            },
+            {
+                id: 3,
+                text: "Black-box testing primarily examines:",
+                options: [
+                    "The internal source code structure and paths",
+                    "The system’s behavior against requirements without knowledge of internal implementation",
+                    "Only the database schema",
+                    "Compiler warnings"
+                ],
+                correct: 1,
+                explanation: "Black-box (specification-based) testing treats the software as a black box. Testers design cases based on requirements, inputs, and expected outputs without looking at the code."
+            },
+            {
+                id: 4,
+                text: "The main goal of quality assurance (QA) activities is to:",
+                options: [
+                    "Find as many defects as possible after release",
+                    "Build quality into the process so that defects are prevented or detected early",
+                    "Replace developers with testers",
+                    "Ensure the product looks visually appealing only"
+                ],
+                correct: 1,
+                explanation: "QA is process-oriented and focuses on preventing defects through standards, reviews, process improvement, and early verification, whereas testing is product-oriented and aims to detect remaining defects."
+            },
+            {
+                id: 5,
+                text: "Regression testing is performed to:",
+                options: [
+                    "Test only brand-new features for the first time",
+                    "Ensure that recent changes have not introduced new defects into previously working functionality",
+                    "Measure network bandwidth",
+                    "Validate the user interface color palette"
+                ],
+                correct: 1,
+                explanation: "Whenever code is modified (bug fixes, enhancements, refactoring), regression tests re-execute relevant existing test cases to confirm that previously correct behavior still holds."
+            }
+        ]
+    },
+    {
+        moduleNumber: 8,
+        title: "Module 8: Software Maintenance and Evolution",
+        questions: [
+            {
+                id: 1,
+                text: "Which type of maintenance corrects discovered defects after the software is in production?",
+                options: [
+                    "Perfective maintenance",
+                    "Adaptive maintenance",
+                    "Corrective maintenance",
+                    "Preventive maintenance"
+                ],
+                correct: 2,
+                explanation: "Corrective maintenance fixes faults that have been reported by users or discovered in production. Adaptive changes the system for new environments, perfective adds or improves features, and preventive improves maintainability."
+            },
+            {
+                id: 2,
+                text: "Technical debt refers to:",
+                options: [
+                    "Money owed to hardware vendors",
+                    "The implied cost of additional rework caused by choosing an easy but limited solution now instead of a better approach",
+                    "Interest payments on software licenses",
+                    "The number of open bug tickets only"
+                ],
+                correct: 1,
+                explanation: "Technical debt is a metaphor for the future cost incurred when teams take shortcuts (poor design, missing tests, rushed code). Like financial debt, it accumulates “interest” in the form of slower future development."
+            },
+            {
+                id: 3,
+                text: "Legacy systems are typically characterized by:",
+                options: [
+                    "Being written exclusively in the newest languages and frameworks",
+                    "Older technology, critical business value, limited documentation, and high change risk",
+                    "Having no users left",
+                    "Automatic self-updating with zero maintenance"
+                ],
+                correct: 1,
+                explanation: "Legacy systems often run core business functions, were built with older technologies, may lack modern documentation or test suites, and therefore require careful strategies (wrapping, reengineering, migration) when change is needed."
+            },
+            {
+                id: 4,
+                text: "Reverse engineering in the context of software maintenance means:",
+                options: [
+                    "Deleting all source code",
+                    "Analyzing an existing system to recover its design, architecture, or requirements",
+                    "Writing code in reverse order of the alphabet",
+                    "Only performance tuning"
+                ],
+                correct: 1,
+                explanation: "Reverse engineering examines an existing artifact (binary, source, or documentation) to extract higher-level information such as architecture, design decisions, or data models, often as a precursor to reengineering or migration."
+            },
+            {
+                id: 5,
+                text: "Software reengineering typically involves:",
+                options: [
+                    "Leaving the system completely unchanged",
+                    "Restructuring or rewriting parts of a system to improve quality while preserving functionality",
+                    "Only adding new marketing features",
+                    "Discarding all existing data"
+                ],
+                correct: 1,
+                explanation: "Reengineering improves an existing system’s internal quality (structure, performance, maintainability) or migrates it to a new platform without altering the essential functionality that users depend on."
+            }
+        ]
+    },
+    {
+        moduleNumber: 9,
+        title: "Module 9: Software Project Management and Collaboration",
+        questions: [
+            {
+                id: 1,
+                text: "In project management, the triple constraint (or iron triangle) traditionally consists of:",
+                options: [
+                    "Code, tests, and documentation",
+                    "Scope, Time, and Cost (with Quality often considered a fourth factor)",
+                    "Hardware, software, and network",
+                    "Developers, testers, and managers only"
+                ],
+                correct: 1,
+                explanation: "Scope, schedule (time), and budget (cost) form the classic project management triangle. Changing one factor usually affects the others; quality is frequently treated as a central or fourth dimension."
+            },
+            {
+                id: 2,
+                text: "Risk management in software projects involves:",
+                options: [
+                    "Ignoring all possible problems until they occur",
+                    "Identifying, analyzing, prioritizing, and planning responses to potential threats and opportunities",
+                    "Only buying insurance policies",
+                    "Avoiding any planning activities"
+                ],
+                correct: 1,
+                explanation: "Systematic risk management includes risk identification, qualitative and quantitative analysis, response planning (avoid, mitigate, transfer, accept), and ongoing monitoring throughout the project."
+            },
+            {
+                id: 3,
+                text: "Tools such as Jira and Trello are commonly used for:",
+                options: [
+                    "Compiling source code",
+                    "Tracking work items, managing backlogs, and supporting agile collaboration",
+                    "Designing database schemas exclusively",
+                    "Writing low-level device drivers"
+                ],
+                correct: 1,
+                explanation: "Issue-tracking and project-management tools help teams maintain product and sprint backlogs, visualize workflow (Kanban boards), assign work, and provide transparency into progress and impediments."
+            },
+            {
+                id: 4,
+                text: "In Scrum, the Product Owner is primarily responsible for:",
+                options: [
+                    "Writing all the code",
+                    "Maximizing the value of the product by managing the Product Backlog",
+                    "Facilitating the Daily Scrum only",
+                    "Deploying the system to production servers"
+                ],
+                correct: 1,
+                explanation: "The Product Owner owns the Product Backlog, prioritizes items according to business value, clarifies requirements, and ensures the development team works on the most valuable work."
+            },
+            {
+                id: 5,
+                text: "Effort and cost estimation techniques in software projects include:",
+                options: [
+                    "Only guessing a random number",
+                    "Expert judgment, analogy, parametric models (e.g., COCOMO), and story-point estimation",
+                    "Measuring the physical weight of the source code printout",
+                    "Counting the number of meetings held"
+                ],
+                correct: 1,
+                explanation: "Reliable estimation draws on historical data, expert opinion, analogy with similar projects, algorithmic models, and agile techniques such as Planning Poker with story points."
+            }
+        ]
+    },
+    {
+        moduleNumber: 10,
+        title: "Module 10: Software Configuration, Deployment, and Emerging Trends",
+        questions: [
+            {
+                id: 1,
+                text: "Software Configuration Management (SCM) is concerned with:",
+                options: [
+                    "Only the color of the user interface",
+                    "Identifying, controlling, and tracking changes to software artifacts throughout the lifecycle",
+                    "Hiring new developers",
+                    "Marketing the finished product"
+                ],
+                correct: 1,
+                explanation: "SCM establishes and maintains the integrity of work products. It includes version control, change control boards, baselining, and status accounting so that teams know what is in each release."
+            },
+            {
+                id: 2,
+                text: "Containerization technologies (e.g., Docker) primarily help by:",
+                options: [
+                    "Making source code unreadable",
+                    "Packaging an application and its dependencies into a portable, consistent runtime environment",
+                    "Replacing the need for any testing",
+                    "Eliminating the operating system"
+                ],
+                correct: 1,
+                explanation: "Containers encapsulate an application together with the libraries and configuration it needs, enabling consistent behavior across development, testing, and production environments and supporting microservices architectures."
+            },
+            {
+                id: 3,
+                text: "A typical CI/CD pipeline automates:",
+                options: [
+                    "Only the writing of requirements documents",
+                    "Building, testing, and deploying code changes so that software can be released frequently and reliably",
+                    "Manual code reviews exclusively",
+                    "Hardware manufacturing"
+                ],
+                correct: 1,
+                explanation: "Continuous Integration automatically builds and tests every change; Continuous Delivery/Deployment extends the pipeline to prepare or automatically release validated changes to production or staging environments."
+            },
+            {
+                id: 4,
+                text: "Which of the following is considered an emerging trend influencing modern software engineering?",
+                options: [
+                    "Abandoning all version control systems",
+                    "AI-assisted development, cloud-native architectures, IoT, and blockchain applications",
+                    "Returning exclusively to punch-card programming",
+                    "Eliminating all forms of testing"
+                ],
+                correct: 1,
+                explanation: "Contemporary software engineering is shaped by cloud computing, container orchestration, AI/ML tooling for code generation and testing, Internet of Things scale, blockchain for distributed trust, and heightened attention to ethics and security."
+            },
+            {
+                id: 5,
+                text: "Ethical considerations in modern software engineering include:",
+                options: [
+                    "Ignoring bias in AI systems and privacy concerns",
+                    "Addressing fairness, transparency, privacy, security, and the societal impact of software systems",
+                    "Maximizing data collection without user consent",
+                    "Prioritizing speed over all safety concerns"
+                ],
+                correct: 1,
+                explanation: "As software increasingly affects society (AI decisions, personal data, critical infrastructure), engineers must consider fairness, accountability, transparency, privacy, security, and long-term societal consequences alongside technical correctness."
+            }
+        ]
+    }
+];
+
+let currentModuleIndex = 0;
+let userScores = new Array(10).fill(0);
+let answeredState = Array.from({ length: 10 }, () => new Array(5).fill(false));
+let selectedAnswers = Array.from({ length: 10 }, () => new Array(5).fill(null));
+
+function initModuleNav() {
+    const nav = document.getElementById('moduleNav');
+    nav.innerHTML = '';
+    modulesData.forEach((mod, idx) => {
+        const btn = document.createElement('button');
+        btn.className = `module-btn ${idx === currentModuleIndex ? 'active' : ''}`;
+        btn.innerText = `Module ${idx + 1}`;
+        btn.onclick = () => selectModule(idx);
+        nav.appendChild(btn);
+    });
+}
+
+function selectModule(idx) {
+    currentModuleIndex = idx;
+    initModuleNav();
+    renderQuiz();
+}
+
+function renderQuiz() {
+    const mod = modulesData[currentModuleIndex];
+    document.getElementById('moduleTitle').innerText = mod.title;
+    
+    const currentScore = userScores[currentModuleIndex];
+    document.getElementById('scoreDisplay').innerText = `Module Score: ${currentScore} / 5`;
+    
+    const container = document.getElementById('questionsContainer');
+    container.innerHTML = '';
+    
+    mod.questions.forEach((q, qIdx) => {
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        
+        let optionsHTML = '';
+        q.options.forEach((opt, optIdx) => {
+            let btnClass = 'option-btn';
+            let isDisabled = answeredState[currentModuleIndex][qIdx];
+            
+            if (isDisabled) {
+                if (optIdx === q.correct) {
+                    btnClass += ' correct';
+                } else if (selectedAnswers[currentModuleIndex][qIdx] === optIdx) {
+                    btnClass += ' wrong';
+                }
+            }
+            optionsHTML += `<li><button class="${btnClass}" ${isDisabled ? 'disabled' : ''} onclick="handleAnswer(${qIdx}, ${optIdx})">${String.fromCharCode(65 + optIdx)}. ${opt}</button></li>`;
+        });
+        
+        const showExplanation = answeredState[currentModuleIndex][qIdx];
+        const explanationClass = showExplanation ? 'explanation show' : 'explanation';
+        
+        card.innerHTML = `
+            <div class="question-meta">Question ${q.id} of 5 · Module ${mod.moduleNumber}</div>
+            <div class="question-title">${q.text}</div>
+            <ul class="options-list">${optionsHTML}</ul>
+            <div class="${explanationClass}" id="expl-${currentModuleIndex}-${qIdx}">
+                <strong>Explanation:</strong> ${q.explanation}
+            </div>
+        `;
+        container.appendChild(card);
+    });
+    
+    document.getElementById('prevModuleBtn').disabled = currentModuleIndex === 0;
+    document.getElementById('nextModuleBtn').disabled = currentModuleIndex === modulesData.length - 1;
+}
+
+function handleAnswer(qIdx, optIdx) {
+    if (answeredState[currentModuleIndex][qIdx]) return;
+    
+    answeredState[currentModuleIndex][qIdx] = true;
+    selectedAnswers[currentModuleIndex][qIdx] = optIdx;
+    
+    const mod = modulesData[currentModuleIndex];
+    if (optIdx === mod.questions[qIdx].correct) {
+        userScores[currentModuleIndex]++;
+    }
+    
+    renderQuiz();
+}
+
+function changeModule(direction) {
+    const newIdx = currentModuleIndex + direction;
+    if (newIdx >= 0 && newIdx < modulesData.length) {
+        selectModule(newIdx);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
+// Initial load
+initModuleNav();
+renderQuiz();
+</script>
+</body>
+</html>
