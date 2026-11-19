@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cyber Warfare and Terrorism - Practice Quiz</title>
+<style>
+  :root {
+    --bg: #f2f5fa; --card: #ffffff; --ink: #16222e; --muted: #5c6c7c;
+    --accent: #1c5d99; --accent-dark: #0d3a60; --chip: #e8f1fa;
+    --good: #1d8a4e; --good-bg: #e9f7ee; --bad: #c0392b; --bad-bg: #fdecec;
+    --line: #d9e2ec;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  [hidden] { display: none !important; }
+  .wrap { max-width: 840px; margin: 0 auto; padding: clamp(14px, 3vw, 26px) clamp(14px, 3vw, 24px); }
+
+  header.site {
+    background: linear-gradient(135deg, var(--accent-dark), var(--accent));
+    color: #fff; padding: clamp(20px, 4vw, 36px) clamp(16px, 4vw, 32px);
+  }
+  header.site .wrap { padding-top: 0; padding-bottom: 0; }
+  header.site h1 {
+    margin: 0 0 6px; font-size: clamp(1.35rem, 4.5vw, 2rem); line-height: 1.2;
+  }
+  header.site p { margin: 0; color: #d7e6f5; font-size: clamp(0.9rem, 2.6vw, 1rem); }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: clamp(16px, 3vw, 26px); box-shadow: 0 1px 3px rgba(15, 40, 70, 0.08);
+    margin-bottom: 18px;
+  }
+  .card h2 { margin: 0 0 8px; font-size: clamp(1.05rem, 3vw, 1.25rem); }
+  .muted { color: var(--muted); }
+
+  /* start screen */
+  .how { margin: 0; padding-left: 1.2em; color: var(--muted); }
+  .how li { margin: 4px 0; }
+  .banner {
+    border-radius: 10px; padding: 12px 14px; margin: 0 0 16px; font-size: 0.95rem;
+  }
+  .banner.info { background: var(--chip); border: 1px solid #bcd6ee; }
+  .banner.pass { background: var(--good-bg); border: 1px solid #9fd8b6; color: #14532d; }
+  .banner.fail { background: var(--bad-bg); border: 1px solid #eeb4b4; color: #7f1d1d; }
+  .banner .btn { margin: 8px 8px 0 0; }
+  .note { color: var(--muted); font-size: 0.9rem; margin: 0 0 16px; }
+
+  .shuffle-row { display: flex; align-items: center; gap: 10px; margin: 0 0 16px; color: var(--muted); }
+  .shuffle-row input { width: 18px; height: 18px; }
+
+  #chapter-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+  .chapter-card {
+    text-align: left; background: var(--card); border: 1.5px solid var(--line);
+    border-radius: 14px; padding: 18px; cursor: pointer; font: inherit; color: inherit;
+    transition: border-color .15s, transform .15s, box-shadow .15s;
+  }
+  .chapter-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(15, 40, 70, 0.12); }
+  .chapter-card h2 { font-size: clamp(1rem, 3vw, 1.1rem); margin: 0 0 8px; color: var(--accent-dark); }
+  .chapter-card p { margin: 0; font-size: 0.92rem; color: var(--muted); }
+  .chapter-card .meta { margin-top: 10px; font-weight: 600; color: var(--accent); }
+
+  /* quiz screen */
+  .quiz-top { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .chip {
+    display: inline-block; background: var(--chip); color: var(--accent-dark);
+    border-radius: 999px; padding: 3px 12px; font-size: 0.82rem; font-weight: 600;
+  }
+  .progress-meta { font-size: 0.9rem; color: var(--muted); white-space: nowrap; }
+  .bar { height: 8px; background: #e2e9f1; border-radius: 999px; overflow: hidden; margin-bottom: 16px; }
+  .bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .2s; }
+  #q-text { font-size: clamp(1.05rem, 3vw, 1.2rem); font-weight: 600; margin: 0 0 16px; }
+  .topic-line { color: var(--muted); font-size: 0.88rem; margin: 0 0 14px; }
+
+  .option {
+    display: flex; gap: 12px; align-items: flex-start; width: 100%; text-align: left;
+    padding: 12px 14px; margin: 0 0 10px; background: #fff; color: inherit;
+    border: 1.5px solid var(--line); border-radius: 10px; cursor: pointer;
+    font: inherit; line-height: 1.5;
+  }
+  .option:hover { border-color: var(--accent); }
+  .option .letter {
+    flex: 0 0 auto; width: 26px; height: 26px; border-radius: 50%;
+    background: var(--chip); color: var(--accent-dark); font-weight: 700; font-size: 0.85rem;
+    display: flex; align-items: center; justify-content: center; margin-top: 1px;
+  }
+  .option.selected { border-color: var(--accent); background: var(--chip); }
+  .option.correct { border-color: var(--good); background: var(--good-bg); }
+  .option.correct .letter { background: var(--good); color: #fff; }
+  .option.wrong { border-color: var(--bad); background: var(--bad-bg); }
+  .option.wrong .letter { background: var(--bad); color: #fff; }
+
+  .nav-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+  .btn {
+    font: inherit; font-weight: 600; cursor: pointer; border-radius: 10px;
+    padding: 10px 18px; border: 1.5px solid var(--accent); background: var(--accent); color: #fff;
+  }
+  .btn:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .btn.ghost { background: transparent; color: var(--accent); }
+  .btn.ghost:hover { background: var(--chip); }
+  .btn.danger { background: transparent; color: var(--bad); border-color: var(--bad); }
+  .btn.danger:hover { background: var(--bad-bg); }
+
+  /* result screen */
+  .score-box { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; margin: 4px 0 14px; }
+  #r-score { font-size: clamp(2.2rem, 8vw, 3.2rem); font-weight: 800; color: var(--accent-dark); line-height: 1; }
+  #r-pct { font-size: clamp(1.2rem, 4vw, 1.6rem); color: var(--muted); font-weight: 600; }
+  .topic-row { margin: 0 0 12px; }
+  .topic-head { display: flex; justify-content: space-between; gap: 12px; font-size: 0.93rem; margin-bottom: 4px; }
+  .mini-bar { height: 7px; background: #e2e9f1; border-radius: 999px; overflow: hidden; }
+  .mini-bar i { display: block; height: 100%; background: var(--good); }
+  .mini-bar i.weak { background: var(--bad); }
+
+  .review-item {
+    border-left: 4px solid var(--line); border-radius: 8px; background: #fff;
+    border-top: 1px solid var(--line); border-right: 1px solid var(--line); border-bottom: 1px solid var(--line);
+    padding: 14px 16px; margin: 0 0 12px;
+  }
+  .review-item.ok { border-left-color: var(--good); }
+  .review-item.bad { border-left-color: var(--bad); }
+  .review-q { margin: 0 0 6px; font-weight: 600; }
+  .review-meta { margin: 0 0 10px; font-size: 0.85rem; color: var(--muted); }
+  .review-opt { margin: 0 0 4px; padding: 6px 10px; border-radius: 8px; font-size: 0.94rem; }
+  .review-opt.correct { background: var(--good-bg); color: #14532d; font-weight: 600; }
+  .review-opt.wrong { background: var(--bad-bg); color: #7f1d1d; }
+  .explain { margin: 10px 0 0; font-size: 0.92rem; color: var(--muted); background: var(--bg); border-radius: 8px; padding: 10px 12px; }
+
+  footer.site { text-align: center; color: var(--muted); font-size: 0.85rem; padding: 10px 16px 26px; }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <h1>Cyber Warfare and Terrorism</h1>
+    <p>Practice quizzes - Chapter 1 &amp; Chapter 2 - 40 multiple-choice questions each, marked automatically</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ START SCREEN ============ -->
+  <section id="screen-start">
+    <div class="card">
+      <h2>How it works</h2>
+      <ul class="how">
+        <li>Pick a chapter below - each quiz has <strong>40 questions</strong> worth one mark.</li>
+        <li>Select an answer for every question, then submit.</li>
+        <li>Your attempt is <strong>marked automatically</strong>, with a score, topic breakdown and full explanations.</li>
+        <li>Pass mark: <strong>24/40 (60%)</strong>. Nothing is uploaded - everything runs in your browser.</li>
+      </ul>
+    </div>
+
+    <div id="resume" class="banner info" hidden>
+      <span id="resume-text"></span><br>
+      <button id="btn-resume" class="btn" type="button">Resume attempt</button>
+      <button id="btn-discard" class="btn ghost" type="button">Discard</button>
+    </div>
+
+    <p id="last-result" class="note" hidden></p>
+
+    <label class="shuffle-row"><input type="checkbox" id="shuffle"> Shuffle question order</label>
+
+    <div id="chapter-cards"></div>
+  </section>
+
+  <!-- ============ QUIZ SCREEN ============ -->
+  <section id="screen-quiz" hidden>
+    <div class="card">
+      <div class="quiz-top">
+        <span class="chip" id="q-chip"></span>
+        <span class="progress-meta"><span id="q-count"></span> &middot; <span id="q-answered"></span></span>
+      </div>
+      <div class="bar"><i id="q-bar"></i></div>
+      <p class="topic-line">Topic: <span id="q-topic"></span></p>
+      <p id="q-text" aria-live="polite"></p>
+      <div id="q-options"></div>
+      <div class="nav-row">
+        <button id="btn-prev" class="btn ghost" type="button">&#8592; Previous</button>
+        <button id="btn-next" class="btn" type="button">Next &#8594;</button>
+        <button id="btn-submit" class="btn" type="button">Submit for marking</button>
+      </div>
+      <p class="note" style="margin:14px 0 0;">Tip: press keys 1-4 to choose an option, arrow keys to move between questions.</p>
+    </div>
+  </section>
+
+  <!-- ============ RESULT SCREEN ============ -->
+  <section id="screen-result" hidden>
+    <div class="card">
+      <h2 id="r-title"></h2>
+      <div class="banner" id="r-banner"></div>
+      <div class="score-box"><span id="r-score"></span><span id="r-pct"></span></div>
+      <h2>Score by topic</h2>
+      <div id="r-topics"></div>
+    </div>
+    <div class="card">
+      <h2>Review your answers</h2>
+      <p class="muted" style="margin-top:0;">Green = correct answer. Red = the answer you chose. Every question includes a short explanation.</p>
+      <div id="r-review"></div>
+      <div class="nav-row">
+        <button id="r-retry" class="btn" type="button">Retry this quiz</button>
+        <button id="r-home" class="btn ghost" type="button">Back to chapters</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site">
+  Static practice quiz for the Cyber Warfare and Terrorism course &middot; marked automatically in your browser &middot; no data leaves this page
+</footer>
+
+<script>
+"use strict";
+
+// ==================== QUESTION DATA ====================
+// To edit or add questions: keep the format { ch, topic, q, o (exactly 4
+// options), a (index 0-3 of the correct option), x (explanation) }.
+const CHAPTERS = {"1":{"title":"Chapter 1: Introduction to Cyber Warfare and Terrorism","short":"Chapter 1","blurb":"Cyberspace, key definitions, the history of cyber conflict, and how cyber operations relate to conventional war.","topics":["Cyberspace and cybersecurity","Key definitions","Historical evolution","Distinguishing incident types","Strategic importance","Cyber and conventional warfare"]},"2":{"title":"Chapter 2: The Cyber Threat Landscape and Threat Actors","short":"Chapter 2","blurb":"State-sponsored groups and APTs, terrorist and extremist actors, criminals, hacktivists, proxies, and attribution.","topics":["State-sponsored actors and APTs","Terrorist and extremist actors","Criminals, hacktivists and proxies","Threat actor motivations","Capabilities, resources and targets","Attribution and false flags"]}};
+const QUESTIONS = [{"n":1,"ch":1,"topic":"Cyberspace and cybersecurity","q":"Which of the following BEST describes cyberspace?","o":["The physical computer hardware and server rooms of an organisation only","The interdependent network of information technology infrastructures - including the Internet, telecommunications networks, computer systems and embedded processors and controllers - together with the information that travels through them","Only the websites and social media platforms that people use every day","Any private network operated by a government ministry"],"x":"Cyberspace spans networks, systems, embedded devices and the data moving through them - far wider than hardware, websites or government networks alone.","a":1},{"n":2,"ch":1,"topic":"Cyberspace and cybersecurity","q":"Cybersecurity is BEST defined as:","o":["The protection of systems, networks, programs and data from unauthorised access, disruption, modification or destruction","Hiring security guards for server rooms","Writing software quickly and cheaply","Selling antivirus products to home users"],"x":"Cybersecurity is about protecting the confidentiality, integrity and availability of systems and data - not just physical premises or products.","a":0},{"n":3,"ch":1,"topic":"Cyberspace and cybersecurity","q":"The CIA triad, a common model in cybersecurity, stands for:","o":["Control, Inspection and Analysis","Central Intelligence Agency","Compliance, Identity and Authentication","Confidentiality, Integrity and Availability"],"x":"Confidentiality, integrity and availability are the three classic properties that security controls try to preserve.","a":3},{"n":4,"ch":1,"topic":"Cyberspace and cybersecurity","q":"Which of the following is NOT normally considered part of cyberspace?","o":["Undersea fibre-optic cables carrying Internet traffic","Embedded industrial controllers in a factory","The natural terrain of a mountain range","Satellites and ground stations exchanging data"],"x":"Cyberspace is the man-made digital environment. Natural terrain is not part of it, although infrastructure may physically run across it.","a":2},{"n":5,"ch":1,"topic":"Cyberspace and cybersecurity","q":"Why is cyberspace often called a man-made domain?","o":["It can only be used by trained military personnel","It exists only because humans built the systems that compose it, and much of it is privately owned","It was created by a single country in the 1990s","It legally belongs to whichever state owns the cables"],"x":"Unlike land, sea, air or space, cyberspace exists entirely through human-built technology, and much of it is owned and operated by private actors.","a":1},{"n":6,"ch":1,"topic":"Cyberspace and cybersecurity","q":"In a national context, the scope of cybersecurity typically covers:","o":["Government systems, critical infrastructure, businesses and individual citizens","Only military networks","Only banks and financial institutions","Only government ministries"],"x":"National cybersecurity spans the whole of society - from government and critical infrastructure to companies and private users.","a":0},{"n":7,"ch":1,"topic":"Key definitions","q":"Cyber warfare is BEST described as:","o":["Any crime committed using a computer","Protest hacking carried out by activist groups","Sending unwanted bulk advertising emails","The use of digital capabilities by states, or by actors acting on their behalf, to achieve military or strategic objectives in conflict with other states"],"x":"Cyber warfare connects digital capabilities to state-level military or strategic objectives; crime, protest and spam lack that state-conflict framing.","a":3},{"n":8,"ch":1,"topic":"Key definitions","q":"Cyber terrorism is BEST defined as:","o":["Any malware infection on a home computer","Online fraud committed for personal profit","Unlawful attacks or threats against computers, networks or the information they hold, intended to intimidate or coerce a government or population in pursuit of political or social objectives","Testing how fast a website loads"],"x":"The definition combines a political or social objective with the intent to intimidate or coerce - features ordinary hacking and fraud do not have.","a":2},{"n":9,"ch":1,"topic":"Key definitions","q":"The broader term cyber conflict is useful because it covers:","o":["Only declared wars between two states","Confrontation between actors in cyberspace, both above and below the threshold of armed conflict","Only attacks on personal computers","Disagreements between IT staff in a company"],"x":"Espionage, disruption and influence activity can all fall short of armed conflict, so cyber conflict is a wider category than cyber warfare.","a":1},{"n":10,"ch":1,"topic":"Key definitions","q":"In military doctrine, cyber operations refers to:","o":["Organised activities that use cyber capabilities to achieve objectives, whether offensive, defensive or informational","The manufacturing of computer chips","Customer support provided by email","Competitions in typing speed"],"x":"Cyber operations is an umbrella term covering offensive, defensive and information-related uses of cyber capabilities.","a":0},{"n":11,"ch":1,"topic":"Key definitions","q":"An actor covertly copies government documents from another state's networks over several months without damaging any system. This is BEST described as:","o":["Cyber vandalism","Hacktivism","Ransomware","Cyber espionage"],"x":"Quiet, covert collection of information is the hallmark of espionage, whether for political, military or economic intelligence.","a":3},{"n":12,"ch":1,"topic":"Key definitions","q":"Which statement correctly distinguishes sabotage from espionage?","o":["Sabotage is always legal, while espionage is always illegal","Sabotage is committed only by criminals, while espionage is committed only by terrorists","Sabotage damages or disrupts systems and data, while espionage steals information while trying to remain hidden","Sabotage targets people, while espionage targets hardware"],"x":"The two differ in effect: destruction or disruption on one hand, covert intelligence collection on the other.","a":2},{"n":13,"ch":1,"topic":"Key definitions","q":"Offensive cyber operations (OCO) differ from defensive cyber operations (DCO) mainly in that OCO:","o":["Are used only by criminal groups","Aim to project power by exploiting, disrupting or degrading adversary systems, while DCO protect and defend friendly networks","Never require any authorisation","Use only physical weapons"],"x":"The distinction lies in intent and direction: OCO act against adversary systems; DCO defend one's own.","a":1},{"n":14,"ch":1,"topic":"Key definitions","q":"The feature that MOST clearly separates cyber terrorism from hacktivism is:","o":["An intent to intimidate or coerce a population or government through serious violence or damage, rather than mainly to draw attention to a cause","The country in which the attacker lives","The programming language used for the attack","The time of day at which the attack occurs"],"x":"Hacktivism seeks publicity for a cause; cyber terrorism seeks intimidation or coercion through the threat or reality of serious harm.","a":0},{"n":15,"ch":1,"topic":"Historical evolution","q":"The Morris Worm of 1988 is historically significant because it:","o":["Was the first cyber attack to cause a national power blackout","Destroyed the records of a major international bank","Introduced the first graphical website","Was one of the first programs to spread widely across the early Internet, revealing how vulnerable interconnected networks were"],"x":"The worm disrupted thousands of machines then connected to the early Internet and is widely treated as a turning point in awareness of network security.","a":3},{"n":16,"ch":1,"topic":"Historical evolution","q":"Moonlight Maze, investigated in the late 1990s, is remembered as:","o":["A ransomware attack on hospitals","A protest campaign by environmental activists","An early example of large-scale state-linked espionage probing military and government networks","The first case of online banking fraud"],"x":"The long-running intrusions into US military and government systems helped define the espionage era of cyber conflict.","a":2},{"n":17,"ch":1,"topic":"Historical evolution","q":"The 2007 cyber attacks against Estonia are often cited as a milestone because they:","o":["Destroyed a nuclear reactor","Were a sustained, politically motivated campaign against the networks of an entire country - government, banking and media","Were organised entirely by the Estonian government","Produced the first computer virus"],"x":"The wave of denial-of-service attacks, triggered by the relocation of a Soviet-era war memorial, targeted national institutions for political reasons.","a":1},{"n":18,"ch":1,"topic":"Historical evolution","q":"During the 2008 conflict in Georgia, cyber attacks coincided with conventional military operations. This is historically important because it:","o":["Showed that cyber operations can be used alongside kinetic military action in an armed conflict","Proved that cyber attacks never occur during wars","Was the first documented use of ransomware","Ended the conflict within a single day"],"x":"Georgia 2008 became a classic early example of cyber operations being coordinated with, or in support of, conventional military operations.","a":0},{"n":19,"ch":1,"topic":"Historical evolution","q":"Stuxnet, discovered in 2010, is a landmark incident because it:","o":["Was the first phishing email ever sent","Stole millions of customers' card details from a retailer","Temporarily shut down several social media platforms","Demonstrated that malware can cause physical destruction, damaging centrifuges at an Iranian nuclear facility"],"x":"Stuxnet was the first widely recognised case of cyber-physical sabotage and showed that code can produce physical effects.","a":3},{"n":20,"ch":1,"topic":"Historical evolution","q":"The 2015 attack on Ukraine's power grid is significant because it:","o":["Affected only a single employee's laptop","Was an accident caused by a routine software update","Was a confirmed case of a cyber attack disrupting electricity supply to hundreds of thousands of customers","Did not touch any physical system"],"x":"The attack against distribution operators left large numbers of customers without power and marked the first confirmed cyber-induced blackout of its kind.","a":2},{"n":21,"ch":1,"topic":"Historical evolution","q":"WannaCry, in May 2017, is best remembered for:","o":["Causing a stock market crash through insider trading","Spreading rapidly around the world and disrupting hospitals, including parts of the United Kingdom's National Health Service","Being the first denial-of-service attack ever recorded","Defacing election websites for a protest movement"],"x":"The ransomware worm infected hundreds of thousands of computers in over 150 countries; several governments later attributed it to a North Korea-linked actor.","a":1},{"n":22,"ch":1,"topic":"Historical evolution","q":"NotPetya, in June 2017, differed from ordinary ransomware mainly because it:","o":["Was built mainly to destroy data while masquerading as ransomware, spreading from Ukraine to companies worldwide","Only encrypted files that could always be recovered with a valid key","Targeted only personal photo collections","Requested payment by bank cheque"],"x":"NotPetya acted as a wiper; its global spillover produced some of the largest economic losses ever attributed to a cyber attack.","a":0},{"n":23,"ch":1,"topic":"Historical evolution","q":"Which sequence BEST reflects the historical evolution of cyber conflict?","o":["Sabotage of physical systems, then early worms, then social media, then telegraph attacks","Influence operations, then ransomware, then early worms, then the first viruses","There has been no evolution; cyber attacks have stayed the same since the 1980s","Early viruses and worms, then large-scale espionage, then sabotage of physical systems, then influence operations at scale"],"x":"The documented arc runs from nuisances and exploration, to espionage, to destructive and physical effects, to information and influence campaigns.","a":3},{"n":24,"ch":1,"topic":"Distinguishing incident types","q":"The PRIMARY motive of most cybercrime is:","o":["Improving security for the victims","Religious devotion","Financial gain","Gathering military intelligence"],"x":"Profit - through fraud, theft, extortion or resale of data - is the defining motive of cybercrime.","a":2},{"n":25,"ch":1,"topic":"Distinguishing incident types","q":"The main objective of cyber espionage is:","o":["Encrypting files and demanding payment","Covertly obtaining political, military, economic or technological information","Defacing websites with political slogans","Selling hardware upgrades to the victim"],"x":"Espionage seeks information and intelligence, usually while remaining undetected.","a":1},{"n":26,"ch":1,"topic":"Distinguishing incident types","q":"Hacktivism is BEST described as:","o":["Hacking carried out to promote political or social causes, often through defacements, leaks or denial-of-service actions","Hacking for personal financial profit","State-run espionage programmes","Authorised testing of a company's systems"],"x":"The motivation is a cause, not profit; typical tools include DDoS, defacements and data leaks.","a":0},{"n":27,"ch":1,"topic":"Distinguishing incident types","q":"Which actor type is MOST associated with cyber operations that serve national military objectives?","o":["Individual fraudsters seeking quick profit","Curious teenagers using downloaded tools","Charity and humanitarian organisations","States, their agencies, and proxies acting for them"],"x":"Military objectives point to state involvement, whether through the state's own units or through proxies.","a":3},{"n":28,"ch":1,"topic":"Distinguishing incident types","q":"A group breaks into online stores, steals customers' card details and sells them on criminal forums. This is BEST classified as:","o":["Cyber warfare","Cyber espionage","Cybercrime","Hacktivism"],"x":"Theft and resale of financial data for profit is textbook cybercrime.","a":2},{"n":29,"ch":1,"topic":"Distinguishing incident types","q":"A collective defaces a government ministry's website with a protest message about climate policy and shares it on social media. This is BEST classified as:","o":["Cyber terrorism","Hacktivism","Cyber espionage","Organised cybercrime"],"x":"Cause-driven protest without coercion through serious harm fits hacktivism, not terrorism, espionage or profit-driven crime.","a":1},{"n":30,"ch":1,"topic":"Distinguishing incident types","q":"Actors with very different motives often use the SAME techniques, such as DDoS or malware. What does this imply for analysis?","o":["The actor's motive and context, not the technique alone, determine how an incident should be classified","Incident classification is impossible in practice","Every incident involving malware is cyber warfare","Techniques are illegal only when used by states"],"x":"Technique overlap means analysts must look at motive, actor and objective - exactly the classification exercise practised in this chapter.","a":0},{"n":31,"ch":1,"topic":"Strategic importance","q":"Cyberspace is now commonly described as a domain of operations alongside:","o":["Land, rivers and lakes","Only the Internet","Politics and economics alone","Land, sea, air and space"],"x":"Cyberspace is often called the fifth domain of military operations.","a":3},{"n":32,"ch":1,"topic":"Strategic importance","q":"States treat cyberspace as strategically important MAINLY because:","o":["Diplomacy has been completely replaced by online conflict","Cyberspace is entirely unregulated in every country","Military command and control, critical infrastructure, the economy and essential services all depend on networked systems","All cyber attacks are cheap and always succeed"],"x":"Strategic importance flows from dependence: what runs society now runs on networks.","a":2},{"n":33,"ch":1,"topic":"Strategic importance","q":"A successful attack on a country's banking payment system would be strategically significant because it:","o":["Would only affect the banks' own employees","Could disrupt the wider economy and public confidence, well beyond the banks themselves","Is impossible with current technology","Would automatically end any ongoing conflict"],"x":"Effects propagate beyond the immediate target - payments, businesses and public trust all depend on the system.","a":1},{"n":34,"ch":1,"topic":"Strategic importance","q":"Which statement about the cross-border nature of cyber operations is accurate?","o":["Cyber operations can reach targets in other countries almost instantly, and effects can spill over onto states that were not the intended victims","Cyber operations always stop at national borders","Only neighbouring countries can be affected","Cross-border effects require the attacker to travel physically"],"x":"WannaCry and NotPetya showed how an operation aimed at one context can spread globally within days.","a":0},{"n":35,"ch":1,"topic":"Strategic importance","q":"For national security planners, society's dependence on cyberspace creates:","o":["No new concerns of any kind","A reason to abandon the Internet entirely","A guarantee of safety from foreign attack","New vulnerabilities that must be defended alongside traditional military concerns"],"x":"Dependence cuts both ways: the same networks that empower society create targets that adversaries can strike.","a":3},{"n":36,"ch":1,"topic":"Cyber and conventional warfare","q":"Cyber operations can support conventional military operations by:","o":["Replacing the need for soldiers entirely","Only sending official emails to the enemy","Disrupting an adversary's command and control, logistics and air-defence systems","Winning wars automatically without other military action"],"x":"Cyber effects can degrade an adversary's ability to see, communicate and move, complementing kinetic operations.","a":2},{"n":37,"ch":1,"topic":"Cyber and conventional warfare","q":"Hybrid warfare refers to:","o":["Using two different operating systems at once","The combination of conventional military force with irregular tactics, cyber operations, disinformation and other pressure below the level of open war","Combat conducted only with nuclear weapons","Warfare carried out exclusively online"],"x":"The hybrid concept describes blending military and non-military tools - with cyber and information operations as central ingredients.","a":1},{"n":38,"ch":1,"topic":"Cyber and conventional warfare","q":"In the 2008 Georgia conflict and in later conflicts, a notable pattern has been:","o":["Cyber operations occurring alongside, or in support of, kinetic military action","Cyber attacks completely replacing tanks and aircraft","A complete absence of cyber activity during wars","Cyber activity appearing only after peace treaties are signed"],"x":"From Georgia in 2008 to Ukraine, cyber effects have been observed in combination with conventional operations.","a":0},{"n":39,"ch":1,"topic":"Cyber and conventional warfare","q":"Why might a state open a confrontation with cyber operations rather than kinetic strikes?","o":["Because cyber weapons are always more destructive than bombs","Because international law forbids all military action of any kind","Because cyber operations reliably have no effect at all","Because cyber operations can be deniable, calibrated below the level of open war, and used to prepare the information environment"],"x":"Cyber options sit lower on the escalation ladder and offer deniability, which makes them attractive early instruments.","a":3},{"n":40,"ch":1,"topic":"Cyber and conventional warfare","q":"Which statement BEST captures the relationship between conventional warfare and cyber operations today?","o":["Cyber operations have made conventional armed forces obsolete","The two domains have nothing to do with each other","Cyber operations are increasingly integrated into military planning as a complement to conventional force, not a replacement for it","Conventional warfare has ended worldwide since 2010"],"x":"Doctrine and observed conflicts both point to integration: cyber is one instrument within a wider military toolkit.","a":2},{"n":41,"ch":2,"topic":"State-sponsored actors and APTs","q":"In the cyber threat context, state-sponsored means:","o":["Sponsoring sports teams in the capital city","Working exclusively for commercial banks","Backed, directed or tolerated by a government, or acting in that government's interests","Registered as a public company"],"x":"State sponsorship ranges from direct control to loose tolerance of groups acting in state interests.","a":2},{"n":42,"ch":2,"topic":"State-sponsored actors and APTs","q":"What does the acronym APT stand for?","o":["Automated Password Tool","Advanced Persistent Threat","Advanced Program Testing","Active Penetration Team"],"x":"Advanced Persistent Threat captures capability (advanced), duration (persistent) and intent (threat).","a":1},{"n":43,"ch":2,"topic":"State-sponsored actors and APTs","q":"Which set of characteristics BEST describes an APT?","o":["Well-resourced, patient actors conducting long-term, stealthy, targeted campaigns","Loud, random attacks that end within minutes","Harmless jokes shared between friends","Automated scans that check systems for updates"],"x":"The defining features are resourcing, patience, stealth and deliberate target selection.","a":0},{"n":44,"ch":2,"topic":"State-sponsored actors and APTs","q":"The word persistent in APT refers to:","o":["Slow Internet connections in the target country","The attacker's use of very old computers","Persistently filing police reports after attacks","The attacker's aim to keep long-term access to the target, returning after setbacks"],"x":"Persistence means maintaining a quiet foothold over months or years, not a one-off smash-and-grab.","a":3},{"n":45,"ch":2,"topic":"State-sponsored actors and APTs","q":"Typical objectives of state-sponsored APT campaigns include:","o":["Only changing the colours of a website","Improving the target's security for free","Political and military intelligence, monitoring of rivals and dissidents, and preparing the option of future disruption","Promoting the target company's products"],"x":"Most APT activity is intelligence-led; sabotage capability is often prepared but held in reserve.","a":2},{"n":46,"ch":2,"topic":"State-sponsored actors and APTs","q":"Which sequence BEST reflects a typical APT intrusion lifecycle?","o":["Data exfiltration, reconnaissance, then immediate cleanup","Reconnaissance, initial access, establishing persistence, lateral movement, then data exfiltration","Payment demand, press release, then court case","Lateral movement, reconnaissance, then initial access"],"x":"APTs progress step by step from gathering information about the target to quietly extracting valuable data.","a":1},{"n":47,"ch":2,"topic":"State-sponsored actors and APTs","q":"Stuxnet is frequently cited in discussions of state-sponsored operations because it:","o":["Was a complex, targeted operation, widely assessed as state-backed, that caused physical damage","Was written by a bored student in a single evening","Spread only inside one office building","Targeted an online shopping website"],"x":"Its multi-stage design and precision targeting of industrial equipment are hallmarks of state-level resourcing.","a":0},{"n":48,"ch":2,"topic":"State-sponsored actors and APTs","q":"Which group has been publicly linked by several governments to North Korea?","o":["The International Red Cross","Interpol's cybercrime desk","The WannaBuy forum community","Lazarus Group"],"x":"Governments including the United States and the United Kingdom have publicly attributed campaigns such as WannaCry to North Korea-linked actors.","a":3},{"n":49,"ch":2,"topic":"State-sponsored actors and APTs","q":"Why do states invest in offensive cyber capabilities?","o":["Because cyber attacks are always legal under international law","Because computer systems never fail","They offer deniable, lower-cost, asymmetric effects that can be calibrated against many kinds of opponent","To reduce the number of diplomats employed"],"x":"Cyber capabilities let a state achieve strategic effects while keeping attribution and escalation manageable.","a":2},{"n":50,"ch":2,"topic":"Terrorist and extremist actors","q":"So far, terrorist organisations have used the internet MAINLY for:","o":["Large-scale destruction of national power grids","Propaganda, recruitment, fundraising and coordination","Declaring formal interstate war","Manufacturing computer hardware"],"x":"Documented terrorist use of the network is dominated by communication and financing activities rather than destructive cyber attacks.","a":1},{"n":51,"ch":2,"topic":"Terrorist and extremist actors","q":"The phrase the gap between intent and capability refers to the fact that:","o":["Many extremist groups have expressed interest in cyber attacks, but few have demonstrated the capability for serious destructive operations","All terrorists are expert programmers","Cyber attacks are impossible to attempt in principle","Stating an intent automatically creates the capability"],"x":"The gap explains why destructive cyber terrorism has remained rare despite frequent rhetoric.","a":0},{"n":52,"ch":2,"topic":"Terrorist and extremist actors","q":"Which of the following is an example of online radicalisation?","o":["Installing a firewall on a home computer","Updating an operating system overnight","Attending a university lecture on cybersecurity","An individual being gradually drawn toward extremist views through forums, chat groups and social media content"],"x":"Radicalisation describes a gradual social process that online platforms can accelerate and amplify.","a":3},{"n":53,"ch":2,"topic":"Terrorist and extremist actors","q":"For an attack to be considered cyber terrorism rather than ordinary hacking, it typically must involve:","o":["Any use of a computer whatsoever","A target located in a foreign country","A political or ideological aim combined with the intimidation or coercion of a population or government, or serious violence and damage","The exclusive use of social media"],"x":"Motive plus coercive intent plus serious harm separate cyber terrorism from ordinary intrusion.","a":2},{"n":54,"ch":2,"topic":"Terrorist and extremist actors","q":"Which factor has so far LIMITED terrorists from carrying out mass destructive cyber attacks?","o":["An international ban on all computer use","The specialised skills, resources and access required to cause deep physical damage","The absence of internet connections in conflict zones","The fact that computers cannot be attacked at all"],"x":"Deeply damaging operations need capabilities and access that most extremist groups have not possessed.","a":1},{"n":55,"ch":2,"topic":"Terrorist and extremist actors","q":"Why do governments monitor extremist online networks?","o":["To detect recruitment, fundraising and planning early, and to support prevention and counterterrorism","To sell advertising space","To slow the internet down deliberately","To promote extremist content to wider audiences"],"x":"Monitoring supports prevention, disruption and prosecution - a defensive counterterrorism purpose.","a":0},{"n":56,"ch":2,"topic":"Criminals, hacktivists and proxies","q":"Modern organised cybercrime groups often resemble businesses because they:","o":["Publish annual reports to shareholders","Are regulated by central banks","Pay corporate income tax openly","Have specialised roles such as developers, affiliates, brokers and money launderers"],"x":"The industrialisation of cybercrime - for example ransomware-as-a-service - splits labour and profits among specialists.","a":3},{"n":57,"ch":2,"topic":"Criminals, hacktivists and proxies","q":"Which actions are MOST typical of hacktivist campaigns?","o":["Long-term quiet espionage on behalf of a foreign state","Selling stolen card data for steady profit","Denial-of-service attacks, website defacements and publication of stolen data to draw attention to a cause","Auditing networks for a professional fee"],"x":"Hacktivism uses visible, cause-related actions; quiet espionage and profit-seeking point to other actor types.","a":2},{"n":58,"ch":2,"topic":"Criminals, hacktivists and proxies","q":"Proxy actors are:","o":["Server programs that forward web traffic","Non-state groups that conduct cyber operations on behalf of, or in the interests of, a state","Judges specialising in cyber court cases","Companies that sell proxy browsers"],"x":"A proxy lets a state pursue objectives through someone else's hands.","a":1},{"n":59,"ch":2,"topic":"Criminals, hacktivists and proxies","q":"The MAIN reason states use proxy actors is to:","o":["Gain deniability and complicate attribution back to the state","Avoid paying their own cyber staff","Publicly announce every operation they order","Lower the technical skill level of their operations"],"x":"If evidence leads to a criminal or hacktivist group, the sponsoring state can plausibly deny involvement.","a":0},{"n":60,"ch":2,"topic":"Criminals, hacktivists and proxies","q":"A key RISK for a state that works through criminal proxies is that:","o":["The proxy will always follow every order exactly","Control over the operation becomes easier","The operation becomes publicly declared by definition","The proxy may act unpredictably, escalate, or pursue its own profit instead of the state's goals"],"x":"Delegation trades control for deniability - proxies have their own incentives and agendas.","a":3},{"n":61,"ch":2,"topic":"Criminals, hacktivists and proxies","q":"Ransomware-as-a-service (RaaS) refers to:","o":["A legitimate company renting out computers","A free online backup service","Developers leasing ready-made ransomware to affiliates, who conduct attacks and share the profits","An antivirus subscription plan"],"x":"RaaS shows how cybercrime has industrialised, lowering the skill needed to mount profitable attacks.","a":2},{"n":62,"ch":2,"topic":"Criminals, hacktivists and proxies","q":"Public reporting has described overlap between the criminal and state worlds in the form of:","o":["Criminals drafting national cybersecurity laws","States sometimes tolerating or drawing on criminal groups, and criminals taking on work that serves state interests","States abolishing all crime permanently","A complete and permanent separation of the two worlds"],"x":"Where interests align, the boundary between profit-driven crime and state-directed activity can blur.","a":1},{"n":63,"ch":2,"topic":"Threat actor motivations","q":"The five broad motivations commonly used to categorise threat actors are:","o":["Political, military, economic, ideological and strategic","Fast, slow, medium, large and small","Sunny, rainy, windy, cloudy and foggy","Only financial gain in every case"],"x":"This taxonomy, used throughout the course, connects each actor type to its underlying purpose.","a":0},{"n":64,"ch":2,"topic":"Threat actor motivations","q":"An actor infects companies with ransomware and demands payment in cryptocurrency. The PRIMARY motivation is:","o":["Military preparation","Ideological protest","Diplomatic signalling","Economic - financial gain"],"x":"Extortion for profit is the clearest economic motive in the threat landscape.","a":3},{"n":65,"ch":2,"topic":"Threat actor motivations","q":"An actor defaces the websites of several airlines to protest aviation emissions. The PRIMARY motivation is:","o":["Economic gain","Military intelligence","Ideological or political","Academic research"],"x":"The goal is to promote a cause through publicity - the signature of ideological motivation.","a":2},{"n":66,"ch":2,"topic":"Threat actor motivations","q":"An actor spends months quietly mapping another country's energy grid operators. The MOST likely motivation is:","o":["Personal entertainment","Military or strategic intelligence preparation","Market research for a retailer","Charity fundraising"],"x":"Quiet mapping of infrastructure suggests intelligence gathering, possibly pre-positioning for future effect.","a":1},{"n":67,"ch":2,"topic":"Threat actor motivations","q":"Why can mixed motivations make classification difficult?","o":["Actors may combine goals - for example, publicly reported groups funding themselves through theft - so motive must be assessed from evidence","Every actor always has exactly one clear and announced motive","Motives are irrelevant to incident analysis","Attackers always publish a statement of motives"],"x":"Real actors blur categories, which is why analysts weigh behaviour and context rather than labels.","a":0},{"n":68,"ch":2,"topic":"Threat actor motivations","q":"An operation intended to influence voters' opinions before an election is primarily motivated by:","o":["Medical research","Recreational interest","Agricultural policy","Political goals"],"x":"Influence over political outcomes marks the operation as politically motivated.","a":3},{"n":69,"ch":2,"topic":"Capabilities, resources and targets","q":"The threat-actor capability spectrum runs from:","o":["Only governments at every level of skill","Only university students at every level of skill","Low-skill opportunistic actors using public tools up to well-resourced state-backed teams using custom tooling","Robots acting without any human involvement"],"x":"Capability ranges across individuals, criminal groups, hacktivist collectives and state-sponsored teams.","a":2},{"n":70,"ch":2,"topic":"Capabilities, resources and targets","q":"A zero-day vulnerability is:","o":["A computer purchased within the last day","A software flaw unknown to the vendor, for which no patch exists when attackers begin to use it","A vulnerability patched years earlier","A virus that deletes exactly zero files"],"x":"Zero-days are prized because victims have no ready defence when they are first exploited.","a":1},{"n":71,"ch":2,"topic":"Capabilities, resources and targets","q":"How do resource levels typically differ among actor types?","o":["States can fund long campaigns with dedicated teams; criminal groups reinvest profits; hacktivists rely mostly on volunteers and public tools","All actors have identical budgets and staffing","Hacktivist collectives always outspend states","Resource levels have no effect on capability"],"x":"Resources shape how long, how quiet and how sophisticated a campaign can be.","a":0},{"n":72,"ch":2,"topic":"Capabilities, resources and targets","q":"Target selection usually follows motive. Which pairing is MOST consistent?","o":["Criminals attack only military bases, while states attack only primary schools","Hacktivists attack banks only to steal money","States target only celebrities' mobile phones","Profit-driven criminals follow financial opportunity, while state actors pursue strategic and infrastructure targets"],"x":"Who gets attacked follows from what the actor wants - money, influence or strategic advantage.","a":3},{"n":73,"ch":2,"topic":"Capabilities, resources and targets","q":"Does low sophistication always mean low impact?","o":["Yes - simple attacks never matter","Yes - only zero-day exploits cause disruption","No - simple but widely amplified techniques, such as large denial-of-service campaigns, have disrupted entire countries' networks","Sophistication has no relationship to outcomes at all"],"x":"Estonia in 2007 showed that relatively low-skill DDoS techniques, at scale, can pressure a whole nation.","a":2},{"n":74,"ch":2,"topic":"Capabilities, resources and targets","q":"The leakage of hacking tools and the growth of criminal malware markets have:","o":["Made cyber attacks impossible for civilians","Lowered the entry barrier, allowing less skilled actors to mount far more capable attacks","Removed the need for software patching","Ended cybercrime worldwide"],"x":"Once powerful tools leak - as with the exploits reused by WannaCry and NotPetya - ordinary attackers inherit state-grade capability.","a":1},{"n":75,"ch":2,"topic":"Attribution and false flags","q":"Why is attribution in cyberspace difficult?","o":["Attackers can route operations through compromised systems worldwide, reuse shared tools, and deliberately plant misleading evidence","Because every Internet address clearly identifies its owner's name","Because attacks always include signed confessions","Because attribution is irrelevant to response"],"x":"Anonymity, infrastructure laundering and deception mean attribution is an assessment, not a certainty.","a":0},{"n":76,"ch":2,"topic":"Attribution and false flags","q":"Which are the main categories of attribution evidence?","o":["Weather reports and newspaper horoscopes","Only the attacker's apology letter","Only IP addresses, with nothing else considered","Technical indicators, behavioural patterns such as TTPs, and contextual or intelligence information"],"x":"Analysts combine technical, behavioural and contextual evidence, then state conclusions with a level of confidence.","a":3},{"n":77,"ch":2,"topic":"Attribution and false flags","q":"A false-flag operation is one in which the attacker:","o":["Flags incorrect content on social media platforms","Conducts authorised red-team testing","Deliberately leaves misleading evidence so that investigators blame a different actor or state","Announces the attack publicly in advance"],"x":"False flags are deliberate deception aimed at misdirecting attribution and response.","a":2},{"n":78,"ch":2,"topic":"Attribution and false flags","q":"Which of the following could serve as a false-flag technique?","o":["Encrypting files with strong cryptography","Inserting words from another language into code, or reusing another group's known malware","Sending the victim a notification email","Using a laptop computer"],"x":"Deception works by planting traces that point toward someone else - language, code and infrastructure all serve this purpose.","a":1},{"n":79,"ch":2,"topic":"Attribution and false flags","q":"Intelligence assessments usually express attribution with:","o":["A stated level of confidence, such as low, moderate or high, that reflects the remaining uncertainty","Absolute mathematical certainty","Public opinion polls alone","The attacker's own website claims"],"x":"Honest assessments communicate confidence levels rather than pretending to certainty.","a":0},{"n":80,"ch":2,"topic":"Attribution and false flags","q":"When building a threat profile from publicly documented incident reports, which elements should be included?","o":["The attacker's blood type and height","Only the calendar date of each incident","The colour scheme of the victim's logo","Motivation, capabilities and resources, targets, and level of sophistication"],"x":"These are the elements the chapter's practical activity asks you to assemble into a usable threat profile.","a":3}];
+
+// ==================== APP ====================
+const PASS_PCT = 60;
+const STORE = "cwt-quiz-v1";
+const RESULT_STORE = "cwt-quiz-result-v1";
+const LETTERS = ["A", "B", "C", "D"];
+
+let state = null; // { mode, order, idx, answers, shuffled }
+
+const $ = (sel) => document.querySelector(sel);
+const screens = {
+  start: $("#screen-start"),
+  quiz: $("#screen-quiz"),
+  result: $("#screen-result"),
+};
+
+function show(name) {
+  for (const k in screens) screens[k].hidden = (k !== name);
+  window.scrollTo(0, 0);
+}
+
+function buildOrder(mode, shuffle) {
+  let list = QUESTIONS.map((q, i) => i);
+  if (mode === "1" || mode === "2") {
+    list = list.filter((i) => QUESTIONS[i].ch === Number(mode));
+  }
+  if (shuffle) {
+    for (let i = list.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const t = list[i]; list[i] = list[j]; list[j] = t;
+    }
+  }
+  return list;
+}
+
+function startQuiz(mode, shuffle, saved) {
+  state = saved || { mode, order: buildOrder(mode, shuffle), idx: 0, answers: {}, shuffled: !!shuffle };
+  save();
+  renderQuestion();
+  show("quiz");
+}
+
+function currentQ() { return QUESTIONS[state.order[state.idx]]; }
+
+function save() { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) { /* private mode */ } }
+function clearSave() { try { localStorage.removeItem(STORE); } catch (e) { /* ignore */ } }
+
+function renderQuestion() {
+  const q = currentQ();
+  $("#q-chip").textContent = CHAPTERS[q.ch].short;
+  $("#q-topic").textContent = q.topic;
+  $("#q-count").textContent = "Question " + (state.idx + 1) + " of " + state.order.length;
+  $("#q-answered").textContent = Object.keys(state.answers).length + " answered";
+  $("#q-bar").style.width = (100 * (state.idx + 1) / state.order.length) + "%";
+  $("#q-text").textContent = q.q;
+
+  const box = $("#q-options");
+  box.innerHTML = "";
+  q.o.forEach((opt, i) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "option" + (state.answers[q.n] === i ? " selected" : "");
+    b.setAttribute("aria-pressed", state.answers[q.n] === i ? "true" : "false");
+    const letter = document.createElement("span");
+    letter.className = "letter";
+    letter.textContent = LETTERS[i];
+    const txt = document.createElement("span");
+    txt.textContent = opt;
+    b.appendChild(letter);
+    b.appendChild(txt);
+    b.addEventListener("click", () => select(i));
+    box.appendChild(b);
+  });
+
+  $("#btn-prev").disabled = state.idx === 0;
+  $("#btn-next").hidden = state.idx === state.order.length - 1;
+  $("#btn-submit").hidden = state.idx !== state.order.length - 1;
+}
+
+function select(i) {
+  const q = currentQ();
+  state.answers[q.n] = i;
+  save();
+  renderQuestion();
+}
+
+function go(delta) {
+  const t = state.idx + delta;
+  if (t < 0 || t >= state.order.length) return;
+  state.idx = t;
+  save();
+  renderQuestion();
+}
+
+function submit() {
+  const unanswered = state.order.length - Object.keys(state.answers).length;
+  if (unanswered > 0 && !confirm(unanswered + " question(s) unanswered. Submit anyway?")) return;
+
+  const details = state.order.map((qi) => {
+    const q = QUESTIONS[qi];
+    const chosen = state.answers[q.n];
+    return { q, chosen, correct: chosen === q.a };
+  });
+  const score = details.filter((d) => d.correct).length;
+  const total = details.length;
+
+  const topics = {};
+  details.forEach((d) => {
+    const t = d.q.topic;
+    topics[t] = topics[t] || { ok: 0, total: 0 };
+    topics[t].total++;
+    if (d.correct) topics[t].ok++;
+  });
+
+  const result = {
+    mode: state.mode,
+    score, total,
+    pct: Math.round(100 * score / total),
+    pass: (100 * score / total) >= PASS_PCT,
+    topics,
+    savedAt: Date.now(),
+  };
+  try { localStorage.setItem(RESULT_STORE, JSON.stringify(result)); } catch (e) { /* ignore */ }
+  clearSave();
+  renderResult(result, details);
+}
+
+function modeLabel(mode) {
+  if (mode === "1") return CHAPTERS[1].short;
+  if (mode === "2") return CHAPTERS[2].short;
+  return "Both chapters";
+}
+
+function renderResult(result, details) {
+  $("#r-title").textContent = modeLabel(state.mode) + " result";
+  $("#r-score").textContent = result.score + " / " + result.total;
+  $("#r-pct").textContent = result.pct + "%";
+  const banner = $("#r-banner");
+  banner.textContent = result.pass
+    ? "Pass - well done. Keep reviewing the topics where you dropped marks."
+    : "Below the pass mark (" + PASS_PCT + "%). Read the explanations below and try again.";
+  banner.className = "banner " + (result.pass ? "pass" : "fail");
+
+  const tb = $("#r-topics");
+  tb.innerHTML = "";
+  Object.keys(result.topics).forEach((t) => {
+    const s = result.topics[t];
+    const row = document.createElement("div");
+    row.className = "topic-row";
+    const head = document.createElement("div");
+    head.className = "topic-head";
+    const name = document.createElement("span");
+    name.textContent = t;
+    const val = document.createElement("span");
+    val.textContent = s.ok + "/" + s.total;
+    head.appendChild(name);
+    head.appendChild(val);
+    const bar = document.createElement("div");
+    bar.className = "mini-bar";
+    const fill = document.createElement("i");
+    fill.style.width = Math.round(100 * s.ok / s.total) + "%";
+    if (s.ok / s.total < PASS_PCT / 100) fill.classList.add("weak");
+    bar.appendChild(fill);
+    row.appendChild(head);
+    row.appendChild(bar);
+    tb.appendChild(row);
+  });
+
+  const rv = $("#r-review");
+  rv.innerHTML = "";
+  details.forEach((d, idx) => {
+    const item = document.createElement("div");
+    item.className = "review-item " + (d.correct ? "ok" : "bad");
+    const head = document.createElement("p");
+    head.className = "review-q";
+    head.textContent = (idx + 1) + ". " + d.q.q;
+    item.appendChild(head);
+    const meta = document.createElement("p");
+    meta.className = "review-meta";
+    meta.textContent = d.q.topic + " - " + (d.chosen === undefined ? "Not answered" : "Your answer: " + LETTERS[d.chosen]) + " - Correct: " + LETTERS[d.q.a];
+    item.appendChild(meta);
+    d.q.o.forEach((opt, i) => {
+      const p = document.createElement("p");
+      p.className = "review-opt" + (i === d.q.a ? " correct" : (i === d.chosen ? " wrong" : ""));
+      p.textContent = LETTERS[i] + ". " + opt;
+      item.appendChild(p);
+    });
+    const ex = document.createElement("p");
+    ex.className = "explain";
+    ex.textContent = d.q.x;
+    item.appendChild(ex);
+    rv.appendChild(item);
+  });
+
+  $("#r-retry").textContent = "Retry this quiz";
+  show("result");
+}
+
+function initStart() {
+  const wrap = $("#chapter-cards");
+  wrap.innerHTML = "";
+  const cards = [
+    ["1", CHAPTERS[1]],
+    ["2", CHAPTERS[2]],
+    ["all", { title: "Mixed - all 80 questions", blurb: "Everything from Chapters 1 and 2 in one sitting." }],
+  ];
+  cards.forEach(([mode, c]) => {
+    const n = mode === "all" ? QUESTIONS.length : QUESTIONS.filter((q) => q.ch === Number(mode)).length;
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "chapter-card";
+    const h = document.createElement("h2");
+    h.textContent = c.title;
+    const p = document.createElement("p");
+    p.textContent = c.blurb;
+    const m = document.createElement("p");
+    m.className = "meta";
+    m.textContent = n + " multiple-choice questions - marked automatically";
+    card.appendChild(h);
+    card.appendChild(p);
+    card.appendChild(m);
+    card.addEventListener("click", () => startQuiz(mode, $("#shuffle").checked, null));
+    wrap.appendChild(card);
+  });
+
+  const res = $("#resume");
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORE) || "null");
+    if (saved && saved.order && saved.order.length) {
+      const answered = Object.keys(saved.answers || {}).length;
+      $("#resume-text").textContent =
+        "Unfinished attempt found: " + modeLabel(saved.mode) + ", " + answered + "/" + saved.order.length + " answered.";
+      $("#btn-resume").onclick = () => startQuiz(null, null, saved);
+      $("#btn-discard").onclick = () => { clearSave(); res.hidden = true; };
+      res.hidden = false;
+    } else {
+      res.hidden = true;
+    }
+  } catch (e) { res.hidden = true; }
+
+  const lastNote = $("#last-result");
+  try {
+    const lr = JSON.parse(localStorage.getItem(RESULT_STORE) || "null");
+    if (lr) {
+      lastNote.hidden = false;
+      lastNote.textContent = "Last marked attempt: " + lr.score + "/" + lr.total + " (" + lr.pct + "%) - " + modeLabel(lr.mode);
+    }
+  } catch (e) { /* ignore */ }
+}
+
+$("#btn-prev").addEventListener("click", () => go(-1));
+$("#btn-next").addEventListener("click", () => go(1));
+$("#btn-submit").addEventListener("click", submit);
+$("#r-home").addEventListener("click", () => { initStart(); show("start"); });
+$("#r-retry").addEventListener("click", () => startQuiz(state.mode, state.shuffled, null));
+
+document.addEventListener("keydown", (e) => {
+  if (screens.quiz.hidden) return;
+  if (["1", "2", "3", "4"].indexOf(e.key) !== -1) select(Number(e.key) - 1);
+  else if (e.key === "ArrowLeft") go(-1);
+  else if (e.key === "ArrowRight") go(1);
+});
+
+document.addEventListener("DOMContentLoaded", initStart);
+
+// Programmatic access for automated tests only.
+window.__app = { start: startQuiz, select, next: () => go(1), submit, state: () => state, questions: QUESTIONS };
+</script>
+</body>
+</html>
